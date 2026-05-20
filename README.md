@@ -1,2 +1,2 @@
 # research-os
-Personal research OS: Obsidian wiki + clo-author
+Personal research OS: Obsidian wiki
