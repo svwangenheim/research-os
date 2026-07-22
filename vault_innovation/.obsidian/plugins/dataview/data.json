@@ -1,0 +1,10 @@
+{
+  "enableInlineDataview": true,
+  "enableDataviewJs": false,
+  "inlineQueryPrefix": "=",
+  "refreshInterval": 2500,
+  "renderNullAs": "\\-",
+  "warnOnEmptyResult": true,
+  "showResultCount": true,
+  "allowHtml": true
+}

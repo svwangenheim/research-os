@@ -1,0 +1,1 @@
+Gbadegeshin, S. A., Natsheh, A. A., Ghafel, K., Mohammed, O., Koskela, A., Rimpiläinen, A., Tikkanen, J., & Kuoppala, A. (2022). Overcoming the Valley of Death: A New Model for High Technology Startups. Sustainable Futures, 4, 100077. https://doi.org/10.1016/j.sftr.2022.100077

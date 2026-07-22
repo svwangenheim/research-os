@@ -1,0 +1,58 @@
+{
+  "collapse-filter": false,
+  "search": "",
+  "showTags": true,
+  "showAttachments": false,
+  "hideUnresolved": false,
+  "showOrphans": false,
+  "collapse-color-groups": false,
+  "colorGroups": [
+    {
+      "query": "note_type:summary",
+      "color": {
+        "a": 1,
+        "rgb": 4890329
+      }
+    },
+    {
+      "query": "note_type:concept",
+      "color": {
+        "a": 1,
+        "rgb": 2601056
+      }
+    },
+    {
+      "query": "note_type:method",
+      "color": {
+        "a": 1,
+        "rgb": 15105570
+      }
+    },
+    {
+      "query": "note_type:dataset",
+      "color": {
+        "a": 1,
+        "rgb": 9330381
+      }
+    },
+    {
+      "query": "note_type:synthesis",
+      "color": {
+        "a": 1,
+        "rgb": 15158332
+      }
+    }
+  ],
+  "collapse-display": true,
+  "showArrow": false,
+  "textFadeMultiplier": 0,
+  "nodeSizeMultiplier": 1,
+  "lineSizeMultiplier": 1,
+  "collapse-forces": true,
+  "centerStrength": 0.518713248970312,
+  "repelStrength": 10,
+  "linkStrength": 1,
+  "linkDistance": 250,
+  "scale": 0.3440801734112677,
+  "close": false
+}
