@@ -1,0 +1,23 @@
+{
+  "$schema": "research-os upstream-tracking v1",
+  "repos": {
+    "clo-author": {
+      "github": "hugosantanna/clo-author",
+      "role": "Base pipeline (14 skills, 22 agents, hooks, rules) ported into this plugin's skills/agents/hooks/rules in Phase 2.",
+      "last_seen_sha": "d36c408458b0135d2ebf16072da6b0d54864f6fb",
+      "last_checked": "2026-07-23"
+    },
+    "academic-research-skills": {
+      "github": "Imbad0202/academic-research-skills",
+      "role": "ARS integrity gate, anti-sycophancy guards, PRISMA, multi-style citations, AI-disclosure — merged into the ported agents/skills in Phase 2.",
+      "last_seen_sha": "1788e08155d24da729233e3e4b480ffb53d799c6",
+      "last_checked": "2026-07-23"
+    },
+    "engram": {
+      "github": "nagisanzenin/engram",
+      "role": "Spaced-repetition learning engine for /learn, /recall, /coach — not yet integrated (Phase 5). This entry will be seeded with a real last_seen_sha once Phase 5 installs it; do not fabricate one before then.",
+      "last_seen_sha": null,
+      "last_checked": null
+    }
+  }
+}

@@ -47,6 +47,11 @@ From `pipeline`:
 - **Overview anytime:** `/dashboard` (living `project_dashboard.html`).
 - **Didn't understand a method/code Claude introduced:** `/learn` (spaced-repetition teaching); review with `/recall`, track with `/coach`.
 - **Utilities/guards:** `/tools`, `/freeze`, `/careful`.
+- **End of day:** `/daily-summary` (commits work per project, logs to `_brain/daily/`).
+- **End of week:** `/weekly-planning` (checks off last week, sets this week's goals + calendar).
+- **~Bimonthly:** `/check-update-upstream-repos` (diffs clo-author/ARS/engram against upstream).
+- **First time / new machine:** `/wiki-setup` (bootstraps or repairs the whole knowledge layer);
+  `/add-vault` to register a new thematic wiki.
 
 ## Step 3 — Present + optionally advance
 

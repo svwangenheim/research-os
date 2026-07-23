@@ -18,11 +18,10 @@ Sits **above** `dz-core` (calls into it for branded charts, branded-PDF build, I
 
 Under construction — see the build plan at `~/.claude/plans/help-me-create-my-dazzling-turtle.md`.
 
-- [x] Phase 1: plugin skeleton
-- [ ] Phase 1: trim globals, fix broken bits
-- [ ] Phase 2: project layer (globalize + rewire clo-author, merge ARS)
-- [ ] Phase 3: knowledge layer (two-layer vault, registry, PDF pipeline)
-- [ ] Phase 4: routines + upstream sync
+- [x] Phase 1: plugin skeleton, trim globals, fix broken bits
+- [x] Phase 2: project layer (globalize + rewire clo-author, merge ARS)
+- [x] Phase 3: knowledge layer (two-layer vault, registry, PDF pipeline)
+- [x] Phase 4: routines + upstream sync (daily-summary, weekly-planning, check-update-upstream-repos)
 - [ ] Phase 5: learning layer (engram-adapted)
 
 ## Publishing note
