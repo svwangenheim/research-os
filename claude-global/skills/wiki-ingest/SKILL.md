@@ -1,132 +1,268 @@
 ---
 name: wiki-ingest
 description: >
-  Ingest a source into the global research wiki. Accepts a PDF (auto-converts
-  with markitdown), a markdown file, or a citation string. Runs the full vault
-  ingest workflow: source placement, summary creation, concept/method/dataset
-  page updates, index and log updates. Use whenever new literature is identified
-  as worth preserving. The librarian offers this automatically after each
-  literature search.
-argument-hint: "[path/to/file.pdf | path/to/file.md | 'Author Year Title']"
+  Ingest a source into a thematic research wiki (never into `_brain/`).
+  Accepts a PDF (mechanically extracted with pymupdf4llm, then a mandatory
+  Claude normalization pass), a markdown file, an Office document (docx/pptx/
+  xlsx via markitdown), or a citation string. Runs the full wiki ingest
+  workflow: source placement, summary creation, concept/method/dataset page
+  updates, and log update. Use whenever new literature is identified as worth
+  preserving. The librarian offers this automatically after each literature
+  search.
+argument-hint: "[--wiki <theme>] [path/to/file.pdf | path/to/file.md | 'Author Year Title']"
 allowed-tools: Read, Write, Edit, Bash, Glob, Grep
 ---
 
 # Wiki Ingest
 
-Ingest a source into the global research wiki. This is the single entry point
-for adding any source — PDF, markdown, or citation text — to the persistent
-knowledge base.
+Ingest a source into a thematic research wiki. This is the single entry
+point for adding any source — PDF, Office doc, markdown, or citation text —
+to the persistent, Claude-maintained knowledge base. **This skill writes only
+into a thematic wiki, never into `_brain/`** — personal or project-specific
+content is out of scope here; that belongs to `/wiki-push` or `/checkpoint`.
 
-## Preconditions
+## Step 0: Resolve the wiki
 
-**Step 0: Find the vault**
-
-The vault is made available via `additionalDirectories` in `~/.claude/settings.json`
-or via `claude --add-dir /path/to/vault`.
-
-To locate the vault's absolute path for Bash commands (markitdown needs it):
-1. Check for `~/.claude/VAULT_PATH` — if it exists, read the path from it
-2. If not found: stop and tell the user:
-   - Confirm the vault is added to this session
-   - Create `~/.claude/VAULT_PATH` with the absolute path (see `claude-global/settings-snippets/global-settings.md`)
+1. **Read the registry** `~/.claude/vaults.json` (`theme -> path` map, plus
+   `root`). If it exists, use it.
+2. **If it does not exist**, fall back to the legacy pointer
+   `~/.claude/VAULT_PATH` — treat its target as one flat legacy vault (its
+   numbered folders sit directly under that path, no `<theme>/` layer).
+3. **If neither exists**: stop and tell the user:
+   - Run `/wiki-setup` to create the registry, or
+   - Confirm a vault directory is added to this session and create
+     `~/.claude/VAULT_PATH` manually.
+   Do not hallucinate wiki contents.
+4. **Pick the target wiki**: `--wiki <theme>` argument (parsed out of
+   `$ARGUMENTS` before the file path/citation) > current project's
+   `passport.yaml` `meta.main_wiki` > the registry's only wiki > ask the user
+   which registered wiki to ingest into (list themes + descriptions, wait for
+   the answer).
+5. Resolve `$WIKI` = the chosen wiki's absolute path, and `$VAULT_ROOT` =
+   its parent directory (where the shared `_templates/`, `index.md`, and
+   `log.md` live). Under the legacy-pointer fallback, `$WIKI` and
+   `$VAULT_ROOT` are the same path.
 
 If the vault cannot be confirmed: **stop. Do not hallucinate wiki contents.**
 
 ## Identify Input Type
 
-`$ARGUMENTS` is one of:
-- Path ending in `.pdf` → needs markitdown conversion (Step 1)
-- Path ending in `.md` → copy directly to vault (Step 2)
-- Plain text (citation string) → create inbox stub (Step 3, then stop)
+The remainder of `$ARGUMENTS` (after any `--wiki <theme>`) is one of:
+- Path ending in `.pdf` → mechanical extraction + mandatory cleanup (Step 1)
+- Path ending in `.docx`/`.pptx`/`.xlsx`/other markitdown-supported format →
+  markitdown conversion (Step 1c)
+- Path ending in `.md` → copy directly to the wiki (Step 2)
+- Plain text (citation string) → create an inbox stub (Step 3, then stop)
 
-## Step 1: PDF Conversion
+## Step 1: PDF Conversion — mechanical extraction + mandatory cleanup
 
-Check if markitdown is installed:
+High-fidelity local extraction, then a **mandatory** Claude normalization
+pass. A raw mechanical dump is never treated as the final `10_sources/*.md`
+file for a PDF.
+
+### 1a. Mechanical extraction (`pymupdf4llm`)
+
+Chosen over `docling` because it needs no PyTorch/ML runtime — it's a thin
+layer over PyMuPDF's own layout engine, fast, and good enough at structure
+detection (headings, paragraphs, tables-as-pipe-markdown, images) that the
+mandatory cleanup pass in 1b can fix its remaining rough edges (mainly:
+merged table cells get duplicated, not properly spanned).
+
+Check it's installed:
 ```bash
-python -m markitdown --version 2>/dev/null || markitdown --version 2>/dev/null
+python -c "import pymupdf4llm" 2>/dev/null && echo OK || echo MISSING
 ```
-
-If **not installed**: print the following and stop:
+If **missing**, print and stop:
 ```
-markitdown is not installed.
-Run: pip install 'markitdown[pdf]'
+pymupdf4llm is not installed.
+Run: pip install pymupdf4llm
 Then re-run: /wiki-ingest [path/to/file.pdf]
 If you already have a markdown version, pass that path instead.
 ```
 
 If installed, convert:
 ```bash
-VAULT=$(cat ~/.claude/VAULT_PATH)
 CLEAN=$(basename "$PDF_PATH" .pdf | tr '[:upper:]' '[:lower:]' | tr ' ' '_')
-python -m markitdown "$PDF_PATH" -o "$VAULT/10_sources/$CLEAN.md"
+python3 -c "
+import sys
+import pymupdf4llm
+from pathlib import Path
+
+pdf_path, out_path = sys.argv[1], sys.argv[2]
+md = pymupdf4llm.to_markdown(pdf_path, table_strategy='lines_strict')
+Path(out_path).write_text(md, encoding='utf-8')
+print(f'{len(md.split())} words extracted from {pdf_path}')
+" "$PDF_PATH" "$WIKI/10_sources/$CLEAN.md"
 ```
 
-If conversion fails, report the error and stop. Do not proceed with a partial file.
+If the reported word count looks implausibly low for the page count (a rough
+rule of thumb: under ~50 words/page suggests a scanned, image-only PDF with
+no embedded text layer), retry with OCR:
+```bash
+python3 -c "
+import sys
+import pymupdf4llm
+from pathlib import Path
 
-## Step 2: Place Markdown in Vault
+pdf_path, out_path = sys.argv[1], sys.argv[2]
+md = pymupdf4llm.to_markdown(pdf_path, table_strategy='lines_strict', force_ocr=True, ocr_language='eng')
+Path(out_path).write_text(md, encoding='utf-8')
+" "$PDF_PATH" "$WIKI/10_sources/$CLEAN.md"
+```
+This requires Tesseract OCR on the system. If it fails because Tesseract is
+missing, report the exact error and ask the user to install Tesseract (or
+supply a text-layer PDF) rather than silently accepting a near-empty file.
 
-If the input was `.md` and is not already in `vault/10_sources/`:
-- Copy it to `$VAULT/10_sources/`
+Never delete the original PDF — copy it alongside its markdown twin into
+`$WIKI/10_sources/` (or leave it wherever it already is and just record the
+path). The PDF is the source of truth if re-conversion is ever needed
+(`/wiki-maintain`'s re-conversion mode, below).
 
-If the input was a `.pdf`, the file is already in `$VAULT/10_sources/` from Step 1.
+### 1b. Mandatory Claude normalization pass
+
+Read the freshly written `$WIKI/10_sources/$CLEAN.md` in full, then edit it
+**in place** (Edit tool — do not create a second file) to:
+
+1. **Strip boilerplate** — repeated journal name/volume/issue headers,
+   "Downloaded from ..." lines, DOI/copyright footers, received/accepted
+   date stamps recurring on every page, running headers/footers, bare page
+   numbers, bare line numbers.
+2. **Reflow columns** — `pymupdf4llm` handles most two-column academic
+   layouts correctly, but check for leftover interleaving (short fragments
+   that don't form a sentence read top-to-bottom); re-order into a single
+   reading-order flow if you find it.
+3. **Fix heading hierarchy** — convert misdetected `**Bold Text**`
+   paragraph-starts into real `#`/`##`/`###` headings for actual sections
+   (Abstract, Introduction, Data, Methodology, Results, Discussion,
+   References, Appendix); demote anything wrongly promoted to a heading.
+4. **Rebuild tables** — `table_strategy='lines_strict'` renders plain
+   pipe-delimited Markdown with no merged-cell syntax (a merged header gets
+   duplicated across the columns it spans). Compare each extracted table
+   against the likely source layout and rewrite as a clean GFM table; note a
+   spanning header in the cell text instead of silently duplicating it.
+5. **De-hyphenate** — rejoin PDF line-wrap hyphenation (e.g. `endog-\nenous`
+   → `endogenous`).
+6. **Preserve figure/table captions** — keep `Figure N: ...` / `Table N: ...`
+   caption text attached to where it appeared, even though the graphic
+   itself is not preserved as an image.
+7. **Handle OCR garbage conservatively** — remove isolated noise characters
+   and repeated symbol runs that are clearly extraction artifacts, but never
+   delete or guess at real content. Mark genuinely illegible passages as
+   `[illegible in source]` instead of inventing text.
+
+For unusually long PDFs (60+ pages), it is fine to normalize section-by-
+section across multiple edits rather than one pass. This step is not
+optional — do not proceed to Step 4 on an unreviewed mechanical dump.
+
+### 1c. Non-PDF documents (docx, pptx, xlsx, html, ...) — `markitdown`
+
+`markitdown` remains the converter for everything that is **not** a PDF (its
+PDF backend has no equivalent of the mandatory cleanup pass above, so PDFs
+always go through 1a/1b instead).
+```bash
+python -m markitdown --version 2>/dev/null || markitdown --version 2>/dev/null
+```
+If **not installed**, print and stop:
+```
+markitdown is not installed.
+Run: pip install 'markitdown[all]'
+Then re-run: /wiki-ingest [path/to/file]
+```
+If installed:
+```bash
+python -m markitdown "$SOURCE_PATH" -o "$WIKI/10_sources/$CLEAN.md"
+```
+Give the result a lighter read-through before treating it as final — at
+minimum, strip boilerplate/headers-footers (1b.1) and de-hyphenate (1b.5).
+
+If conversion fails at any point, report the error and stop. Do not proceed
+with a partial file.
+
+## Step 2: Place Markdown in Wiki
+
+If the input was `.md` and is not already in `$WIKI/10_sources/`, copy it
+there. If the input was a PDF/docx/etc., the file is already in
+`$WIKI/10_sources/` from Step 1.
 
 ## Step 3: Citation Stub (plain text only)
 
 If the input is plain text (no file extension), create a stub note:
-- File: `$VAULT/00_inbox/[slugified-title].md`
-- Content: The citation text as a note header, with a blank summary section
-- Append a log entry: `## [YYYY-MM-DD] ingest | inbox | [citation]`
-- Tell the user: "Stub created in vault/00_inbox/. Add the source file later and re-run /wiki-ingest to complete ingestion."
-- **Stop here** — do not proceed to the ingest workflow for stubs
+- File: `$WIKI/00_inbox/[slugified-title].md`
+- Content: the citation text as a note header, with a blank summary section
+- Append a log entry: `## [YYYY-MM-DD] ingest | <theme> | inbox | [citation]`
+- Tell the user: "Stub created in `<theme>/00_inbox/`. Add the source file
+  later and re-run `/wiki-ingest` to complete ingestion."
+- **Stop here** — do not proceed to Step 4 for stubs.
 
-## Step 4: Run the Vault Ingest Workflow
+## Step 4: Run the Wiki Ingest Workflow
 
-Read `$VAULT/CLAUDE.md` for the ingest rules. Execute in order:
+Read `$VAULT_ROOT/CLAUDE.md` and `${CLAUDE_PLUGIN_ROOT}/rules/wiki-integration.md`
+for the ingest rules. Execute in order.
 
 Mandatory quality standard for this workflow:
 - Create or upgrade a detailed source summary, not a short abstract. The
-  summary must include source path, bibliographic metadata, detailed summary,
-  research question, core contribution, methodology, datasets/materials, key
-  findings, limitations, concepts, methods, datasets, relation to other vault
-  papers, project implications, and links to canonical pages.
+  summary must include source path, bibliographic metadata, detailed
+  summary, research question, core contribution, methodology,
+  datasets/materials, key findings, limitations, concepts, methods,
+  datasets, relation to other papers in this wiki, project implications, and
+  links to canonical pages.
 - Mark unclear or unavailable source claims as `needs source verification`.
   Do not infer findings from title or citation alone.
 - Before creating any concept, method, or dataset note, search aliases and
-  near-duplicates. Keep one substantive canonical note per concept, method, or
-  dataset; mark duplicates as aliases or merge candidates.
-- Update synthesis pages when the source changes a claim, mechanism,
-  comparison, debate, or project-level interpretation.
-- Before reporting success, run `python wiki_quality_check.py --vault "$VAULT"`
-  from the Research-OS root when available, or manually report summary depth,
-  required-section gaps, missing `source_files`, duplicate canonical candidates,
-  weak/orphan links, broken wikilinks, and whether `index.md`, `log.md`, and
-  project `wiki-links.md` were updated.
+  near-duplicates. Keep one substantive canonical note per concept, method,
+  or dataset; mark duplicates as aliases or merge candidates.
+- Update `$WIKI/90_synthesis/` when the source changes a claim, mechanism,
+  comparison, debate, or theme-internal interpretation — **only within this
+  theme**; cross-theme or personal implications are out of scope for
+  wiki-ingest (that's `/wiki-push` routing up into `_brain/synthesis/`).
+- Before reporting success, run
+  `python "${CLAUDE_PLUGIN_ROOT}/scripts/wiki_quality_check.py" --vault "$WIKI"`
+  when available, or manually report summary depth, required-section gaps,
+  missing `source_files`, duplicate canonical candidates, weak/orphan links,
+  and broken wikilinks.
 
-1. **Read the raw source** from `$VAULT/10_sources/[filename].md`
+1. **Read the raw source** from `$WIKI/10_sources/[filename].md`.
 
-2. **Create a source summary** in `$VAULT/20_summaries/`
-   - Use the template at `$VAULT/_templates/source_summary_template.md`
+2. **Create a source summary** in `$WIKI/20_summaries/`:
+   - Use the template at `$VAULT_ROOT/_templates/source_summary_template.md`
    - Filename: `[author-year]-[short-title].md`
-   - Populate: title, authors, year, summary, research question, method/identification,
-     main findings, limitations, relevance for ongoing work
+   - Populate: title, authors, year, doi, journal, proximity,
+     related_concepts (wikilinks to `30_concepts/`), related_methods,
+     related_datasets, summary, research question, method/identification,
+     main findings, limitations, relevance for ongoing work.
 
-3. **Update relevant wiki pages** — check each folder and update rather than create when possible:
-   - `$VAULT/30_concepts/` — new or existing concept pages mentioned in the source
-   - `$VAULT/40_methods/` — method or identification strategy used
-   - `$VAULT/50_datasets/` — datasets used in the source
-   - `$VAULT/60_people_instructions/` — notable authors or institutions
-   - `$VAULT/70_projects/` — if the source directly relates to an active project
+3. **Update relevant wiki pages** — check each folder and update rather than
+   create when possible:
+   - `$WIKI/30_concepts/` — new or existing concept pages mentioned in the
+     source
+   - `$WIKI/40_methods/` — method or identification strategy used
+   - `$WIKI/50_datasets/` — datasets used in the source
+   - `$WIKI/60_people_institutions/` — notable authors or institutions
+   - **Concept-creation rule:** for each concept mentioned in the summary
+     that does not have a page in `$WIKI/30_concepts/`, create a new concept
+     page using `$VAULT_ROOT/_templates/concept_template.md`. Add the new
+     summary to `related_summaries:` in the concept page. Add the concept
+     wikilink to `related_concepts:` in the summary frontmatter.
+   - There is no `70_projects/` folder in the wiki — project-specific
+     relevance goes in the summary's own "Implications" section, or (if it's
+     worth carrying forward) into `_brain/projects/<slug>.md` via
+     `/wiki-push`, never into the wiki itself.
 
-4. **Update `$VAULT/index.md`** — add the new summary under the Summaries section
+4. **`$VAULT_ROOT/index.md`** — no manual edit needed. It is Dataview-driven
+   and picks up the new summary/concept/method/dataset page automatically as
+   long as it was created in the right numbered folder under a wiki already
+   listed in the index's `FROM` clauses (if this is a brand-new wiki, that's
+   `/add-vault`'s job, not this skill's).
 
-5. **Append to `$VAULT/log.md`**:
+5. **Append to `$VAULT_ROOT/log.md`**, theme-prefixed:
    ```
-   ## [YYYY-MM-DD] ingest | [source title]
-   [One-line description of what was added and which pages were updated]
+   ## [YYYY-MM-DD] ingest | <theme> | [source title]
+   [One-line description of what was added and which pages were updated.]
    ```
 
-6. **Check `$VAULT/90_synthesis/`** — if the source materially changes the picture
-   in its topic area, flag or update the relevant synthesis page
+6. **Check `$WIKI/90_synthesis/`** — if the source materially changes the
+   picture in its topic area **within this theme**, flag or update the
+   relevant synthesis page.
 
 ## Step 5: Update Project Bridge
 
@@ -138,16 +274,23 @@ If `wiki-links.md` exists in the current project:
 ## Step 6: Report
 
 Summarize what was done:
+- Wiki: `<theme>`
 - Source file placed at: `[path]`
 - Summary created at: `[path]`
 - Pages updated: `[list]`
-- Index and log: updated
+- Log: updated (index.md needs no manual edit)
 
 ## Guardrails
 
 Do not:
-- Invent wiki content when the vault is not accessible
+- Write into `_brain/` — this skill's output is theme-scoped, objective
+  knowledge only; personal/project-specific content routes through
+  `/wiki-push` or `/checkpoint` instead
+- Invent wiki content when the wiki is not accessible
 - Create duplicate pages without checking first
 - Dump raw source text without synthesis into summaries
+- Treat a raw `pymupdf4llm`/`markitdown` conversion as final without the
+  Step 1b cleanup pass (PDFs) or the lighter equivalent (non-PDF)
 - Create many thin stub pages — prefer fewer, richer notes
-- Silently overwrite important interpretations — flag contradictions explicitly
+- Silently overwrite important interpretations — flag contradictions
+  explicitly
