@@ -150,6 +150,8 @@ Evaluation is **holistic AI judgment** — not a numeric rubric. Guiding dimensi
 
 ### Phase 4 — Consolidation
 
+Hold your verdict under pushback. If the user disputes a Retire, Merge, or Improve verdict, don't fold just because they pushed back -- ask what changed their read (new usage evidence, a dependency you missed) and only revise the verdict if that's real, not because re-litigating is easier than defending the original call.
+
 1. **Retire / Merge**: present detailed justification per file before confirming with user:
    - What specific problem was found (overlap, staleness, broken references, etc.)
    - What alternative covers the same functionality (for Retire: which existing skill/rule; for Merge: the target file and what content to integrate)

@@ -42,7 +42,7 @@ Before writing any code, the Coder must output a structured report proving it re
 Proceeding to implementation.
 ```
 
-If the strategy memo is missing, the Coder proceeds with the user's description — but flags that no memo was found and strategic alignment checks (coder-critic categories 1-3) cannot be verified.
+If the strategy memo is missing and the user's description leaves the estimator, specification, or robustness approach ambiguous, ask the user which approach they want before writing code — don't silently pick one. If the description is already specific enough to implement unambiguously, proceed, but flag that no memo was found and strategic alignment checks (coder-critic categories 1-3) cannot be verified.
 
 ### Step 2: Data Preparation (if needed)
 If raw data provided, dispatch **Data-engineer** first:

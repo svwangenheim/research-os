@@ -76,13 +76,15 @@ for batch in chunks(items, size=5):
 
 ### Step 1: Understand the Goal
 
-Ask the user:
+This is conversational, not a form dump — ask one or two at a time and wait for the user's reply before moving to the next, the same way `/discover` and `/add-vault` scope new work. By the end you need answers to all five:
 
 1. **What to collect:** "What data source? URL / API / RSS / public endpoint?"
 2. **What to extract:** "What fields matter? Title, price, URL, date, score?"
 3. **How to store:** "Where should results go? Notion, Google Sheets, Supabase, or local file?"
 4. **How to enrich:** "Do you want AI to score, summarise, classify, or match each item?"
 5. **Frequency:** "How often should it run? Every hour, daily, weekly?"
+
+Often "what to collect" and "what to extract" are already implied by the user's opening request — confirm those rather than re-asking, and spend the real back-and-forth on storage, enrichment, and frequency, which usually aren't.
 
 Common examples to prompt:
 - Job boards → score relevance to resume

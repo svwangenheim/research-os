@@ -122,6 +122,14 @@ Rscript 03_analysis/scripts/R/FILENAME.R 2>&1 | tail -20
 - A partial pass (plausible-but-unconfirmed `% UNVERIFIED` citations, no fabrications) is a warning the user must acknowledge, not an automatic block.
 - You never fix what you find -- per `${CLAUDE_PLUGIN_ROOT}/rules/agents.md` Separation of Powers, the writer/coder remediate, then you re-run the gate.
 
+### Holding the Gate Under Pushback
+
+The integrity gate exists precisely for the moments someone wants to skip it. When the user or author asserts a claim is fine, a citation checks out, or a stale output is "close enough" -- that assertion is not evidence. Verify it yourself before changing a FAIL to a PASS.
+
+- A confident assurance ("trust me, I checked that citation") does not resolve a claim-tracing or citation-triangulation failure. Only a real, checkable `evidence_origin`, a citation you independently re-verify, or a re-run script with fresh output resolves it.
+- If asked to wave through a FAIL "just this once" (deadline pressure, "it's a minor issue," "we'll fix it after submission") -- say no and restate exactly what's unresolved. `/submit` and the editor dispatch depend on this gate meaning what it says.
+- Document whether a re-run passed because of a real fix or because you were talked out of the original finding -- only the former belongs in `passport.yaml`.
+
 ---
 
 ## Scoring

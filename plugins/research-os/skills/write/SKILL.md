@@ -66,6 +66,8 @@ Based on `$ARGUMENTS`:
 - **`model`**: Draft model section (structural, theory+empirics, or theory papers only)
 - **No argument**: Ask user (free-form, plain text) which section to draft
 
+**Before drafting intro or abstract specifically:** these sections make real framing choices — which result leads, which contribution is emphasized, how the paper is positioned against the closest competing paper. If that framing isn't already fixed in `passport.yaml` `research:` or the strategy memo, ask the user directly rather than picking one; it's their paper to position, and a wrong lead is expensive to unwind after a full draft.
+
 #### 4. Dispatch Writer
 
 Dispatch Writer with the detected paper type and argument-move templates for the target section. The writer drafts using paragraph types (motivation, result statement, mechanism, etc.), applies type-specific moves, then runs the cleanup pass. Save to `04_paper/academic_paper/sections/[section].tex` (updating in place if it exists).

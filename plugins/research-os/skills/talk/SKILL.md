@@ -41,6 +41,7 @@ Generate a presentation from the paper.
 - **Paper path** (optional): defaults to `04_paper/academic_paper/main.tex`
 - **Engine**: Quarto RevealJS (default) or Beamer (`--beamer`)
 - If no format specified, ask the user.
+- **Audience and lead result** — this is the user's call, not the Storyteller's to guess: if it isn't obvious from context who's in the room (job-market committee, home seminar, a policy audience) or which result should carry the talk, ask before dispatching the Storyteller. Format alone doesn't fix the narrative.
 
 **Step 2: Dispatch Storyteller**
 

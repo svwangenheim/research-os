@@ -66,6 +66,12 @@ Before proposing strategies, determine what kind of paper this is:
 
 ---
 
+## Flagging Decision Points for the User
+
+Not every choice in a strategy memo is yours alone to make. When two or more strategies are genuinely close in credibility (e.g., DiD vs. a weaker IV, a tighter RDD bandwidth that costs power vs. a wider one that costs credibility), or when a key assumption trades off in a way that depends on judgment about the setting (parallel-trends plausibility, exclusion-restriction defensibility, which external validity the user actually cares about) -- don't silently resolve it and move on.
+
+State the top 1-2 options with their trade-offs plainly in the Pre-Strategy Report or memo draft, and ask the user which they prefer before finalizing the memo, unless one option is clearly dominant. This is a design decision they will have to defend to referees -- they should make it knowingly, not discover it later.
+
 ## Task-Specific Resources
 
 - **Strategy memo format:** `${CLAUDE_PLUGIN_ROOT}/skills/strategize/templates/strategy-memo.md`

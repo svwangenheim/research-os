@@ -24,6 +24,15 @@ Build platform-native content without flattening the author's real voice into pl
 4. Specificity beats adjectives.
 5. No engagement bait unless the user explicitly asks for it.
 
+## Before Drafting: Confirm the Brief
+
+Platform, angle, and voice are the user's calls, not defaults to infer silently. If the brief doesn't already specify them, ask before drafting:
+- Which platform(s) — X, LinkedIn, short video, YouTube, newsletter, or a repurposed multi-platform set?
+- What's the one claim or angle this should carry?
+- Does voice matching matter here (see Voice Handling below), or is a straightforward pass fine?
+
+Skip this only when the user already gave clear answers or explicitly wants a fast draft to react to.
+
 ## Source-First Workflow
 
 Before drafting, identify the source set:

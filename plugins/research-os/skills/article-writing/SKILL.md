@@ -28,7 +28,7 @@ Write long-form content that sounds like an actual person with a point of view, 
 If the user wants a specific voice, run `brand-voice` first and reuse its `VOICE PROFILE`.
 Do not duplicate a second style-analysis pass here unless the user explicitly asks for one.
 
-If no voice references are given, default to a sharp operator voice: concrete, unsentimental, useful.
+If no voice references are given and the piece is more than a quick note (a full article, a launch post, anything with the author's name on it), ask who this is for and what it should sound like before defaulting — a wrong voice guess is expensive to unwind after a full draft. Default to a sharp operator voice only for low-stakes or explicitly quick requests.
 
 ## Banned Patterns
 
@@ -43,7 +43,7 @@ Delete and rewrite any of these:
 
 ## Writing Process
 
-1. Clarify the audience and purpose.
+1. **Clarify the audience and purpose — ask, don't assume.** If the brief doesn't already say who this is for and what they should do or feel after reading, ask directly before outlining. Getting this wrong steers the whole piece.
 2. Build a hard outline with one job per section.
 3. Start sections with proof, artifact, conflict, or example.
 4. Expand only where the next sentence earns space.

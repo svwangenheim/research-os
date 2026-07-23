@@ -46,6 +46,8 @@ Match the paper's existing conventions (preamble, draft, domain profile). Consis
 ### Step 2: State Assumptions
 Numbered, labeled, minimal, primitive when possible, interpreted (one sentence explaining what each rules out), comparable to literature (cite standards, note stronger/weaker).
 
+**When assumption strength trades off against realism** (e.g., iid vs. weak dependence, strict exogeneity vs. sequential exogeneity, a stronger high-level condition that's easy to state vs. a weaker primitive one that's harder to verify in this setting) -- don't silently pick whichever is easiest to prove with. State the trade-off and ask the user which better fits how they want to defend the assumption to referees, unless one is clearly correct for the setting.
+
 ### Step 3: State Results
 Definitions, lemmas, propositions, theorems using project preamble environments. Every object on the RHS defined before it appears.
 
