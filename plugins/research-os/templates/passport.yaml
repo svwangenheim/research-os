@@ -1,0 +1,80 @@
+# Material Passport — single state ledger for a research-os project.
+# Adapted from ARS (Cheng-I Wu, academic-research-skills, CC BY-NC 4.0).
+# This file is the state /research-os-help reads to know where you are and what's next.
+# Update it in place; do NOT proliferate per-step state files.
+
+meta:
+  name: "<Project Title>"
+  slug: "<project-slug>"
+  created: "<YYYY-MM-DD>"
+  language: "en"                 # en | de
+  main_wiki: "<theme>"           # the project's primary thematic wiki (e.g. cognitive-load)
+  output_types: []               # any of: academic_paper, policy_brief, fachtext, hintergrundpapier, geldbrief
+  citation_style: "apa"          # apa | chicago | mla | ieee | vancouver | aea
+
+research:
+  question: "<one-sentence research question>"
+  motivation: "<why it matters — theory + policy relevance>"
+  hypothesis: "<testable prediction with expected direction>"
+  paper_type: "<imrad | literature_review | theory | case_study | policy_brief | conference>"
+  methodology: "<identification / method summary>"
+  contribution: "<how this advances the literature / debate>"
+  open_questions: []
+
+# Every source the project touches. citation_status drives the dashboard + 01_literature digest.
+literature_corpus: []
+  # - bibkey: "callaway2021"
+  #   title: "Difference-in-Differences with Multiple Time Periods"
+  #   proximity: 2                 # 1 competes .. 5 tangential
+  #   citation_status: "cited"     # relevant | intended | cited
+  #   wiki_path: "cognitive-load/40_methods/callaway-santanna-did.md"
+  #   claim_used: "staggered adoption ATT aggregation"
+
+# Every non-trivial claim in the draft maps to its evidence origin (integrity gate reads this).
+claim_manifest: []
+  # - id: "C1"
+  #   text: "<claim as it appears in the draft>"
+  #   evidence_origin: "callaway2021"   # bibkey | data:<path> | analysis:<script> | reasoning
+  #   intent: "support"                 # support | motivate | contrast
+  #   verified: false
+
+# Three-layer citation anchor (quote + page + section) — populated during writing/integrity.
+provenance: []
+  # - bibkey: "callaway2021"
+  #   quote: "<verbatim quote>"
+  #   page: "<n>"
+  #   section: "<section>"
+
+# Fabrication / anachronism / contamination flags raised by the integrity gate.
+contamination_signals: []
+
+# External experiments/data declared but not produced by research-os (ARS provenance).
+data_provenance: []
+  # - id: "exp1"
+  #   description: "<what was run externally>"
+  #   location: "02_data/external/<...>"
+
+# Pipeline state — the heart of /research-os-help routing.
+pipeline:
+  current_stage: "discovery"     # discovery | strategy | analysis | writing | review | revision | submission | done
+  stages:
+    discovery:  { status: "pending", score: null, gate: 80 }   # status: pending | in_progress | passed | blocked
+    strategy:   { status: "pending", score: null, gate: 80 }
+    analysis:   { status: "pending", score: null, gate: 80 }
+    writing:    { status: "pending", score: null, gate: 80 }
+    review:     { status: "pending", score: null, gate: 90 }     # peer-review + integrity gate
+    revision:   { status: "pending", score: null, gate: 90 }
+    submission: { status: "pending", score: null, gate: 95 }
+
+integrity:
+  last_gate: null                # timestamp of last integrity-gate run
+  claims_verified: 0
+  claims_total: 0
+  citations_triangulated: 0
+  unresolved: []                 # blocking issues
+
+# Session boundaries (resume points) — appended by /checkpoint, newest last.
+sessions: []
+  # - date: "<YYYY-MM-DD>"
+  #   summary: "<what was done>"
+  #   next: "<planned next step>"

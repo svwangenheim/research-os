@@ -1,0 +1,9 @@
+{
+  "name": "research-os",
+  "version": "0.1.0",
+  "description": "Personal research operating system: AI-augmented paper/policy-brief pipeline (clo-author + ARS integrity layer), a two-layer Obsidian knowledge base (personal brain + Claude-maintained thematic wikis), daily/weekly routines, and a spaced-repetition learning layer (engram). Designed to sit above dz-core and be shareable across Dezernat Zukunft.",
+  "author": {
+    "name": "Sven von Wangenheim",
+    "url": "https://dezernatzukunft.org"
+  }
+}

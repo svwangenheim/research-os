@@ -1,0 +1,15 @@
+{
+  "name": "research-os",
+  "owner": {
+    "name": "Sven von Wangenheim",
+    "url": "https://dezernatzukunft.org"
+  },
+  "plugins": [
+    {
+      "name": "research-os",
+      "source": "./plugins/research-os",
+      "description": "Personal research operating system: AI-augmented paper/policy-brief pipeline (clo-author + ARS), a two-layer Obsidian knowledge base (personal brain + Claude-maintained thematic wikis), daily/weekly routines, and a spaced-repetition learning layer. Sits above dz-core.",
+      "version": "0.1.0"
+    }
+  ]
+}
