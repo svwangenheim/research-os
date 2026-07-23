@@ -1,10 +1,11 @@
 # skills/
 
-Slash-command skills for research-os. Each is a directory with a `SKILL.md` (YAML frontmatter: `name`, `description`, `argument-hint`, `allowed-tools`).
+Slash-command skills for research-os. Each is a directory with a `SKILL.md` (YAML frontmatter: `name`, `description`, `argument-hint`, `allowed-tools`). Run `claude plugin details research-os@research-os` for the live, auto-generated roster + token-cost inventory rather than relying on this file for an exact count.
 
-- **Pipeline (from clo-author, globalized + rewired + ARS-merged):** `discover`, `strategize`, `analyze`, `write`, `peer-review` (was `review`), `revise`, `talk`, `submit`, `tools`, `checkpoint`, `dashboard`, `freeze`, `careful`
+- **Pipeline (from clo-author, rewired + ARS-merged):** `discover`, `strategize`, `analyze`, `write`, `peer-review` (was `review`), `revise`, `talk`, `submit`, `tools`, `checkpoint`, `dashboard`, `freeze`, `careful`
 - **Project:** `create-project`, `research-os-help`
-- **Knowledge:** `wiki-setup`, `add-vault` (this plugin) + `wiki-pull`, `wiki-push`, `wiki-ingest`, `wiki-maintain` (global, `claude-global/` — not vendored here since they're used outside any project too)
+- **Knowledge:** `wiki-setup`, `add-vault`, `wiki-pull`, `wiki-push`, `wiki-ingest`, `wiki-maintain` (all vendored here — previously split across a separate `claude-global/` sync mechanism, retired once research-os itself became the global plugin install)
 - **Routines:** `daily-summary`, `weekly-planning`
-- **Learning (engram-adapted, Phase 5):** `learn`, `recall`, `coach` — not yet built
 - **Maintenance:** `check-update-upstream-repos`
+- **Learning (engram-adapted, Phase 5):** `learn`, `recall`, `coach` — not yet built
+- **General-purpose (consolidated from global skills — kept after an audit of what research-os doesn't already cover):** `article-writing`, `content-engine`, `frontend-slides`, `git-workflow`, `python-patterns`, `python-testing`, `documentation-lookup`, `exa-search`, `prompt-optimizer`, `skill-stocktake`, `continuous-learning-v2` (+ its `learned/` data dir), `data-scraper-agent`
