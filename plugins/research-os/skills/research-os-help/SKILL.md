@@ -45,7 +45,7 @@ From `pipeline`:
 - **New source found:** `/wiki-ingest <pdf>` (into the thematic wiki).
 - **After a work block:** `/wiki-push` (synthesize up into `_brain`) and `/checkpoint` (journal → `_brain/projects/<slug>.md`).
 - **Overview anytime:** `/dashboard` (living `project_dashboard.html`).
-- **Didn't understand a method/code Claude introduced:** `/learn` (spaced-repetition teaching); review with `/recall`, track with `/coach`.
+- **Didn't understand a method/code Claude introduced:** `/learn` (research-os's context-sourced intake, hands off to engram's real teaching loop); review due items with `/recall` (engram's `/review`, renamed to avoid confusion with `/peer-review`); check retention/strategy with `/coach` (engram's own, used directly — research-os doesn't extend it).
 - **Utilities/guards:** `/tools`, `/freeze`, `/careful`.
 - **End of day:** `/daily-summary` (commits work per project, logs to `_brain/daily/`).
 - **End of week:** `/weekly-planning` (checks off last week, sets this week's goals + calendar).
@@ -72,12 +72,12 @@ If `$ARGUMENTS` asks to "explain the workflow" or similar, give the full pipelin
 ## Step 4 — System overview (when no passport / on request)
 
 research-os layers:
-- **Projects** — `/create-project` scaffolds a numbered project; the pipeline above turns it into a paper/brief.
+- **Projects** — `/create-project` scaffolds a numbered project; the pipeline above turns it into a paper.
 - **Knowledge** — two layers in one Obsidian root: Claude-only **thematic wikis** (`/wiki-ingest`, `/wiki-maintain`) and your personal **`_brain/`** second brain (`/wiki-setup`, `/add-vault`, `/wiki-pull`, `/wiki-push`).
 - **Routines** — `/daily-summary`, `/weekly-planning`.
-- **Learning** — `/learn`, `/recall`, `/coach` (engram-powered spaced repetition).
+- **Learning** — `/learn` (this plugin's context-sourced intake) + `/recall`/`/coach` (the separately-installed **engram** plugin's own spaced-repetition engine — `/learn` hands off to `engram:learn`, `/recall` aliases `engram:review`; `/coach` is engram's directly).
 - **Maintenance** — `/check-update-upstream-repos`.
-- **Complementary (dz-core):** branded charts (`dz-core:create-chart`), branded PDF (`dz-core:create-paper`), Instagram tiles, onboarding.
+- **Complementary (separate plugins, called into, not vendored):** `dz-core` for branded charts (`dz-core:create-chart`), branded PDF (`dz-core:create-paper`), Instagram tiles, onboarding; `engram` for the learning engine above.
 
 ---
 
