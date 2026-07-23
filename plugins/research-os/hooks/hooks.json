@@ -43,6 +43,16 @@
             "timeout": 5
           }
         ]
+      },
+      {
+        "matcher": "startup|resume|clear",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "\"${CLAUDE_PLUGIN_ROOT}\"/hooks/engram-session-start.sh",
+            "timeout": 10
+          }
+        ]
       }
     ],
     "PostToolUse": [

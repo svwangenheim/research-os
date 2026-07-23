@@ -15,9 +15,9 @@
     },
     "engram": {
       "github": "nagisanzenin/engram",
-      "role": "Spaced-repetition learning engine for /learn, /recall, /coach — not yet integrated (Phase 5). This entry will be seeded with a real last_seen_sha once Phase 5 installs it; do not fabricate one before then.",
-      "last_seen_sha": null,
-      "last_checked": null
+      "role": "Spaced-repetition learning engine. VENDORED (not a separate installed plugin) — scripts/engram.py, agents/engram-*.md, skills/_shared/{dialogue,problem}-grammar.md + explorable-contract.md, docs/, gold/ copied in directly; learn/recall/coach SKILL.md files adapted (simplified for Claude-Code-only, wiki/project linkage woven in). A diff here means: re-copy the changed upstream files, then re-apply the same adaptation by hand — not a plugin update.",
+      "last_seen_sha": "688877e0b72df3623cd7ccb6d95e0da922c83d0b",
+      "last_checked": "2026-07-23"
     }
   }
 }
