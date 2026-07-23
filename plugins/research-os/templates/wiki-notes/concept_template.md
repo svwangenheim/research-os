@@ -17,6 +17,9 @@ updated: "{{date:YYYY-MM-DD}}"
 
 # {{title}}
 
+## In brief
+<!-- 2–3 sentence human-facing lede: what this concept is and why it matters, for fast triage. Tag contested claims inline (confidence: stated|high|medium|speculation); stamp genuinely aging facts "(as of YYYY-MM-DD)". -->
+
 ## Definition
 
 ## Scope boundaries

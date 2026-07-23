@@ -14,6 +14,9 @@ updated: "{{date:YYYY-MM-DD}}"
 
 # {{title}}
 
+## In brief
+<!-- 2–3 sentence human-facing lede summarizing the state of play, for fast triage. Tag claims inline (confidence: stated|high|medium|speculation); stamp genuinely aging facts "(as of YYYY-MM-DD)". -->
+
 ## Scope
 
 ## What we know so far

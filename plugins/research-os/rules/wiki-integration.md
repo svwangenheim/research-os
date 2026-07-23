@@ -49,6 +49,41 @@ The project holds only what it is actively using:
 
 ---
 
+## Standing behavior: two-output & propagation
+
+These are always-on operating principles, not skills to remember — they apply to every session.
+
+**Two-output.** Any session that produces durable knowledge should yield two things: the answer in chat *and* an offer to persist it. Objective concept/method/dataset knowledge is routed *down* into the relevant wiki via `/wiki-ingest`; personal or cross-theme insight is routed *up* into `_brain/synthesis/`. The offer is surfaced proactively (via the skill-router and a `Stop`/`PreCompact` hook nudge), so knowledge does not evaporate just because the user forgot to run `/wiki-push`.
+
+**Propagation.** Never create or update a page in isolation. Every write asks "where else does this belong?" and refreshes the affected canonical concept/method/dataset pages, the touched `90_synthesis/` page, backlinks in both directions, `log.md`, and the project's `wiki-links.md` bridge. `/wiki-ingest`, `/wiki-push`, and `/wiki-maintain` already encode these steps — this section makes the *trigger* standing rather than on-demand.
+
+**Guardrail — offer, don't auto-write.** The nudge offers; the write stays a command. Never silently write into `_brain/` (the human-owned layer) and never auto-canonicalize a wiki outside the curation flow. Premature or unattended writes pollute a rigorous vault; a proactive offer does not.
+
+---
+
+## Source discipline — what research-os deliberately does NOT do
+
+research-os *metabolizes* the **derived** layer (concepts/methods/datasets/synthesis are canonicalized, deduped, and kept current by `/wiki-maintain` and `/wiki-push`) but treats the **source** layer as immutable. This is the opposite of a self-rewriting life-vault, and the difference is load-bearing for research:
+
+- **Sources are immutable.** `10_sources/` is never rewritten. Each important source gets **one faithful, provenance-grounded summary** in `20_summaries/`. A newer source never silently rewrites an older source's page — that would destroy the audit trail the ARS integrity gate depends on.
+- **Contradictions are preserved, never auto-reconciled.** Scholarly disagreement (competing effect sizes, conflicting findings) *is the object of study*. Reconciliation belongs in a cited `90_synthesis/` page as transparent analysis — never a silent overwrite that collapses two sources into one "truth."
+- **Propagate on every ingest.** Every ingest refreshes the affected canonical pages and touched synthesis — propagation is the default, not an optional step.
+
+---
+
+## Note conventions
+
+Notes are **human-readable first** (the researcher reads the wikis directly). A few lightweight conventions add rigor without hurting readability:
+
+- **Confidence.** Tag standing empirical claims inline `(confidence: stated | high | medium | speculation)` on `30_concepts/` and `90_synthesis/` pages — distinguishing what a source states, what multiple sources support, and what is inference or speculation.
+- **Human-facing lede.** Long concept and synthesis pages open with a 2–3 sentence `## In brief` abstract for fast triage (by both the human and Claude).
+- **Freshness — light.** Most research facts are timeless (a finding, a method's assumptions, a dataset's structure). For the handful that genuinely age, stamp them `(as of YYYY-MM-DD)` (e.g. "SOTA as of 2026-02", dataset vintages). This is a convention, not an enforced law — the ARS temporal/anachronism audit already covers research-grade provenance.
+- **Lineage.** Use a `supersedes: []` frontmatter field to record when one page or approach replaced another. (Fuller typed-edge graphs are deliberately not adopted.)
+
+These conventions apply in `_brain/` too; see `_brain/README.md` for the personal-layer specifics (Orientation triage, `confidence` on learnings, capture→graduate).
+
+---
+
 ## Locating the wikis — the registry
 
 Wiki paths are resolved through the registry **`~/.claude/vaults.json`** (a theme → path map), which replaces the old single pointer `~/.claude/VAULT_PATH`. All registered wikis are readable; a project's **default** is its **main wiki**, recorded in `passport.yaml` (`meta.main_wiki`) and `CLAUDE.md`. `_brain/`'s location is recorded in the same registry.
@@ -123,19 +158,11 @@ If all papers are already in the wiki, print "All papers already in the wiki —
 - [concrete next steps]
 ```
 
-**File creation:** if the project note does not exist, create it:
+**Also on every checkpoint:** refresh the Orientation snapshot — rewrite only the `### Where we stand right now (as of <date>)` region (inside its `<!-- @generated:start checkpoint-orientation -->` / `@generated:end` sentinels) and bump the date; leave the stable Orientation subsections (question, gap, data, strategy) untouched unless the session changed them, and never touch text outside the sentinels. Update frontmatter (`updated`, `status` if changed, `summary` synced to the one-breath line).
 
-```markdown
-# [Project Name]
+**File creation:** if the project note does not exist, create it from the hybrid template `${CLAUDE_PLUGIN_ROOT}/templates/brain-notes/project_template.md` — frontmatter + the `## Orientation` block + an empty `## Journal` — seeding the header (`Working directory`, `Started`) and as much of the Orientation as the session supports.
 
-**Working directory:** [basename]
-**Started:** [YYYY-MM-DD]
-
----
-
-## Journal
-
-```
+**Upgrading a legacy note:** if an existing note has the old bare `# Title / ## Journal` form (no frontmatter/Orientation), upgrade it **additively** on next touch — add frontmatter and insert an Orientation block seeded from the note, without rewriting historical journal entries.
 
 Write directly with the Write/Edit tool. This is a human-facing note in `_brain/` — it does not go into the theme wikis. Objective, reusable knowledge (a new concept/method/dataset learned here) is instead pushed *down* into the relevant wiki via `/wiki-ingest`; cross-theme or personal insight is pushed *up* into `_brain/synthesis/`.
 
