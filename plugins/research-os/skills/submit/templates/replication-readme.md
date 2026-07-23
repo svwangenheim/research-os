@@ -22,14 +22,14 @@
 | Script | Input | Output | Description |
 |--------|-------|--------|-------------|
 | `01_clean.R` | `02_data/raw/` | `02_data/cleaned/` | Data cleaning |
-| `02_analysis.R` | `02_data/cleaned/` | `04_paper/<output>/tables/` | Main analysis |
+| `02_analysis.R` | `02_data/cleaned/` | `04_paper/academic_paper/tables/` | Main analysis |
 
 ## Instructions for Replication
 
 1. Install required packages: `[command]`
 2. Place raw data in `02_data/raw/` (see Data Availability above)
 3. Run scripts in numerical order: `[command]`
-4. Output appears in `04_paper/<output>/tables/` and `04_paper/<output>/figures/`
+4. Output appears in `04_paper/academic_paper/tables/` and `04_paper/academic_paper/figures/`
 
 ## References
 

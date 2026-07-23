@@ -44,7 +44,7 @@ Verify replication package completeness.
 
 **Agent:** Verifier (submission mode -- 10 checks, `${CLAUDE_PLUGIN_ROOT}/skills/submit/templates/audit-10-checks.md`)
 
-Checks: master script exists and runs; all tables/figures reproduce; README complete; data documentation present; numbered script order; dependencies listed; runtime documented; output paths match `04_paper/<output>/tables/` and `.../figures/`; no hardcoded paths.
+Checks: master script exists and runs; all tables/figures reproduce; README complete; data documentation present; numbered script order; dependencies listed; runtime documented; output paths match `04_paper/academic_paper/tables/` and `.../figures/`; no hardcoded paths.
 
 Save to `04_paper/submission/replication_audit.md`, updating in place. Pass/fail per check; binary for aggregation (0 any failure, 100 all pass) -- contributes 5% to the weighted overall score.
 
@@ -55,10 +55,10 @@ Convert the manuscript's citations and reference list from the project default (
 **Agent:** Writer (format-conversion mode)
 
 Workflow:
-1. Read `01_literature/bibliography.bib` and the manuscript's `\citet{}`/`\citep{}` calls (or the DZ output's citation markers for non-LaTeX outputs).
+1. Read `01_literature/bibliography.bib` and the manuscript's `\citet{}`/`\citep{}` calls.
 2. Look up the target style's in-text and reference-list conventions in `${CLAUDE_PLUGIN_ROOT}/skills/submit/templates/citation-styles.md`.
 3. **Without `--apply` (default, non-destructive):** produce a preview report at `04_paper/submission/citation_style_preview_[style].md` showing what would change (sample converted citations, reference-list format, any manuscript claims that depend on the AEA no-stars convention (INV-4) and would need to change too) -- the manuscript itself is untouched.
-4. **With `--apply`:** convert the manuscript's citation commands and reference list in place (`04_paper/<output>/main.tex` and/or `sections/*.tex`), update `passport.yaml` `meta.citation_style` to the new value, and re-flag INV-4 (significance stars) if the target journal's convention differs from the current one. This is a manuscript edit -- re-run `/peer-review --proofread` afterward.
+4. **With `--apply`:** convert the manuscript's citation commands and reference list in place (`04_paper/academic_paper/main.tex` and/or `sections/*.tex`), update `passport.yaml` `meta.citation_style` to the new value, and re-flag INV-4 (significance stars) if the target journal's convention differs from the current one. This is a manuscript edit -- re-run `/peer-review --proofread` afterward.
 5. Never fabricate a reference-list entry to fit a style's required fields (e.g. a missing DOI) -- mark it `[MISSING: field]` for the user to fill in.
 
 ### `/submit ai-disclosure [venue]` -- AI-Use Disclosure Statement

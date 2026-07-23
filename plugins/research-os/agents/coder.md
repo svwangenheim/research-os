@@ -58,7 +58,7 @@ Every robustness test from the strategy memo. Reduced-form: placebos, sensitivit
 ### Stage 3: Output
 - Publication-ready tables (LaTeX via `modelsummary` or `fixest::etable`) -- bare `tabular`, no wrappers (INV-13)
 - Publication-ready figures (ggplot2, no titles inside plots -- INV-12)
-- All outputs to `04_paper/<output>/tables/` and `04_paper/<output>/figures/`
+- All outputs to `04_paper/academic_paper/tables/` and `04_paper/academic_paper/figures/`
 - `03_analysis/output/results_summary.md` with key findings, effect sizes, interpretation notes for the Writer
 - Paper-to-code naming map included in the results summary
 
@@ -126,7 +126,7 @@ When invoked with `--dual` or `--replicate`:
 
 ## Output Location
 
-Analysis figures and tables destined for the manuscript go to `04_paper/<output>/figures/` and `04_paper/<output>/tables/` (per `folder-map.md`). Exploratory / descriptive charts that are not paper exhibits go to `03_analysis/output/`. There is no by-script/by-purpose CLAUDE.md toggle in research-os — follow the folder map.
+Analysis figures and tables destined for the manuscript go to `04_paper/academic_paper/figures/` and `04_paper/academic_paper/tables/` (per `folder-map.md`). Exploratory / descriptive charts that are not paper exhibits go to `03_analysis/output/`. There is no by-script/by-purpose CLAUDE.md toggle in research-os — follow the folder map.
 
 ## What You Do NOT Do
 

@@ -29,7 +29,7 @@ The Writer operates in two modes:
 
 ## Paper-Type Awareness
 
-Identify the output type before drafting — it selects the section structure and the argument moves. research-os recognizes nine types, declared in `passport.yaml` (`meta.output_types` / `research.paper_type`):
+Identify the output type before drafting — it selects the section structure and the argument moves. research-os recognizes five types, declared in `passport.yaml` (`research.paper_type`):
 
 | Type | Home folder | Owner |
 |------|-------------|-------|
@@ -38,12 +38,8 @@ Identify the output type before drafting — it selects the section structure an
 | `theory` | `04_paper/academic_paper/` | this agent (model → assumptions → results → proofs) |
 | `case_study` | `04_paper/academic_paper/` | this agent (setting-led narrative + structured evidence) |
 | `conference` | `04_paper/academic_paper/` | this agent (shorter, single-contribution framing) |
-| `policy_brief` | `04_paper/policy_brief/` | **writer-dz** (DZ house style) |
-| `fachtext` | `04_paper/fachtext/` | **writer-dz** (DZ house style) |
-| `hintergrundpapier` | `04_paper/hintergrundpapier/` | **writer-dz** (DZ house style) |
-| `geldbrief` | `04_paper/geldbrief/` | **writer-dz** (DZ house style) |
 
-You own the five academic types. Hand the four DZ types to **writer-dz**. Within an academic type, the empirical-design distinction below still governs which section templates and argument moves apply.
+You own all five academic types. Within an academic type, the empirical-design distinction below still governs which section templates and argument moves apply.
 
 ### Empirical-Design Signature (within academic types)
 
@@ -59,9 +55,9 @@ You own the five academic types. Hand the four DZ types to **writer-dz**. Within
 ## Artifact Prerequisites
 
 **BEFORE drafting Results or Conclusion:**
-- Verify `04_paper/<output>/tables/` contains at least one `.tex` file with actual numbers
-- Verify `04_paper/<output>/figures/` contains at least one `.pdf` or `.png` figure
-- If either is empty: **STOP.** Report: "Cannot draft Results — no output files found in 04_paper/<output>/tables/ or figures/. Run `/analyze` first, or point me to existing results."
+- Verify `04_paper/academic_paper/tables/` contains at least one `.tex` file with actual numbers
+- Verify `04_paper/academic_paper/figures/` contains at least one `.pdf` or `.png` figure
+- If either is empty: **STOP.** Report: "Cannot draft Results — no output files found in 04_paper/academic_paper/tables/ or figures/. Run `/analyze` first, or point me to existing results."
 - You MAY draft Introduction, Data, and Empirical Strategy from the strategy memo alone.
 
 ---
@@ -69,7 +65,7 @@ You own the five academic types. Hand the four DZ types to **writer-dz**. Within
 ## Artifact Reading Protocol
 
 **Before drafting Results:**
-1. Read every `.tex` file in `04_paper/<output>/tables/`
+1. Read every `.tex` file in `04_paper/academic_paper/tables/`
 2. Read `03_analysis/output/results_summary.md` (produced by `/analyze`)
 3. Extract: point estimates, standard errors, significance levels, sample sizes
 4. Narrate from these actual numbers — never from the strategy memo's predictions
@@ -111,8 +107,8 @@ Do NOT write a standalone `claim_source_map_*.md` — the manifest lives in the 
 
 ## Output
 
-- `04_paper/<output>/main.tex` — main document
-- `04_paper/<output>/sections/*.tex` — section files
+- `04_paper/academic_paper/main.tex` — main document
+- `04_paper/academic_paper/sections/*.tex` — section files
 - Compile with XeLaTeX to verify
 
 Update section files in place; append a Changelog note when revising an existing draft.
@@ -122,4 +118,3 @@ Update section files in place; append a Changelog note when revising an existing
 - Do not evaluate your own writing quality (that's the writer-critic)
 - Do not modify the identification strategy
 - Do not change code or results
-- Do not draft the four DZ output types — hand those to writer-dz

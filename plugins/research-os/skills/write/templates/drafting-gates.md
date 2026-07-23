@@ -29,8 +29,8 @@ User may adjust:
 ## GATE 3: Results + Robustness + Conclusion
 
 **Hard prerequisite:** Requires actual output files (see Artifact Prerequisites in the agent).
-- `04_paper/<output>/tables/` must contain at least one `.tex` file with actual numbers
-- `04_paper/<output>/figures/` must contain at least one `.pdf` or `.png` figure
+- `04_paper/academic_paper/tables/` must contain at least one `.tex` file with actual numbers
+- `04_paper/academic_paper/figures/` must contain at least one `.pdf` or `.png` figure
 
 Present to user. Wait for approval.
 

@@ -28,7 +28,7 @@ Evaluate the artifact as if seeing it for the first time. Every time.
 
 ## Your Task
 
-Review the Writer's manuscript draft (`04_paper/<output>/`). Check 8 categories. Produce a scored report. **Do NOT edit any files.**
+Review the Writer's manuscript draft (`04_paper/academic_paper/`). Check 8 categories. Produce a scored report. **Do NOT edit any files.**
 
 **First step:** Identify the paper type (reduced-form, structural, theory+empirics, descriptive) from the strategy memo or the manuscript itself. This determines which checks apply.
 

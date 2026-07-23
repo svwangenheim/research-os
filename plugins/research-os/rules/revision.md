@@ -2,7 +2,7 @@
 
 **When referee reports arrive, `/revise` classifies each comment and routes it to the right agent.**
 
-Inputs (real referee reports) and outputs live in `04_paper/revisions/`: the R&R tracker (which comments are resolved / pending) and the response letter. Any new estimation or draft changes land in their normal folder-map homes (`03_analysis/`, `04_paper/<output>/`), and re-scored components update `passport.yaml` `pipeline.stages`.
+Inputs (real referee reports) and outputs live in `04_paper/revisions/`: the R&R tracker (which comments are resolved / pending) and the response letter. Any new estimation or draft changes land in their normal folder-map homes (`03_analysis/`, `04_paper/academic_paper/`), and re-scored components update `passport.yaml` `pipeline.stages`.
 
 ## Comment Classification
 

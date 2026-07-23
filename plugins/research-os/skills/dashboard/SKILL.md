@@ -27,12 +27,12 @@ python3 "${CLAUDE_PLUGIN_ROOT}/scripts/generate_dashboard.py" --project-root .
 
 The generator scans:
 
-1. **passport.yaml** — `meta` (title, slug, main_wiki, output_types), `research:` block, `pipeline` (current_stage + per-stage status/score), `literature_corpus`, `claim_manifest`, `integrity`, latest `sessions:` entry.
+1. **passport.yaml** — `meta` (title, slug, main_wiki), `research:` block (incl. `paper_type`), `pipeline` (current_stage + per-stage status/score), `literature_corpus`, `claim_manifest`, `integrity`, latest `sessions:` entry.
 2. **Literature** — `passport.yaml` `literature_corpus` + `wiki-links.md` for citation status (see the citation-status section below).
 3. **Data** — `find 02_data/raw 02_data/cleaned -type f` — count, sizes, categories.
 4. **Analysis code** — `find 03_analysis/scripts/{R,py,jl} -type f` — list with status.
 5. **Results** — `03_analysis/output/` figures/tables/`results_summary.md`.
-6. **Paper** — `04_paper/<output>/sections/`, `figures/`, `tables/` (per selected output type).
+6. **Paper** — `04_paper/academic_paper/sections/`, `figures/`, `tables/` (per selected output type).
 7. **Reviews** — `04_paper/reviews/` (referee, editorial, verification, integrity).
 8. **Plans** — `00_admin/process/plans/` — active plans with status from frontmatter.
 9. **Journal / sessions** — `00_admin/process/journal.md`, `00_admin/process/sessions/`.
@@ -78,7 +78,7 @@ The Literature section carries a **citation-status** panel — the heart of the 
 
 | Bucket | Source of truth | Pill |
 |--------|-----------------|------|
-| **Cited** | `citation_status: cited` — actually `\cite{}`d in a `04_paper/<output>/` section | `CITED` (pass) |
+| **Cited** | `citation_status: cited` — actually `\cite{}`d in a `04_paper/academic_paper/` section | `CITED` (pass) |
 | **Intended to cite** | `citation_status: intended` — planned for citation, not yet in the draft | `INTENDED` (warn) |
 | **Relevant, not cited** | `citation_status: relevant` — in the corpus/wiki, relevant, but not (yet) planned for citation | `RELEVANT` (neutral) |
 
@@ -91,7 +91,7 @@ This panel is *living*: it updates every time `/discover lit`, `/write`, or `/ch
 ## Analysis-Done + Current-Results Sections (Living)
 
 - **Analysis (`#analysis`)** — what analysis has actually run. Scripts present in `03_analysis/scripts/{R,py,jl}/`, the robustness checklist (done/total), and any `analysis-done` markers derived from `03_analysis/output/results_summary.md` and `passport.yaml` `claim_manifest` (claims whose `evidence_origin` is an `analysis:<script>`).
-- **Results (`#results`)** — the current empirical results: figures and tables in `03_analysis/output/` (and `04_paper/<output>/figures|tables/`), with the headline estimates if `results_summary.md` records them. Empty-state card until estimation runs.
+- **Results (`#results`)** — the current empirical results: figures and tables in `03_analysis/output/` (and `04_paper/academic_paper/figures|tables/`), with the headline estimates if `results_summary.md` records them. Empty-state card until estimation runs.
 
 Both are refreshed on every dashboard rebuild so the dashboard always reflects the true current state of the analysis, not a stale snapshot.
 

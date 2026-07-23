@@ -1,6 +1,6 @@
 ---
 name: write
-description: Draft sections for any research-os output — academic paper (IMRaD, literature review, theory, case study, conference) or DZ output (policy brief, Fachtext, Hintergrundpapier, Geldbrief) — using paragraph-level argument moves. Cleanup pass strips AI patterns; style-guide mode extracts the author's voice. Writing phase of the pipeline.
+description: Draft sections for an academic paper (IMRaD, literature review, theory, case study, conference) using paragraph-level argument moves. Cleanup pass strips AI patterns; style-guide mode extracts the author's voice. Writing phase of the pipeline.
 argument-hint: "[section or mode: intro | strategy | results | conclusion | abstract | full | humanize | style-guide] [file path (optional)]"
 allowed-tools: Read,Grep,Glob,Write,Edit,Task
 ---
@@ -11,7 +11,7 @@ Draft output sections, apply a cleanup pass, or extract a personal style guide f
 
 **Input:** `$ARGUMENTS` — section name or mode, optionally followed by file path.
 
-State lives in **`passport.yaml`** (schema: `${CLAUDE_PLUGIN_ROOT}/templates/passport.yaml`). Paths follow `${CLAUDE_PLUGIN_ROOT}/rules/folder-map.md`: section files → `04_paper/<output>/sections/`, assembled doc → `04_paper/<output>/main.tex`, figures/tables → `04_paper/<output>/{figures,tables}/`. Outputs obey `${CLAUDE_PLUGIN_ROOT}/rules/output-discipline.md`: **the writer updates section files in place — it never spawns `intro-v2.tex`.** As it drafts, the writer records every non-trivial claim in `passport.yaml` `claim_manifest` (INV-22, `${CLAUDE_PLUGIN_ROOT}/rules/content-invariants.md`) so the integrity gate can trace each to a real source. Writing-phase severity is Strict/high (`${CLAUDE_PLUGIN_ROOT}/rules/quality.md`); the writer-critic scores in `/peer-review` and its score lands in `passport.yaml` `pipeline.stages.writing`.
+State lives in **`passport.yaml`** (schema: `${CLAUDE_PLUGIN_ROOT}/templates/passport.yaml`). Paths follow `${CLAUDE_PLUGIN_ROOT}/rules/folder-map.md`: section files → `04_paper/academic_paper/sections/`, assembled doc → `04_paper/academic_paper/main.tex`, figures/tables → `04_paper/academic_paper/{figures,tables}/`. Outputs obey `${CLAUDE_PLUGIN_ROOT}/rules/output-discipline.md`: **the writer updates section files in place — it never spawns `intro-v2.tex`.** As it drafts, the writer records every non-trivial claim in `passport.yaml` `claim_manifest` (INV-22, `${CLAUDE_PLUGIN_ROOT}/rules/content-invariants.md`) so the integrity gate can trace each to a real source. Writing-phase severity is Strict/high (`${CLAUDE_PLUGIN_ROOT}/rules/quality.md`); the writer-critic scores in `/peer-review` and its score lands in `passport.yaml` `pipeline.stages.writing`.
 
 ---
 
@@ -21,24 +21,24 @@ State lives in **`passport.yaml`** (schema: `${CLAUDE_PLUGIN_ROOT}/templates/pas
 Draft a specific section: `intro`, `strategy`, `results`, `conclusion`, `abstract`, or `full`.
 
 **Agent:** Writer
-**Output:** section file in `04_paper/<output>/sections/` (LaTeX for `academic_paper` and LaTeX-built DZ outputs; the DZ skill's format otherwise)
+**Output:** section file in `04_paper/academic_paper/sections/` (LaTeX)
 
 Workflow:
 
 #### 1. Context Gathering
 
 Before drafting, read all available context:
-1. Read the existing draft in `04_paper/<output>/` (if it exists)
+1. Read the existing draft in `04_paper/academic_paper/` (if it exists)
 2. Read `01_literature/sources/` and `00_admin/research_outline.md` for notes, outlines, research spec
 3. Read the `research:` block in `passport.yaml` and the relevant `01_literature/reviews/<question-slug>.md`
 4. Read `00_admin/domain-profile.md` for field conventions
 5. Check `01_literature/bibliography.bib` for available citations
-6. Scan `04_paper/<output>/tables/` and `04_paper/<output>/figures/` for generated output
+6. Scan `04_paper/academic_paper/tables/` and `04_paper/academic_paper/figures/` for generated output
 7. Read `03_analysis/output/results_summary.md` if it exists (from the Coder)
 
 #### 2. Paper Type Detection (the planner step)
 
-Before routing, the planner detects the output type from `passport.yaml` `meta.output_types` + `research.paper_type` (and the strategy memo / existing draft), then selects the matching scaffold from `${CLAUDE_PLUGIN_ROOT}/skills/write/templates/section-templates.md`. Recognized types:
+Before routing, the planner detects the output type from `passport.yaml` `research.paper_type` (and the strategy memo / existing draft), then selects the matching scaffold from `${CLAUDE_PLUGIN_ROOT}/skills/write/templates/section-templates.md`. Recognized types:
 
 **Academic-paper family:**
 - **`imrad`** — the empirical/IMRaD family, with four design sub-types the writer must further distinguish:
@@ -51,9 +51,6 @@ Before routing, the planner detects the output type from `passport.yaml` `meta.o
 - **`case_study`** — case study
 - **`conference`** — compressed IMRaD to a page/word limit
 
-**DZ output family (first-class):**
-- **`policy_brief`**, **`fachtext`**, **`hintergrundpapier`**, **`geldbrief`** — DZ house-style outputs. The writer scaffolds their section backbones from section-templates.md; detailed house style is owned by the DZ output skills/templates. Universal invariants (traceability, notation, causal-language, citation-honesty) apply; LaTeX invariants apply only when the output is built in LaTeX (`${CLAUDE_PLUGIN_ROOT}/rules/content-invariants.md`).
-
 This determines which section templates the Writer uses.
 
 #### 3. Section Routing
@@ -61,9 +58,9 @@ This determines which section templates the Writer uses.
 Based on `$ARGUMENTS`:
 - **`full`**: Draft all sections in sequence, pausing between major sections for user feedback
 - **`intro`**: Draft introduction (most common request)
-- **`strategy`**: Draft empirical strategy (reduced-form), model + estimation (structural), model + tests (theory+empirics), or the equivalent analytical section for DZ outputs
-- **`results`**: Draft results — narration style depends on paper type and output type (regression tables, event study figures, counterfactual simulations, evidence sections in a brief, etc.)
-- **`conclusion`**: Draft conclusion with type-appropriate ending (policy implications, counterfactual implications, research agenda, or the DZ "bottom line")
+- **`strategy`**: Draft empirical strategy (reduced-form), model + estimation (structural), or model + tests (theory+empirics)
+- **`results`**: Draft results — narration style depends on paper type (regression tables, event study figures, counterfactual simulations, etc.)
+- **`conclusion`**: Draft conclusion with type-appropriate ending (policy implications, counterfactual implications, research agenda)
 - **`abstract`**: Draft abstract / executive summary (must have other sections first)
 - **`data`**: Draft data section — expanded for descriptive/measurement papers
 - **`model`**: Draft model section (structural, theory+empirics, or theory papers only)
@@ -71,7 +68,7 @@ Based on `$ARGUMENTS`:
 
 #### 4. Dispatch Writer
 
-Dispatch Writer with the detected paper type and argument-move templates for the target section. The writer drafts using paragraph types (motivation, result statement, mechanism, etc.), applies type-specific moves, then runs the cleanup pass. Save to `04_paper/<output>/sections/[section].tex` (updating in place if it exists).
+Dispatch Writer with the detected paper type and argument-move templates for the target section. The writer drafts using paragraph types (motivation, result statement, mechanism, etc.), applies type-specific moves, then runs the cleanup pass. Save to `04_paper/academic_paper/sections/[section].tex` (updating in place if it exists).
 
 #### 5. Quality Self-Check
 
@@ -86,7 +83,7 @@ Before presenting the draft:
 - [ ] Effect sizes stated with units
 - [ ] No banned hedging phrases
 - [ ] Notation consistent throughout (INV-7)
-- [ ] All tables/figures referenced actually exist in `04_paper/<output>/tables/` or `04_paper/<output>/figures/`
+- [ ] All tables/figures referenced actually exist in `04_paper/academic_paper/tables/` or `04_paper/academic_paper/figures/`
 - [ ] Results narrated correctly for output type (tables, event study figures, counterfactuals, evidence sections)
 - [ ] Personal style guide loaded (not template) — or user prompted to run `/write style-guide`
 - [ ] `claim_manifest` in `passport.yaml` updated for all numerical/non-trivial claims (INV-22; format reference `${CLAUDE_PLUGIN_ROOT}/skills/write/templates/claim-source-map.md`)
@@ -100,7 +97,7 @@ Present sections through drafting gates, pausing for approval at each (`${CLAUDE
 **GATE 2:** Data + Empirical Strategy (or Model) → present, wait for approval
 **GATE 3:** Results + Robustness + Conclusion → present, wait for approval
 
-For single-section drafts, present the section directly. For `full`, use all three gates. (DZ outputs use the analogous gates: framing → analysis → recommendation/close.)
+For single-section drafts, present the section directly. For `full`, use all three gates.
 
 Flag items that need attention:
 - **BLOCKED items:** Results/Conclusion cannot be drafted without output files
@@ -162,7 +159,7 @@ Strips 24 patterns across 4 categories:
 
 ## Section Standards
 
-**All academic paper types share the IMRaD backbone; moves diverge by type — see `${CLAUDE_PLUGIN_ROOT}/skills/write/templates/section-templates.md` for full scaffolds (IMRaD sub-types, literature_review, theory, case_study, conference, and the DZ types).**
+**All academic paper types share the IMRaD backbone; moves diverge by type — see `${CLAUDE_PLUGIN_ROOT}/skills/write/templates/section-templates.md` for full scaffolds (IMRaD sub-types, literature_review, theory, case_study, conference).**
 
 | Section | Length | Reduced-Form | Structural | Theory+Empirics | Descriptive |
 |---------|--------|-------------|-----------|----------------|-------------|
@@ -173,11 +170,9 @@ Strips 24 patterns across 4 categories:
 | Conclusion | 500-700 | Policy implications | Counterfactual implications + model limitations | What model gets right/wrong | Research agenda enabled by new data |
 | Abstract | 100-150 | Question, design, finding with magnitude | Question, model, counterfactual finding | Question, prediction, test result | Question, measurement, key fact |
 
-DZ outputs follow their own length/structure conventions (headline → context → evidence → recommendation → bottom line, adapted per type) — see section-templates.md and the DZ output skills.
-
 ---
 
-## LaTeX Conventions (academic_paper and LaTeX-built DZ outputs)
+## LaTeX Conventions
 
 - `\citet{}` for textual citations ("Smith (2024) shows...")
 - `\citep{}` for parenthetical citations ("...is well documented (Smith, 2024)")
@@ -206,7 +201,7 @@ Loaded on demand by the writer agent:
 
 ## Principles
 - **This is the user's paper, not Claude's.** Match their voice and style.
-- **Every paper type is first-class.** DZ outputs get the same care as an AER submission — the scaffold changes, the rigor does not.
+- **Every paper type is first-class.** A literature review gets the same care as an AER submission — the scaffold changes, the rigor does not.
 - **Never fabricate results.** Use TBD placeholders.
 - **Citations must be verifiable.** Only cite confirmed papers; mark unverifiable as `% UNVERIFIED`.
 - **Trace every claim.** Each non-trivial claim enters `passport.yaml` `claim_manifest` with a real `evidence_origin` (INV-22).

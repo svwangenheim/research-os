@@ -41,8 +41,8 @@ Every research-os agent, hook, and skill references **this file** for where thin
     output/                     # figures, tables, charts, results
     replication/                # replication package staging
 
-  04_paper/                     # ONE subfolder per selected output (from /create-project):
-    academic_paper/  |  policy_brief/  |  fachtext/  |  hintergrundpapier/  |  geldbrief/ ...
+  04_paper/
+    academic_paper/
       sections/  figures/  tables/  preambles/  supplementary/  <final PDF>
     reviews/                    # peer-review + integrity reports (shared)
     revisions/                  # R&R trackers + response letters (shared)
@@ -61,13 +61,11 @@ Apply during the rewire; grep ported files for the left column, replace with the
 
 | clo-author path | research-os path |
 |---|---|
-| `paper/sections/` | `04_paper/<output>/sections/` |
-| `paper/figures/`, `paper/tables/` | `04_paper/<output>/figures/`, `.../tables/` |
-| `paper/preambles/`, `paper/supplementary/` | `04_paper/<output>/preambles/`, `.../supplementary/` |
+| `paper/sections/` | `04_paper/academic_paper/sections/` |
+| `paper/figures/`, `paper/tables/` | `04_paper/academic_paper/figures/`, `.../tables/` |
+| `paper/preambles/`, `paper/supplementary/` | `04_paper/academic_paper/preambles/`, `.../supplementary/` |
 | `paper/replication/` | `03_analysis/replication/` |
 | `paper/talks/`, `paper/quarto/` | `05_outreach/talks/` |
-| `paper/dz/fachtexte/` | `04_paper/fachtext/` |
-| `paper/dz/geldbrief/` | `04_paper/geldbrief/` |
 | `data/raw/` | `02_data/raw/` |
 | `data/cleaned/` | `02_data/cleaned/` |
 | `scripts/R/` | `03_analysis/scripts/R/` |
@@ -89,8 +87,8 @@ Apply during the rewire; grep ported files for the left column, replace with the
 
 ## Rules
 
-- `/create-project` creates only the `04_paper/<output>/` subfolders for the output types the user selects (academic paper · policy brief · Fachtext · Hintergrundpapier · Geldbrief · …).
-- Charts have no dedicated top-level folder: analysis charts → `03_analysis/output/`; paper figures → `04_paper/<output>/figures/`; social/standalone → `05_outreach/social/`.
-- No `build/` folder — the final compiled PDF sits in its `04_paper/<output>/` folder.
+- `/create-project` creates the single `04_paper/academic_paper/` subfolder.
+- Charts have no dedicated top-level folder: analysis charts → `03_analysis/output/`; paper figures → `04_paper/academic_paper/figures/`; social/standalone → `05_outreach/social/`.
+- No `build/` folder — the final compiled PDF sits in `04_paper/academic_paper/`.
 - Durable knowledge does **not** live here — it lives in the thematic wiki and `_brain/` (see `wiki-integration.md`).
-- Plugin-level reference material (journal profiles, DZ style guides) lives under `${CLAUDE_PLUGIN_ROOT}/references/` and `${CLAUDE_PLUGIN_ROOT}/styles/` — shared across all projects, not per-project.
+- Plugin-level reference material (journal profiles) lives under `${CLAUDE_PLUGIN_ROOT}/references/` — shared across all projects, not per-project.

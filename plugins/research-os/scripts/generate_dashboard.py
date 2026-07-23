@@ -23,10 +23,8 @@ from datetime import datetime
 from html import escape
 from pathlib import Path
 
-# Output type folders live under 04_paper/<output>/ (see folder-map.md).
-OUTPUT_TYPES = [
-    "academic_paper", "policy_brief", "fachtext", "hintergrundpapier", "geldbrief",
-]
+# The single output folder lives under 04_paper/academic_paper/ (see folder-map.md).
+OUTPUT_TYPES = ["academic_paper"]
 
 
 def find_project_root(start=None):
@@ -124,13 +122,11 @@ def _fallback_passport(text):
 
 def scan_metadata(root, passport):
     """Project metadata from passport.meta first, CLAUDE.md as fallback."""
-    meta = {"title": "", "slug": "", "main_wiki": "", "output_types": [], "field": ""}
+    meta = {"title": "", "slug": "", "main_wiki": "", "field": ""}
     pm = passport.get("meta", {}) if passport else {}
     meta["title"] = pm.get("name") or ""
     meta["slug"] = pm.get("slug") or ""
     meta["main_wiki"] = pm.get("main_wiki") or ""
-    ot = pm.get("output_types") or []
-    meta["output_types"] = ot if isinstance(ot, list) else []
 
     claude_md = root / "CLAUDE.md"
     if claude_md.exists():
@@ -146,18 +142,12 @@ def scan_metadata(root, passport):
 
 
 def _active_outputs(root, meta):
-    """Output-type subfolders that actually exist under 04_paper/."""
-    outs = [o for o in (meta.get("output_types") or []) if (root / "04_paper" / o).is_dir()]
-    if outs:
-        return outs
-    base = root / "04_paper"
-    if base.is_dir():
-        return [d.name for d in sorted(base.iterdir()) if d.is_dir() and d.name in OUTPUT_TYPES]
-    return []
+    """The single academic_paper output folder, if it exists under 04_paper/."""
+    return ["academic_paper"] if (root / "04_paper" / "academic_paper").is_dir() else []
 
 
 def scan_sections(root, meta):
-    """Paper sections across each selected 04_paper/<output>/ folder."""
+    """Paper sections in 04_paper/academic_paper/."""
     sections = []
     for out in _active_outputs(root, meta):
         pdir = root / "04_paper" / out

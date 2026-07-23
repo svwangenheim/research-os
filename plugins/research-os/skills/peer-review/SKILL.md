@@ -1,6 +1,6 @@
 ---
 name: peer-review
-description: All quality reviews for the paper (any output type) or code -- routes to the appropriate critics based on target and flags. Owns the BLOCKING ARS integrity gate (claim tracing, citation triangulation, temporal/anachronism audit, figure-caption fidelity) that must pass before a peer-review or submission pass. Supports every paper/output type -- imrad, literature_review, theory, case_study, conference, policy_brief, fachtext, hintergrundpapier, geldbrief. Review phase of the research-os pipeline; writes referee/editorial reports to 04_paper/reviews/ and scores into passport.yaml.
+description: All quality reviews for the paper (any type) or code -- routes to the appropriate critics based on target and flags. Owns the BLOCKING ARS integrity gate (claim tracing, citation triangulation, temporal/anachronism audit, figure-caption fidelity) that must pass before a peer-review or submission pass. Supports every paper type -- imrad, literature_review, theory, case_study, conference. Review phase of the research-os pipeline; writes referee/editorial reports to 04_paper/reviews/ and scores into passport.yaml.
 argument-hint: "[file path or --flag] Options: --peer [journal], --peer --r2/--r3 [journal], --stress [journal], --methods, --theory [target], --proofread, --code [file], --replicate [lang], --all"
 allowed-tools: Read,Grep,Glob,Write,Edit,Bash,WebSearch,Task
 ---
@@ -20,7 +20,7 @@ State lives in **`passport.yaml`** (schema: `${CLAUDE_PLUGIN_ROOT}/templates/pas
 ## Routing Logic
 
 ### Auto-detect by file type
-- `.tex` paper file (in `04_paper/<output>/`) -> **Comprehensive review** (writer-critic + strategist-critic [+ theorist-critic if a theory section exists] + verifier)
+- `.tex` paper file (in `04_paper/academic_paper/`) -> **Comprehensive review** (writer-critic + strategist-critic [+ theorist-critic if a theory section exists] + verifier)
 - `.R`, `.py`, `.do`, `.jl` file -> **Code review** (coder-critic standalone, categories 5-16)
 - `.tex` talk file (in `05_outreach/talks/`) -> **Talk review** (storyteller-critic, advisory)
 
@@ -55,7 +55,7 @@ Adapted from ARS. `/peer-review` is the sole invoker: no other skill triggers th
 
 ## Paper-Type Awareness (mandatory for all critics)
 
-Review scope adapts to `passport.yaml` `research.paper_type` / `meta.output_types`. Do not penalize a paper for lacking elements that don't apply to its type (a structural paper missing parallel trends is not a defect; a descriptive paper using causal language is).
+Review scope adapts to `passport.yaml` `research.paper_type`. Do not penalize a paper for lacking elements that don't apply to its type (a structural paper missing parallel trends is not a defect; a descriptive paper using causal language is).
 
 | Paper/output type | Review emphasis | Typically skipped |
 |---|---|---|
@@ -64,7 +64,6 @@ Review scope adapts to `passport.yaml` `research.paper_type` / `meta.output_type
 | `theory` | theorist-critic 4-phase proof audit + writer-critic notation/exposition | strategist-critic, unless empirics are also tested (theory+empirics) |
 | `case_study` | writer-critic + explorer-critic external-validity framing | Causal audit, unless the case study makes an explicit identification claim |
 | `conference` | Same as `imrad`, length-calibrated to the venue's page/word limit | -- |
-| `policy_brief` / `fachtext` / `hintergrundpapier` / `geldbrief` (DZ, first-class) | DZ house-style review (see the DZ output skills/templates) + universal invariants: traceability (INV-22), notation (INV-7), causal-language (INV-8), citation-honesty | LaTeX-specific INV-1/2/3/9/10/13 unless the output is LaTeX-built |
 
 ---
 
@@ -92,10 +91,10 @@ Dispatch the **editor** agent with the paper and target journal.
 The editor:
 1. Reads the paper (abstract, intro, contribution, identification, results)
 2. Searches the literature via WebSearch to verify novelty claims
-3. Applies **paper-type-aware** judgment (`imrad|literature_review|theory|case_study|conference|policy_brief|fachtext|hintergrundpapier|geldbrief`) when weighing fit and contribution -- a policy brief is not judged against AER's novelty bar
+3. Applies **paper-type-aware** judgment (`imrad|literature_review|theory|case_study|conference`) when weighing fit and contribution -- a literature review is not judged against AER's novelty bar for a single empirical result
 4. Decides: **DESK REJECT** or **SEND TO REFEREES**
 5. If desk reject -> write the decision (with reasons + suggested alternative journals) to `04_paper/reviews/editorial_decision.md`. Done.
-6. If send to referees -> editor selects referee dispositions and pet peeves from the journal's **Referee pool**, with paper-type awareness (e.g. a `literature_review` draws less from STRUCTURAL/THEORY; a `policy_brief` weights POLICY) -- see `${CLAUDE_PLUGIN_ROOT}/references/journal-profiles.md` and `${CLAUDE_PLUGIN_ROOT}/skills/peer-review/templates/disposition-pool.md`
+6. If send to referees -> editor selects referee dispositions and pet peeves from the journal's **Referee pool**, with paper-type awareness (e.g. a `literature_review` draws less from STRUCTURAL/THEORY; a `case_study` weights CREDIBILITY differently than an `imrad` paper) -- see `${CLAUDE_PLUGIN_ROOT}/references/journal-profiles.md` and `${CLAUDE_PLUGIN_ROOT}/skills/peer-review/templates/disposition-pool.md`
 
 #### Phase 2: Referee Reports
 The editor's referee assignment specifies for each referee:
@@ -274,7 +273,7 @@ Verifier score maps to 0 (FAIL) or 100 (PASS) for weighted aggregation.
 - **Referees vary.** Different dispositions and pet peeves mean running `/peer-review --peer` twice gives different feedback -- just like submitting to two journals would.
 - **Anti-sycophancy across rounds.** In R&R, referees score rebuttals 1-5 and concede only on strong evidence addressing the core critique -- never on tone. Run the dialogue-health self-check every round.
 - **"What would change my mind."** Every major referee comment must include the specific evidence or analysis that would resolve the concern.
-- **Paper-type aware, always.** All nine types (`imrad|literature_review|theory|case_study|conference|policy_brief|fachtext|hintergrundpapier|geldbrief`) are first-class; don't penalize a paper for lacking elements its type doesn't require.
+- **Paper-type aware, always.** All five types (`imrad|literature_review|theory|case_study|conference`) are first-class; don't penalize a paper for lacking elements its type doesn't require.
 - **Sequential phases in causal/theory audits.** Never skip to polish before verifying the core design or proof holds.
 - **Worker-critic separation.** The reviewer never fixes code or rewrites text -- it only critiques.
 - **Update over create.** One report per target, updated in place with a Changelog -- R&R rounds update, never duplicate.

@@ -14,7 +14,7 @@ paths:
 
 # Content Standards: Tables, Figures, PDFs, and Explorations
 
-> **Output-type scope.** The table and figure standards in this file are the standard for `academic_paper` (and any output built in LaTeX). The DZ output types — `policy_brief`, `fachtext`, `hintergrundpapier`, `geldbrief` — are first-class outputs that follow DZ house style via their own skills and templates; when a DZ output embeds LaTeX tables/figures, these standards apply to those elements. The PDF-processing and exploration protocols apply to every output type.
+> **Scope.** The table and figure standards in this file are the standard for `academic_paper` (built in LaTeX). The PDF-processing and exploration protocols apply project-wide.
 
 ---
 
@@ -198,12 +198,12 @@ writeLines(tex_output, file.path("04_paper", output_type, "tables", "reg_main_sp
 
 - Output **bare `tabular` environment** (no `\begin{table}` float)
 - The paper's `main.tex` wraps it with `\begin{table}`, `\caption{}`, and `\input{}`
-- Write to `04_paper/<output>/tables/`
+- Write to `04_paper/academic_paper/tables/`
 
 ### File Naming
 
 ```
-04_paper/<output>/tables/
+04_paper/academic_paper/tables/
 ├── descriptive/
 │   ├── sumstats_main_sample.tex
 │   └── balance_treatment_control.tex
@@ -340,7 +340,7 @@ Female (\%)             &  47.8      &  48.6    &  -0.8       &  (1.2)  &  0.505
 - **Colorblind-friendly palettes** — use `scale_color_brewer(palette = "Set2")`, `viridis`, or similar. Never rely on red/green contrast alone.
 - **Color-independent design** — figures must be readable in grayscale. Combine color with shape (`shape` aesthetic) and linetype (`linetype` aesthetic) so series remain distinguishable without color.
 - **Figure width** — single-panel: `width=0.8\textwidth`. Side-by-side panels: `width=0.48\textwidth` each.
-- **Output location** — paper figures go to `04_paper/<output>/figures/`; exploratory/analysis charts go to `03_analysis/output/`.
+- **Output location** — paper figures go to `04_paper/academic_paper/figures/`; exploratory/analysis charts go to `03_analysis/output/`.
 
 ---
 

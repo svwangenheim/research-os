@@ -13,7 +13,7 @@ Paths follow `${CLAUDE_PLUGIN_ROOT}/rules/folder-map.md`; talk artifacts live in
 
 ## Your Task
 
-Given an approved paper (`04_paper/<output>/main.tex`), create a presentation in the requested format and output type (Beamer or Quarto RevealJS).
+Given an approved paper (`04_paper/academic_paper/main.tex`), create a presentation in the requested format and output type (Beamer or Quarto RevealJS).
 
 **First:** Identify the paper type from the paper itself or the strategy memo (`03_analysis/strategy/strategy_memo.md`). This determines the narrative arc.
 
@@ -71,7 +71,7 @@ A talk has visual rhythm: dense slides (data, results) alternate with sparse sli
 - **Beamer:** `05_outreach/talks/[format]_talk.tex`
 - **Quarto:** `05_outreach/talks/[format]_talk.qmd` + `05_outreach/talks/custom.scss`
 
-Figures referenced from `04_paper/<output>/figures/` or `03_analysis/output/` -- never regenerate figures for the talk; reuse what the paper already produced.
+Figures referenced from `04_paper/academic_paper/figures/` or `03_analysis/output/` -- never regenerate figures for the talk; reuse what the paper already produced.
 
 ## What You Do NOT Do
 

@@ -1,8 +1,8 @@
 # Working Paper Format Standard
 
-All LaTeX papers generated or reviewed by this system must conform to the standard economics working paper format. This rule applies to the writer, writer-critic, and verifier agents. It governs the `academic_paper` output type (and any DZ output built in LaTeX); DZ briefs in their own house style follow their skill templates.
+All LaTeX papers generated or reviewed by this system must conform to the standard economics working paper format. This rule applies to the writer, writer-critic, and verifier agents. It governs the `academic_paper` output type.
 
-The paper is built inside its `04_paper/<output>/` folder (e.g. `04_paper/academic_paper/`). The bibliography source is the project's `01_literature/bibliography.bib`.
+The paper is built inside `04_paper/academic_paper/`. The bibliography source is the project's `01_literature/bibliography.bib`.
 
 ## Document Class and Layout
 
@@ -136,7 +136,7 @@ The following preamble is the project standard. New papers should use this struc
 \usepackage[nameinlink]{cleveref}
 ```
 
-> `\addbibresource` points at the shared project bibliography `01_literature/bibliography.bib` (relative from `04_paper/<output>/`). If your `latexmkrc` sets `BIBINPUTS`, you may instead reference `bibliography.bib` by name.
+> `\addbibresource` points at the shared project bibliography `01_literature/bibliography.bib` (relative from `04_paper/academic_paper/`). If your `latexmkrc` sets `BIBINPUTS`, you may instead reference `bibliography.bib` by name.
 
 ## Key Design Decisions
 
@@ -211,7 +211,7 @@ Standard economics paper order:
 8. Robustness (if separate section)
 9. Conclusion
 
-Each section uses `\section{}` with `\label{sec:name}`. Subsections use `\subsection{}`. Section files live in `04_paper/<output>/sections/`.
+Each section uses `\section{}` with `\label{sec:name}`. Subsections use `\subsection{}`. Section files live in `04_paper/academic_paper/sections/`.
 
 ## Tables and Figures
 
@@ -230,7 +230,7 @@ Each section uses `\section{}` with `\label{sec:name}`. Subsections use `\subsec
 ```
 
 - `\printbibliography` replaces `\bibliography{}`/`\bibliographystyle{}`
-- Compile with `latexmk` (handles biber passes automatically): `cd 04_paper/<output> && latexmk main.tex`
+- Compile with `latexmk` (handles biber passes automatically): `cd 04_paper/academic_paper && latexmk main.tex`
 - Single-spaced or `\small` references
 - New page before references
 
@@ -238,7 +238,7 @@ Each section uses `\section{}` with `\label{sec:name}`. Subsections use `\subsec
 
 ```bash
 # Preferred: latexmk handles multi-pass + biber automatically
-cd 04_paper/<output> && latexmk main.tex
+cd 04_paper/academic_paper && latexmk main.tex
 
 # Manual fallback (if latexmk unavailable):
 xelatex main.tex
@@ -247,7 +247,7 @@ xelatex main.tex
 xelatex main.tex
 ```
 
-Note: `04_paper/<output>/latexmkrc` configures XeLaTeX mode, TEXINPUTS, and BIBINPUTS. On Overleaf, set compiler to XeLaTeX via Menu — Overleaf reads `latexmkrc` automatically.
+Note: `04_paper/academic_paper/latexmkrc` configures XeLaTeX mode, TEXINPUTS, and BIBINPUTS. On Overleaf, set compiler to XeLaTeX via Menu — Overleaf reads `latexmkrc` automatically.
 
 ## What the Writer-Critic Checks
 

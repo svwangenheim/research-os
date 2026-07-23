@@ -26,9 +26,9 @@ csl: apa.csl
 ---
 
 <!-- This talk lives in 05_outreach/talks/. Relative paths (../../) reach the
-     project root. Figures come from 04_paper/<output>/figures/ (paper figures)
+     project root. Figures come from 04_paper/academic_paper/figures/ (paper figures)
      or 03_analysis/output/ (analysis figures). Adjust <output> to match
-     passport.yaml meta.output_types (example below uses academic_paper). -->
+     passport.yaml research.paper_type (example below uses academic_paper). -->
 
 ## Research Question {.center}
 

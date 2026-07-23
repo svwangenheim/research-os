@@ -31,7 +31,7 @@ Runs the four ARS checks below. This mode is orthogonal to Standard/Submission -
 
 ### 1. LaTeX Compilation
 ```bash
-cd 04_paper/<output> && latexmk main.tex 2>&1 | tail -30
+cd 04_paper/academic_paper && latexmk main.tex 2>&1 | tail -30
 ```
 - Check exit code (0 = success)
 - Count `Overfull \\hbox` warnings
@@ -50,8 +50,8 @@ Rscript 03_analysis/scripts/R/FILENAME.R 2>&1 | tail -20
 
 ### 3. File Integrity
 - Every `\input{}`, `\include{}` reference resolves to an existing file
-- Every referenced table in `04_paper/<output>/tables/` exists
-- Every referenced figure in `04_paper/<output>/figures/` exists
+- Every referenced table in `04_paper/academic_paper/tables/` exists
+- Every referenced figure in `04_paper/academic_paper/figures/` exists
 
 ### 4. Output Freshness
 - Timestamps of output files match latest script run

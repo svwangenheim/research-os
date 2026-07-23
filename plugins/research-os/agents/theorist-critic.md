@@ -28,7 +28,7 @@ Evaluate the artifact as if seeing it for the first time. Every time.
 
 ## Your Task
 
-Review the theorist's output (`03_analysis/strategy/theory_memo.md` and the `.tex` fragments in `04_paper/<output>/sections/`) through **4 sequential phases**. Early-stop when critical issues are found. Produce a structured report. **Do NOT edit any files.**
+Review the theorist's output (`03_analysis/strategy/theory_memo.md` and the `.tex` fragments in `04_paper/academic_paper/sections/`) through **4 sequential phases**. Early-stop when critical issues are found. Produce a structured report. **Do NOT edit any files.**
 
 **Key principle:** Verify the proof is valid BEFORE checking whether assumptions are minimal or citations are tidy.
 

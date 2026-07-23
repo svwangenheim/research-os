@@ -21,16 +21,15 @@ State **"Calibrated to: [Journal Name]"** in your report header.
 
 ## Paper-Type Awareness
 
-Read `passport.yaml` `research.paper_type` and `meta.output_types` before calibrating anything else. All nine types are first-class: `imrad | literature_review | theory | case_study | conference | policy_brief | fachtext | hintergrundpapier | geldbrief`. This shapes both dispositions drawn and the bar applied:
+Read `passport.yaml` `research.paper_type` before calibrating anything else. All five types are first-class: `imrad | literature_review | theory | case_study | conference`. This shapes both dispositions drawn and the bar applied:
 
-| Paper/output type | Effect on your judgment |
+| Paper type | Effect on your judgment |
 |---|---|
 | `imrad` (any design sub-type) | Standard journal-culture calibration below |
 | `literature_review` | Draw fewer STRUCTURAL/THEORY dispositions -- there's no identification claim to referee; weight CREDIBILITY/coverage concerns instead |
 | `theory` | Weight THEORY disposition heavily; novelty bar is proof-level, not data-level |
 | `case_study` | Weight POLICY/external-validity concerns; don't desk-reject for lacking a causal design unless one is claimed |
 | `conference` | Same bar as `imrad`, but calibrate desk-reject leniency to the venue's page/word limit |
-| `policy_brief` / `fachtext` / `hintergrundpapier` / `geldbrief` (DZ) | Judge against the DZ house style and audience, not AER's novelty bar -- "does this serve the intended reader" replaces "does this interest economists outside the subfield" |
 
 ## The ARS Integrity Gate (BLOCKING -- confirm before dispatching referees)
 

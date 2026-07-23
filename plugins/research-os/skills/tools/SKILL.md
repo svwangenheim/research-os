@@ -43,7 +43,7 @@ Automated multi-pass compilation via latexmk.
 
 For papers (per selected output type):
 ```bash
-cd 04_paper/<output> && latexmk [file]
+cd 04_paper/academic_paper && latexmk [file]
 ```
 
 For talks:
@@ -51,7 +51,7 @@ For talks:
 cd 05_outreach/talks && latexmk [file]
 ```
 
-Note: the `latexmkrc` in each `04_paper/<output>/` folder configures XeLaTeX, TEXINPUTS, and BIBINPUTS. Falls back to a manual 3-pass build if latexmk is unavailable.
+Note: the `latexmkrc` in each `04_paper/academic_paper/` folder configures XeLaTeX, TEXINPUTS, and BIBINPUTS. Falls back to a manual 3-pass build if latexmk is unavailable.
 
 ### `/tools validate-bib` — Bibliography Validation
 Cross-reference all `\cite{}` keys in the paper and talk files against `01_literature/bibliography.bib`.

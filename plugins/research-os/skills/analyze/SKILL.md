@@ -1,6 +1,6 @@
 ---
 name: analyze
-description: End-to-end data analysis dispatching Coder and Data-engineer for implementation, coder-critic for review. Supports R, Python, Julia. Analysis phase of the research-os pipeline; writes scripts to 03_analysis/ and output to 04_paper/<output>/, and updates passport.yaml.
+description: End-to-end data analysis dispatching Coder and Data-engineer for implementation, coder-critic for review. Supports R, Python, Julia. Analysis phase of the research-os pipeline; writes scripts to 03_analysis/ and output to 04_paper/academic_paper/, and updates passport.yaml.
 argument-hint: "[dataset path or goal] Options: --dual [lang1,lang2]"
 allowed-tools: Read,Grep,Glob,Write,Edit,Bash,Task
 ---
@@ -11,7 +11,7 @@ Run end-to-end data analysis by dispatching the **Coder** (analysis), **Data-eng
 
 **Input:** `$ARGUMENTS` — dataset path or description of analysis goal.
 
-State lives in **`passport.yaml`** (schema: `${CLAUDE_PLUGIN_ROOT}/templates/passport.yaml`). Paths follow `${CLAUDE_PLUGIN_ROOT}/rules/folder-map.md`: scripts → `03_analysis/scripts/{R,py,jl}/`, tables/figures → `04_paper/<output>/tables/` and `.../figures/`, results summary + code review → `03_analysis/output/`. Outputs obey `${CLAUDE_PLUGIN_ROOT}/rules/output-discipline.md`: **re-running a script overwrites its figures/tables deterministically (no date-versioned copies); the code review is one file per target, updated in place with a `## Changelog`.** The coder-critic score is written to `passport.yaml` `pipeline.stages.analysis`; severity is Strict/high (Analysis phase, `${CLAUDE_PLUGIN_ROOT}/rules/quality.md`). Externally declared datasets are recorded in `passport.yaml` `data_provenance`.
+State lives in **`passport.yaml`** (schema: `${CLAUDE_PLUGIN_ROOT}/templates/passport.yaml`). Paths follow `${CLAUDE_PLUGIN_ROOT}/rules/folder-map.md`: scripts → `03_analysis/scripts/{R,py,jl}/`, tables/figures → `04_paper/academic_paper/tables/` and `.../figures/`, results summary + code review → `03_analysis/output/`. Outputs obey `${CLAUDE_PLUGIN_ROOT}/rules/output-discipline.md`: **re-running a script overwrites its figures/tables deterministically (no date-versioned copies); the code review is one file per target, updated in place with a `## Changelog`.** The coder-critic score is written to `passport.yaml` `pipeline.stages.analysis`; severity is Strict/high (Analysis phase, `${CLAUDE_PLUGIN_ROOT}/rules/quality.md`). Externally declared datasets are recorded in `passport.yaml` `data_provenance`.
 
 ---
 
@@ -57,7 +57,7 @@ Dispatch **Coder** agent:
 - Stage 0: Data loading (from `02_data/cleaned/` or `02_data/raw/`)
 - Stage 1: Main specification (from strategy memo or user description)
 - Stage 2: Robustness checks
-- Stage 3: Publication-ready output (tables to `04_paper/<output>/tables/`, figures to `04_paper/<output>/figures/`)
+- Stage 3: Publication-ready output (tables to `04_paper/academic_paper/tables/`, figures to `04_paper/academic_paper/figures/`)
 - Produce `03_analysis/output/results_summary.md` with all estimates, SEs, and key statistics (MANDATORY)
 - Save scripts to `03_analysis/scripts/R/` (or the appropriate language directory: `py/`, `jl/`)
 
@@ -101,7 +101,7 @@ If coder-critic finds Critical or Major issues:
 ### Step 6: Present Results
 1. **Results summary** — key estimates with SEs and interpretation (from `03_analysis/output/results_summary.md`)
 2. **Scripts created** — paths and descriptions
-3. **Output files** — tables in `04_paper/<output>/tables/`, figures in `04_paper/<output>/figures/`
+3. **Output files** — tables in `04_paper/academic_paper/tables/`, figures in `04_paper/academic_paper/figures/`
 4. **Code review score** — from coder-critic (recorded in `passport.yaml`)
 5. **TODO items** — missing data, additional specifications needed
 

@@ -1,6 +1,6 @@
 # Meta-Governance: This Plugin's Dual Nature
 
-research-os is both a working system and a reusable template for empirical research. Its default domain is empirical economics, but it adapts to adjacent fields (finance, accounting, marketing, management, public policy) by customizing the domain profile and journal profiles — and it produces DZ policy outputs (`policy_brief`, `fachtext`, `hintergrundpapier`, `geldbrief`) alongside academic papers.
+research-os is both a working system and a reusable template for empirical research. Its default domain is empirical economics, but it adapts to adjacent fields (finance, accounting, marketing, management, public policy) by customizing the domain profile and journal profiles.
 
 ## Working System
 - We develop research papers, policy outputs, seminars, guides, and documentation

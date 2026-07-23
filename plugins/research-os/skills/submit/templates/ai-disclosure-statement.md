@@ -30,12 +30,6 @@ Placement: a short paragraph in the report's front matter or methodology section
 
 Placement: footnote or brief note in the abstract page.
 
-## DZ Outputs (policy brief / Fachtext / Hintergrundpapier / Geldbrief)
-
-> Bei der Erstellung dieses [Formats] wurden KI-gestützte Werkzeuge für folgende Arbeitsschritte eingesetzt: [Literaturrecherche: ja/nein] [Datenanalyse: ja/nein] [Textentwurf/Lektorat: ja/nein]. Alle Ergebnisse wurden durch die Autor:innen inhaltlich geprüft und verantwortet.
-
-Placement: footnote or a short note in the imprint/methodology box, matching DZ house style (`${CLAUDE_PLUGIN_ROOT}/styles/`).
-
 ## Generic Fallback (venue policy not found)
 
 > This work was prepared with AI assistance for [stage list, reconstructed from `passport.yaml`]. The author(s) reviewed all AI-assisted content, verified all quantitative claims against underlying data and analysis, and take full responsibility for the final manuscript. **[Verify the target venue's current AI-disclosure policy before submission -- this statement uses generic language, not a venue-specific requirement.]**

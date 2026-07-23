@@ -35,7 +35,7 @@ From `pipeline`:
 | discovery | `/discover` (interview → spec; `lit` → literature; `data` → data; `lit` PRISMA for systematic reviews) | 80 | run `/wiki-pull` first to reuse prior knowledge |
 | strategy | `/strategize` (+ `theory` if econometric-methods/theory/structural) | 80 | |
 | analysis | `/analyze` | 80 | |
-| writing | `/write` (detects paper type: imrad · review · theory · case_study · conference · policy_brief · fachtext · hintergrundpapier · geldbrief) | 80 | |
+| writing | `/write` (detects paper type: imrad · review · theory · case_study · conference) | 80 | |
 | review | `/peer-review` (`--all` comprehensive; `--peer` referees) — **integrity gate blocks here** | 90 | claims traced, citations triangulated, temporal + figure audit |
 | revision | `/revise` (+ `rebuttal-audit` to QA your response letter) | 90 | |
 | submission | `/submit` (`target` · `package` · `ai-disclosure` · `final`; multi-style citations) | 95 | |

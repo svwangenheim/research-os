@@ -11,7 +11,7 @@ Structure point-by-point referee responses with classification, agent routing pe
 
 **Input:** `$ARGUMENTS` -- path to referee report file(s), optionally followed by paper path; or `rebuttal-audit [response-letter path]`.
 
-State lives in **`passport.yaml`** (schema: `${CLAUDE_PLUGIN_ROOT}/templates/passport.yaml`). Paths follow `${CLAUDE_PLUGIN_ROOT}/rules/folder-map.md` and the revision protocol in `${CLAUDE_PLUGIN_ROOT}/rules/revision.md`: referee reports are read from `04_paper/reviews/` (`referee_domain.md`, `referee_methods.md`, `editorial_decision.md`); the tracker and response letter are written to `04_paper/revisions/`; revised sections update `04_paper/<output>/sections/` in place. Outputs obey `${CLAUDE_PLUGIN_ROOT}/rules/output-discipline.md`: **update the tracker and response letter in place with a `## Changelog`; do not proliferate `_r2.md` / `_final.md` copies -- provenance lives in git.** Re-scored components update `passport.yaml` `pipeline.stages`. Before the revised paper returns to `/peer-review` or `/submit`, the ARS integrity gate (`${CLAUDE_PLUGIN_ROOT}/rules/quality.md` Section 3) must re-pass -- `/revise` does not clear that gate itself.
+State lives in **`passport.yaml`** (schema: `${CLAUDE_PLUGIN_ROOT}/templates/passport.yaml`). Paths follow `${CLAUDE_PLUGIN_ROOT}/rules/folder-map.md` and the revision protocol in `${CLAUDE_PLUGIN_ROOT}/rules/revision.md`: referee reports are read from `04_paper/reviews/` (`referee_domain.md`, `referee_methods.md`, `editorial_decision.md`); the tracker and response letter are written to `04_paper/revisions/`; revised sections update `04_paper/academic_paper/sections/` in place. Outputs obey `${CLAUDE_PLUGIN_ROOT}/rules/output-discipline.md`: **update the tracker and response letter in place with a `## Changelog`; do not proliferate `_r2.md` / `_final.md` copies -- provenance lives in git.** Re-scored components update `passport.yaml` `pipeline.stages`. Before the revised paper returns to `/peer-review` or `/submit`, the ARS integrity gate (`${CLAUDE_PLUGIN_ROOT}/rules/quality.md` Section 3) must re-pass -- `/revise` does not clear that gate itself.
 
 ---
 
@@ -19,7 +19,7 @@ State lives in **`passport.yaml`** (schema: `${CLAUDE_PLUGIN_ROOT}/templates/pas
 
 ### Step 1: Parse Inputs
 1. Read referee report(s) -- default to `04_paper/reviews/referee_domain.md` and `04_paper/reviews/referee_methods.md` if `$ARGUMENTS` doesn't specify a path
-2. Read the paper (`04_paper/<output>/main.tex` or specified path)
+2. Read the paper (`04_paper/academic_paper/main.tex` or specified path)
 3. Read the revision protocol: `${CLAUDE_PLUGIN_ROOT}/rules/revision.md`
 4. Read existing scripts in `03_analysis/scripts/` to know what analyses already exist
 
@@ -39,7 +39,7 @@ Save to `04_paper/revisions/referee_response_tracker.md` (`${CLAUDE_PLUGIN_ROOT}
 - Action items by priority (HIGH: new analysis, MEDIUM: clarification, FLAGGED: disagreements, LOW: minor)
 
 ### Step 4: Dispatch Agents
-- CLARIFICATION/REWRITE -> dispatch Writer with specific instructions; Writer updates the section file in place (`04_paper/<output>/sections/`)
+- CLARIFICATION/REWRITE -> dispatch Writer with specific instructions; Writer updates the section file in place (`04_paper/academic_paper/sections/`)
 - NEW ANALYSIS -> flag for user approval **before** dispatching Coder -- never start new estimation on a referee's say-so alone
 - DISAGREE -> draft diplomatic response using `${CLAUDE_PLUGIN_ROOT}/skills/revise/templates/diplomatic-disagreement.md`, flag prominently for user
 
@@ -56,7 +56,7 @@ When DISAGREE: open with acknowledgment, provide evidence, offer partial concess
 ### Step 7: Save Outputs
 1. Tracker: `04_paper/revisions/referee_response_tracker.md` (update in place)
 2. Response letter: `04_paper/revisions/response_letter_[journal].tex` (update in place across rounds -- the git history is the version record, not the filename)
-3. Revised sections: `04_paper/<output>/sections/` (for CLARIFICATION/REWRITE items, update in place)
+3. Revised sections: `04_paper/academic_paper/sections/` (for CLARIFICATION/REWRITE items, update in place)
 
 ### Step 8: Re-check Before Returning to Review
 Once all HIGH and MEDIUM items are resolved and DISAGREE items are user-confirmed, re-run the relevant critics (writer-critic and/or coder-critic on changed material) and remind the user that `/peer-review --peer --r2` (or `--r3`) re-runs the ARS integrity gate before the referees see the revision -- `/revise` itself does not clear that gate.

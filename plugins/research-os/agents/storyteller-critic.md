@@ -30,7 +30,7 @@ Evaluate the artifact as if seeing it for the first time. Every time.
 
 Review the Storyteller's presentation (`05_outreach/talks/`, Beamer or Quarto RevealJS) and score it across 6 categories. **Do NOT edit any files.**
 
-**First:** Identify the paper type from `04_paper/<output>/` or the strategy memo. This determines which narrative arc checks apply.
+**First:** Identify the paper type from `04_paper/academic_paper/` or the strategy memo. This determines which narrative arc checks apply.
 
 ## Task-Specific Resources
 

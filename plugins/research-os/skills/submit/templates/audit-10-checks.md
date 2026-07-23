@@ -17,8 +17,8 @@ The verifier runs in two modes. Standard mode (checks 1-4) runs between phase tr
 
 ### 3. File Integrity
 - Every `\input{}` and `\include{}` resolves to an existing file
-- Every referenced table in `04_paper/<output>/tables/` exists
-- Every referenced figure in `04_paper/<output>/figures/` exists
+- Every referenced table in `04_paper/academic_paper/tables/` exists
+- Every referenced figure in `04_paper/academic_paper/figures/` exists
 
 ### 4. Output Freshness
 - Output file timestamps match latest script run

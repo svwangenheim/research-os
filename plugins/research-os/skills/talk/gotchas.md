@@ -7,6 +7,6 @@ Known failure points and edge cases for presentation creation.
 - Beamer `\pause` within `itemize` can cause spacing issues -- use `\onslide` for complex reveals.
 - The job market talk is the most important format. Allocate time for iteration.
 - Talk scoring is advisory (non-blocking) -- a low score won't stop the pipeline, but it should prompt revision.
-- Custom Beamer environments from the project preamble aren't defined in the scaffold template -- check `04_paper/<output>/preambles/` for project-specific environments.
+- Custom Beamer environments from the project preamble aren't defined in the scaffold template -- check `04_paper/academic_paper/preambles/` for project-specific environments.
 - `aspectratio=169` is standard for modern projectors. Only use 4:3 if specifically requested.
-- Talks live in `05_outreach/talks/`; figures are referenced from `04_paper/<output>/figures/` or `03_analysis/output/` via relative paths (`../../...`). If a figure path 404s, confirm the output-type subfolder in the relative path matches `passport.yaml` `meta.output_types`.
+- Talks live in `05_outreach/talks/`; figures are referenced from `04_paper/academic_paper/figures/` or `03_analysis/output/` via relative paths (`../../...`). If a figure path 404s, confirm the relative path is correct.

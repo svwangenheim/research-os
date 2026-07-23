@@ -207,7 +207,7 @@ Workflow:
 **Strategy memo:** [`03_analysis/strategy/strategy_memo.md` or "not found"]
 **Existing paper/draft:** [path or "not found"]
 **Domain profile:** [`00_admin/domain-profile.md` loaded / not found]
-**Notation conventions:** [`04_paper/<output>/preambles/` / domain-profile notation table / "not found"]
+**Notation conventions:** [`04_paper/academic_paper/preambles/` / domain-profile notation table / "not found"]
 **Bibliography base:** [`01_literature/bibliography.bib` / "not found"]
 
 **Paper type:** [econometric methods / theory+empirics / structural / methodological reduced-form]
@@ -225,9 +225,9 @@ If strategy memo or paper type is missing, the Theorist flags it and asks before
 2. Read `00_admin/domain-profile.md` for the Theoretical Foundational References table and Author Team table.
 3. Dispatch **Theorist** to produce:
    - `03_analysis/strategy/theory_memo.md`
-   - `04_paper/<output>/sections/assumptions.tex`
-   - `04_paper/<output>/sections/results.tex`
-   - `04_paper/<output>/sections/proofs.tex`
+   - `04_paper/academic_paper/sections/assumptions.tex`
+   - `04_paper/academic_paper/sections/results.tex`
+   - `04_paper/academic_paper/sections/proofs.tex`
    - `03_analysis/strategy/notation_glossary.md`
    (`<output>` is the selected academic-paper output folder — usually `academic_paper`.)
 4. Dispatch **theorist-critic** to review through 4 sequential phases:

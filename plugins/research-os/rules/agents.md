@@ -69,13 +69,13 @@ A creator cannot evaluate the quality of its own work. The score always comes fr
 | strategist | Strategy memo (`03_analysis/strategy/`) | strategist-critic |
 | theorist | Assumptions, theorems, proofs (theory section) | theorist-critic |
 | coder | R/Python/Julia scripts (`03_analysis/scripts/`) | coder-critic |
-| writer | Paper manuscript (`04_paper/<output>/`) | writer-critic |
+| writer | Paper manuscript (`04_paper/academic_paper/`) | writer-critic |
 | storyteller | Beamer talk (`05_outreach/talks/`) | storyteller-critic |
 
 ### Enforcement
 
 The Orchestrator flags violations:
-- If a critic invocation produces a file in `03_analysis/scripts/`, `04_paper/<output>/`, or `05_outreach/talks/` → flag
+- If a critic invocation produces a file in `03_analysis/scripts/`, `04_paper/academic_paper/`, or `05_outreach/talks/` → flag
 - If a creator reports its own score → discard, dispatch critic
 
 ---

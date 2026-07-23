@@ -11,7 +11,7 @@ Create, audit, or compile presentations (Beamer or Quarto RevealJS). All talk ar
 
 **Input:** `$ARGUMENTS` — mode and format/path.
 
-The paper is the single source of truth. Resolve the manuscript from the selected output type: `04_paper/<output>/main.tex` (e.g. `04_paper/academic_paper/main.tex`). State lives in `passport.yaml`.
+The paper is the single source of truth. Resolve the manuscript from the selected output type: `04_paper/academic_paper/main.tex` (e.g. `04_paper/academic_paper/main.tex`). State lives in `passport.yaml`.
 
 ---
 
@@ -38,7 +38,7 @@ Generate a presentation from the paper.
 **Step 1: Parse Arguments**
 
 - **Format** (required): `job-market` | `seminar` | `short` | `lightning`
-- **Paper path** (optional): defaults to `04_paper/<output>/main.tex` for the project's primary output type (`passport.yaml` `meta.output_types`)
+- **Paper path** (optional): defaults to `04_paper/academic_paper/main.tex`
 - **Engine**: Quarto RevealJS (default) or Beamer (`--beamer`)
 - If no format specified, ask the user.
 
@@ -55,7 +55,7 @@ The Storyteller follows these design principles:
 
 Compile with `quarto render` (Quarto) or XeLaTeX (Beamer).
 
-Save to `05_outreach/talks/[format]_talk.qmd` (Quarto, default) or `05_outreach/talks/[format]_talk.tex` (Beamer). Figures referenced from `04_paper/<output>/figures/` or `03_analysis/output/`.
+Save to `05_outreach/talks/[format]_talk.qmd` (Quarto, default) or `05_outreach/talks/[format]_talk.tex` (Beamer). Figures referenced from `04_paper/academic_paper/figures/` or `03_analysis/output/`.
 
 **Step 3: Dispatch Storyteller-Critic**
 
@@ -130,7 +130,7 @@ The Storyteller agent reads these resources before building slides. The narrativ
 
 ## Principles
 
-- **Paper is authoritative.** Every claim must appear in the paper (`04_paper/<output>/`).
+- **Paper is authoritative.** Every claim must appear in the paper (`04_paper/academic_paper/`).
 - **Figures over tables.** Audiences absorb figures instantly. Put regression tables in backup slides for Q&A.
 - **Less is more.** Especially for short and lightning formats — ruthlessly cut.
 - **One idea per slide.** If you need a second point, make a second slide.

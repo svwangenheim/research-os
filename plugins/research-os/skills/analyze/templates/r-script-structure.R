@@ -4,7 +4,7 @@
 # Project: [Project Name]
 # Paper: [Author (Year)], Section [X]
 # Inputs: [02_data/cleaned/analysis_sample.rds]
-# Outputs: [04_paper/<output>/tables/reg_main.tex, 04_paper/<output>/figures/event_study.pdf]
+# Outputs: [04_paper/academic_paper/tables/reg_main.tex, 04_paper/academic_paper/figures/event_study.pdf]
 # ==============================================================================
 
 # --- Packages ----------------------------------------------------------------

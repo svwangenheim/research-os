@@ -52,7 +52,7 @@ Paths follow `${CLAUDE_PLUGIN_ROOT}/rules/folder-map.md`; outputs overwrite dete
 - **Multi-panel:** `patchwork` or `cowplot` for combining plots
 
 #### Output
-- Save paper exhibits as both `.pdf` (paper) and `.png` (slides/web) to `04_paper/<output>/figures/`
+- Save paper exhibits as both `.pdf` (paper) and `.png` (slides/web) to `04_paper/academic_paper/figures/`
 - Save the underlying data for each figure as `.rds` to `03_analysis/output/`
 - Exploratory/descriptive charts that are not paper exhibits go to `03_analysis/output/`
 - Use `file.path()` for all paths — no hardcoded absolute paths
@@ -68,7 +68,7 @@ For each variable in the cleaned dataset (write to `02_data/codebooks/`):
 
 #### Summary Statistics Table
 - Generate a publication-ready summary stats table (LaTeX format)
-- Save to `04_paper/<output>/tables/`
+- Save to `04_paper/academic_paper/tables/`
 - Include N, mean, sd, min, p25, median, p75, max
 
 ---

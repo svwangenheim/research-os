@@ -1,12 +1,12 @@
 # Section Templates — Paper Drafting by Section and Paper Type
 
-Structure guidance for each major section, adapted by paper type. Covers the full research-os taxonomy: the **academic-paper family** (IMRaD — reduced-form, structural, theory+empirics, descriptive/measurement — plus literature_review, theory, case_study, conference) and the **DZ output family** (policy_brief, fachtext, hintergrundpapier, geldbrief). The IMRaD backbone (Introduction → Data → Strategy/Model → Results → Conclusion) is detailed first; the additional academic types and the DZ types follow at the end.
+Structure guidance for each major section, adapted by paper type. Covers the full research-os taxonomy: IMRaD (reduced-form, structural, theory+empirics, descriptive/measurement) plus literature_review, theory, case_study, conference. The IMRaD backbone (Introduction → Data → Strategy/Model → Results → Conclusion) is detailed first; the additional academic types follow at the end.
 
 ---
 
 ## Paper Types
 
-The writer's paper-type detector (the planner step) reads `passport.yaml` `meta.output_types` and `research.paper_type` before drafting and selects the scaffold. Recognized types: `imrad` (the empirical/IMRaD family, with the four design sub-types below), `literature_review`, `theory`, `case_study`, `conference`, and the DZ types `policy_brief`, `fachtext`, `hintergrundpapier`, `geldbrief`.
+The writer's paper-type detector (the planner step) reads `passport.yaml` `research.paper_type` before drafting and selects the scaffold. Recognized types: `imrad` (the empirical/IMRaD family, with the four design sub-types below), `literature_review`, `theory`, `case_study`, `conference`.
 
 **IMRaD family sub-types** (most academic papers) — identify from the strategy memo:
 
@@ -17,7 +17,7 @@ The writer's paper-type detector (the planner step) reads `passport.yaml` `meta.
 | **Theory + empirics** | Propositions tested with data | Model + Empirical Tests |
 | **Descriptive / measurement** | New data, new measure, stylized facts | Measurement / Data Construction |
 
-Additional academic types (`literature_review`, `theory`, `case_study`, `conference`) and the DZ types are scaffolded in the "Additional Paper Types" and "DZ Output Types" sections at the end of this file. DZ types are **first-class**: their section backbones are given here, but detailed house-style formatting (typography, length, tone) is governed by the DZ output skills and their templates — do not invent LaTeX rules for the DZ types (see `${CLAUDE_PLUGIN_ROOT}/rules/content-invariants.md`).
+Additional academic types (`literature_review`, `theory`, `case_study`, `conference`) are scaffolded in the "Additional Paper Types" section at the end of this file.
 
 ---
 
@@ -257,7 +257,7 @@ The formal argument is the contribution (pairs with `/strategize theory`).
 5. **Discussion** — what the result means, comparative statics, robustness of assumptions
 6. **Conclusion** — implications and limitations
 
-Notation must be consistent (INV-7); theory `.tex` fragments live in `04_paper/<output>/sections/`.
+Notation must be consistent (INV-7); theory `.tex` fragments live in `04_paper/academic_paper/sections/`.
 
 ### `case_study` — Case study
 
@@ -274,48 +274,6 @@ A compressed IMRaD: tighter intro, condensed strategy, headline results only, a 
 
 ---
 
-## DZ Output Types
-
-DZ outputs are **first-class**. The section backbones below scaffold the draft; detailed house style (typography, length, tone, bilingual conventions) is owned by the DZ output skills/templates and `${CLAUDE_PLUGIN_ROOT}/rules/content-invariants.md` (universal invariants apply; LaTeX invariants only when built in LaTeX). Prose is policy-audience, not journal-referee. Every non-trivial claim still enters the `claim_manifest` (INV-22) and the citation-honesty rule holds.
-
-### `policy_brief` — DZ Policy Brief
-
-1. **Headline / key message** — the single takeaway, up top
-2. **Context / problem** — what is at stake and for whom (short)
-3. **Evidence** — the findings that bear on the question, in plain language with magnitudes
-4. **Options / recommendation** — concrete, actionable, ranked; trade-offs stated honestly
-5. **Bottom line** — what the decision-maker should do next
-
-### `fachtext` — DZ Fachtext
-
-A technical explainer for an informed-but-non-specialist audience.
-1. **Framing** — the concept/question and why it matters now
-2. **Mechanism** — how it works, built up step by step
-3. **Evidence / worked detail** — data, examples, or the technical core made legible
-4. **Implications** — what follows for policy or practice
-5. **Takeaways** — crisp summary points
-
-### `hintergrundpapier` — DZ Hintergrundpapier (background paper)
-
-Longer background analysis.
-1. **Executive summary** — the argument in one page
-2. **Background** — the fuller context and history
-3. **Analysis** — the substantive sections, each with a clear claim and its evidence
-4. **Assessment** — synthesis, scenarios, or options analysis
-5. **Conclusion / outlook** — where this leaves the debate
-6. **Annex** — data, methods, sources as needed
-
-### `geldbrief` — DZ Geldbrief
-
-Monetary/fiscal commentary in DZ house voice.
-1. **Hook** — the development or figure prompting the piece
-2. **What happened** — the facts, precisely
-3. **Interpretation** — what it means through the DZ analytical lens
-4. **So what** — consequences for the reader / the debate
-5. **Close** — the sharp final line
-
----
-
 ## Where drafts are written
 
-All section files for output `<output>` go to `04_paper/<output>/sections/`; the assembled document is `04_paper/<output>/main.tex` (academic paper / LaTeX-built DZ outputs) or the DZ skill's target for non-LaTeX briefs.
+All section files go to `04_paper/academic_paper/sections/`; the assembled document is `04_paper/academic_paper/main.tex`.

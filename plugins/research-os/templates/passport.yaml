@@ -9,14 +9,13 @@ meta:
   created: "<YYYY-MM-DD>"
   language: "en"                 # en | de
   main_wiki: "<theme>"           # the project's primary thematic wiki (e.g. cognitive-load)
-  output_types: []               # any of: academic_paper, policy_brief, fachtext, hintergrundpapier, geldbrief
   citation_style: "apa"          # apa | chicago | mla | ieee | vancouver | aea
 
 research:
   question: "<one-sentence research question>"
   motivation: "<why it matters — theory + policy relevance>"
   hypothesis: "<testable prediction with expected direction>"
-  paper_type: "<imrad | literature_review | theory | case_study | policy_brief | conference>"
+  paper_type: "<imrad | literature_review | theory | case_study | conference>"
   methodology: "<identification / method summary>"
   contribution: "<how this advances the literature / debate>"
   open_questions: []

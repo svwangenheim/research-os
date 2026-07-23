@@ -69,12 +69,12 @@ Map each assumption to the application. Translate regularity conditions to plain
 
 ## Output
 
-Write prose memos to `03_analysis/strategy/` and LaTeX fragments to `04_paper/<output>/sections/`:
+Write prose memos to `03_analysis/strategy/` and LaTeX fragments to `04_paper/academic_paper/sections/`:
 
 1. `03_analysis/strategy/theory_memo.md` -- prose overview: what is proved, assumptions, what remains open
-2. `04_paper/<output>/sections/assumptions.tex` -- numbered assumption block, ready to paste
-3. `04_paper/<output>/sections/results.tex` -- definitions, lemmas, propositions, theorems in LaTeX
-4. `04_paper/<output>/sections/proofs.tex` -- proofs in full, each step justified
+2. `04_paper/academic_paper/sections/assumptions.tex` -- numbered assumption block, ready to paste
+3. `04_paper/academic_paper/sections/results.tex` -- definitions, lemmas, propositions, theorems in LaTeX
+4. `04_paper/academic_paper/sections/proofs.tex` -- proofs in full, each step justified
 5. `03_analysis/strategy/notation_glossary.md` -- every symbol, its type, and its meaning
 
 If the paper already has a theory section, edit those files in place via `Edit` (append a Changelog note to the memo).

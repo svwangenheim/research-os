@@ -56,7 +56,7 @@
 ### Output Plan
 **Tables:** [list planned tables with filenames]
 **Figures:** [list planned figures with filenames]
-**Output directory:** [`04_paper/<output>/tables/` and `04_paper/<output>/figures/` — confirm by-script or by-purpose from CLAUDE.md]
+**Output directory:** [`04_paper/academic_paper/tables/` and `04_paper/academic_paper/figures/` — confirm by-script or by-purpose from CLAUDE.md]
 
 ### Feasibility Assessment
 **Blockers:** [any issues that prevent implementation — missing data, unavailable packages, unclear spec]

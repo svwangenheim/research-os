@@ -194,7 +194,7 @@ writeLines(tex_output, here("04_paper", "academic_paper", "tables", "reg_main_sp
 
 - Output **bare `tabular` environment** (no `\begin{table}` float)
 - The paper's `main.tex` wraps it with `\begin{table}`, `\caption{}`, and `\input{}`
-- Write to `04_paper/<output>/tables/`
+- Write to `04_paper/academic_paper/tables/`
 
 ---
 

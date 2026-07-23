@@ -135,7 +135,7 @@ Verifier-lite checks:
 - Does the paper compile with `latexmk` without errors? If not: -20
 - All `\ref{}` and `\cref{}` references resolved (no "??" in output)? -3 per unresolved
 - All `\cite{}` keys exist in the bibliography file? -3 per missing
-- All cited tables/figures exist in `04_paper/<output>/tables/` and `04_paper/<output>/figures/`? -5 per missing
+- All cited tables/figures exist in `04_paper/academic_paper/tables/` and `04_paper/academic_paper/figures/`? -5 per missing
 - No overfull/underfull hbox warnings exceeding 10pt? -1 per, max -5
 
 ---

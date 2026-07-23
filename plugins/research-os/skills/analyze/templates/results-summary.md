@@ -79,12 +79,12 @@
 ### Tables
 | File | Description | Paper location |
 |------|-------------|---------------|
-| `04_paper/<output>/tables/[name].tex` | [what it shows] | Table [N] |
+| `04_paper/academic_paper/tables/[name].tex` | [what it shows] | Table [N] |
 
 ### Figures
 | File | Description | Paper location |
 |------|-------------|---------------|
-| `04_paper/<output>/figures/[name].pdf` | [what it shows] | Figure [N] |
+| `04_paper/academic_paper/figures/[name].pdf` | [what it shows] | Figure [N] |
 
 ### Intermediate Objects
 | File | Description |

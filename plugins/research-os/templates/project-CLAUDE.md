@@ -5,7 +5,7 @@ research-os project. This file is the per-project config Claude reads on entry.
 ## Config
 
 - **Main wiki:** `<theme>` (primary thematic wiki this project draws on; all registered wikis are readable, this is the default)
-- **Output types:** `<academic_paper | policy_brief | fachtext | hintergrundpapier | geldbrief>` (drives `04_paper/` subfolders)
+- **Paper type:** `<imrad | literature_review | theory | case_study | conference>`
 - **Language:** `<en | de>`
 - **Citation style:** `<apa | chicago | mla | ieee | vancouver | aea>`
 

@@ -42,7 +42,7 @@ Adding a new agent: create the agent file in `${CLAUDE_PLUGIN_ROOT}/agents/`, ad
 - **PHASE:** Strategy
 - **PARALLEL_GROUP:** strategy
 - **REQUIRES:** `03_analysis/strategy/strategy_memo.md`
-- **PRODUCES:** `03_analysis/strategy/theory_memo.md` and `03_analysis/strategy/notation_glossary.md`; theory `.tex` fragments (`assumptions.tex`, `results.tex`, `proofs.tex`) to `04_paper/<output>/sections/`
+- **PRODUCES:** `03_analysis/strategy/theory_memo.md` and `03_analysis/strategy/notation_glossary.md`; theory `.tex` fragments (`assumptions.tex`, `results.tex`, `proofs.tex`) to `04_paper/academic_paper/sections/`
 - **CRITIC:** theorist-critic
 - **ESCALATION_TARGET:** User — proof-level disagreement, user adjudicates whether the result holds
 - **QUALITY_WEIGHT:** 20% (theory, when present)
@@ -61,7 +61,7 @@ Adding a new agent: create the agent file in `${CLAUDE_PLUGIN_ROOT}/agents/`, ad
 - **PHASE:** Analysis
 - **PARALLEL_GROUP:** analysis-code
 - **REQUIRES:** `03_analysis/strategy/strategy_memo.md` AND strategist-critic score >= 80
-- **PRODUCES:** `03_analysis/scripts/{R,py,jl}/`, `04_paper/<output>/tables/`, `04_paper/<output>/figures/`, `03_analysis/output/results_summary.md`
+- **PRODUCES:** `03_analysis/scripts/{R,py,jl}/`, `04_paper/academic_paper/tables/`, `04_paper/academic_paper/figures/`, `03_analysis/output/results_summary.md`
 - **CRITIC:** coder-critic
 - **ESCALATION_TARGET:** strategist-critic — re-evaluates whether the strategy memo is implementable
 - **QUALITY_WEIGHT:** 15% (code quality)
@@ -69,8 +69,8 @@ Adding a new agent: create the agent file in `${CLAUDE_PLUGIN_ROOT}/agents/`, ad
 ## writer
 - **PHASE:** Writing
 - **PARALLEL_GROUP:** writing
-- **REQUIRES:** coder-critic score >= 80 AND `04_paper/<output>/tables/` contains `.tex` files
-- **PRODUCES:** `04_paper/<output>/main.tex`, `04_paper/<output>/sections/*.tex`, and the `claim_manifest` in `passport.yaml` (every non-trivial claim traced to its evidence origin — see INV-22)
+- **REQUIRES:** coder-critic score >= 80 AND `04_paper/academic_paper/tables/` contains `.tex` files
+- **PRODUCES:** `04_paper/academic_paper/main.tex`, `04_paper/academic_paper/sections/*.tex`, and the `claim_manifest` in `passport.yaml` (every non-trivial claim traced to its evidence origin — see INV-22)
 - **CRITIC:** writer-critic
 - **ESCALATION_TARGET:** Orchestrator — structural rewrite, not just polish
 - **QUALITY_WEIGHT:** 10% (manuscript polish)

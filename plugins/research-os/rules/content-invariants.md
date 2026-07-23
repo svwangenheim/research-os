@@ -4,21 +4,13 @@ These are non-negotiable. Every agent checks against them. Violations are deduct
 
 ---
 
-## Output types
+## Output type
 
-research-os produces five first-class output types, declared per project in `passport.yaml` `meta.output_types` and scaffolded into `04_paper/<output>/`:
+research-os produces one output type — `academic_paper` — scaffolded into `04_paper/academic_paper/`. `passport.yaml` `research.paper_type` further classifies it as `imrad | literature_review | theory | case_study | conference`; all invariants below apply regardless of `paper_type`.
 
-| Output type | Scope of the invariants below |
-|-------------|-------------------------------|
-| `academic_paper` | All Paper invariants (INV-1 … INV-13) apply — LaTeX, booktabs, biblatex, JEL codes, etc. |
-| `policy_brief` | DZ house style (see the DZ output skills/templates). Universal invariants apply; LaTeX-specific ones apply only when the brief is built in LaTeX. |
-| `fachtext` | DZ house style. Universal invariants apply. |
-| `hintergrundpapier` | DZ house style. Universal invariants apply. |
-| `geldbrief` | DZ house style. Universal invariants apply. |
+**Paper invariants** — INV-1 … INV-13 (LaTeX, booktabs, biblatex, JEL codes, etc.) and the talk invariants INV-20/INV-21 (Beamer talks) apply throughout.
 
-**Universal invariants** — apply to every output type regardless of format: Code (INV-14 … INV-19), Traceability (INV-22), consistent notation (INV-7), the causal-language rule (INV-8), and the citation-honesty rule (never fabricate a citation; mark unverifiable entries `% UNVERIFIED`; cite the published version of a working paper). The ARS integrity gate in `quality.md` enforces these across all output types.
-
-**Academic-paper / LaTeX invariants** — INV-1 … INV-13 and the talk invariants INV-20/INV-21 govern LaTeX manuscripts and Beamer talks. DZ brief formatting (typography, length, section conventions) is governed by the DZ output skills and their templates, not restated here — do not invent LaTeX rules for the DZ types.
+**Universal invariants** — Code (INV-14 … INV-19), Traceability (INV-22), consistent notation (INV-7), the causal-language rule (INV-8), and the citation-honesty rule (never fabricate a citation; mark unverifiable entries `% UNVERIFIED`; cite the published version of a working paper). The ARS integrity gate in `quality.md` enforces these.
 
 ---
 
@@ -60,7 +52,7 @@ research-os produces five first-class output types, declared per project in `pas
 
 **INV-17.** No growing vectors/lists in loops. Pre-allocate result containers or use vectorized operations.
 
-**INV-18.** Output files go to the path specified by the Output Organization setting in `CLAUDE.md` (analysis output defaults to `03_analysis/output/`; paper tables/figures to `04_paper/<output>/`).
+**INV-18.** Output files go to the path specified by the Output Organization setting in `CLAUDE.md` (analysis output defaults to `03_analysis/output/`; paper tables/figures to `04_paper/academic_paper/`).
 
 **INV-19.** No prohibited functions: `setwd()` / `os.chdir()` / `cd()`, `rm(list = ls())`, `install.packages()` in scripts, `attach()` / `detach()`.
 
@@ -72,7 +64,7 @@ research-os produces five first-class output types, declared per project in `pas
 
 ## Traceability
 
-**INV-22.** Every non-trivial claim in the manuscript (or DZ output) must have an entry in `passport.yaml` `claim_manifest`, with an `evidence_origin` traceable to a real source: a `bibkey` in `literature_corpus`, a `data:<path>`, a specific `analysis:<script>` line and output file, or explicit `reasoning`. This is what the ARS integrity gate (`quality.md`) reads.
+**INV-22.** Every non-trivial claim in the manuscript must have an entry in `passport.yaml` `claim_manifest`, with an `evidence_origin` traceable to a real source: a `bibkey` in `literature_corpus`, a `data:<path>`, a specific `analysis:<script>` line and output file, or explicit `reasoning`. This is what the ARS integrity gate (`quality.md`) reads.
 
 ---
 
