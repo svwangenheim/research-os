@@ -1,6 +1,7 @@
 ---
 name: python-patterns
 description: Pythonic idioms, PEP 8 standards, type hints, and best practices for building robust, efficient, and maintainable Python applications.
+argument-hint: "[nothing -- reference guide; or a specific Python pattern/idiom question]"
 origin: ECC
 ---
 

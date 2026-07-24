@@ -1,6 +1,7 @@
 ---
 name: continuous-learning-v2
 description: Instinct-based learning system that observes sessions via hooks, creates atomic instincts with confidence scoring, and evolves them into skills/commands/agents. v2.1 adds project-scoped instincts to prevent cross-project contamination.
+argument-hint: "[nothing -- observes automatically; related commands: /instinct-status | /evolve | /instinct-export | /instinct-import | /promote | /projects]"
 origin: ECC
 version: 2.1.0
 ---
