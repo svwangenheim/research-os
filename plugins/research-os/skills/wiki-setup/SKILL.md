@@ -135,9 +135,11 @@ auto-registered).
    `60_people_institutions`, `90_synthesis`) and each has a `README.md`.
    Specifically check for the old typo `60_people_instructions` sitting where
    `60_people_institutions` should be. *(auto-fixable per missing
-   folder/README; the typo is a **rename**, not a pure addition — describe
-   exactly what will be renamed and get the same explicit yes/no as any other
-   finding, never treat it as more automatic)*
+   folder/README — copy the matching file from
+   `${CLAUDE_PLUGIN_ROOT}/templates/wiki-folder-readmes/`; the typo is a
+   **rename**, not a pure addition — describe exactly what will be renamed
+   and get the same explicit yes/no as any other finding, never treat it as
+   more automatic)*
 7. **`.obsidian/` config.** Does `<root>/.obsidian/` exist? Do
    `core-plugins.json`, `templates.json`, `community-plugins.json` exist
    inside it? *(auto-fixable per missing file: copy from
@@ -210,43 +212,10 @@ individually.
    - `<root>/_brain/{daily,weekly,thoughts,projects,synthesis,learning}/`,
      each with a `.gitkeep` and a `README.md` copied from
      `${CLAUDE_PLUGIN_ROOT}/templates/brain/folder-readmes/<folder>.md`.
-   - `<root>/_brain/profile.md` — the uninitialized placeholder, exactly:
-     ```markdown
-     ---
-     title: "Profile"
-     note_type: profile
-     updated: null
-     ---
-
-     # Profile
-
-     *Not yet initialized.* Run **`/wiki-setup`** to conduct the intro interview and fill this in — a
-     short Socratic conversation covering your research focus, role, working style, and how you want
-     Claude to collaborate with you across projects. This file is read at the start of every session
-     (via `/wiki-pull`) so the second brain can carry standing context forward.
-
-     ## What this will hold, once initialized
-
-     - **Who you are** — role, institution/organization, research focus, current projects.
-     - **How Claude should work with you** — collaboration preferences, level of autonomy, tone.
-     - **Standing context** — recurring constraints, deadlines rhythm, tools you use.
-
-     This file is yours — edit it directly any time your context changes; you don't need to re-run
-     `/wiki-setup` for small updates.
-     ```
-   - `<root>/_brain/wikis-index.md` — empty-wikis version:
-     ```markdown
-     # Wikis Index
-
-     Registered thematic wikis (source of truth: `~/.claude/vaults.json`). Kept here as a
-     human-browsable, cross-linked index — regenerate after `/add-vault` if it drifts.
-
-     | Wiki | Path | Scope | Registered |
-     |------|------|-------|------------|
-
-     To add a theme, run `/add-vault` — it registers the wiki and scaffolds the numbered layout;
-     it also updates this table.
-     ```
+   - `<root>/_brain/profile.md` ← copy the uninitialized placeholder from
+     `${CLAUDE_PLUGIN_ROOT}/templates/brain/profile-placeholder.md`.
+   - `<root>/_brain/wikis-index.md` ← copy the empty-wikis version from
+     `${CLAUDE_PLUGIN_ROOT}/templates/brain/wikis-index-empty.md`.
    - `<root>/.obsidian/` ← copy all 5 files from
      `${CLAUDE_PLUGIN_ROOT}/templates/obsidian/`.
    - Write `~/.claude/vaults.json`:
@@ -294,12 +263,11 @@ individually.
      and that its contents move with it) and get the same explicit
      confirmation as any other finding — do not treat it as more automatic
      just because the fix is "obvious."
-   - When a fix needs content that only lives in another skill's
-     instructions rather than a shipped template file — the 8 generic
-     per-folder placeholder `README.md` bodies used when scaffolding a wiki
-     folder are defined once, in `${CLAUDE_PLUGIN_ROOT}/skills/add-vault/SKILL.md`'s
-     Step 4 — read that file and copy the matching placeholder verbatim
-     rather than re-deriving or duplicating it here.
+   - The 8 generic per-folder placeholder `README.md` bodies used when
+     scaffolding a wiki folder are shipped templates, one file each, at
+     `${CLAUDE_PLUGIN_ROOT}/templates/wiki-folder-readmes/<folder>.md` — copy
+     the matching one verbatim rather than re-deriving or duplicating it
+     here (the same files `/add-vault` copies from).
    - When check 5 needs to recreate `wikis-index.md` from scratch (missing
      entirely, not just missing rows), seed it with the registry's *current*
      wikis rather than leaving it empty — mirror the real table format (see

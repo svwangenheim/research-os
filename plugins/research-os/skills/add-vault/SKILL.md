@@ -75,9 +75,10 @@ placeholder READMEs, and leave everything else untouched — sound right?"
 ### A3: Fill gaps one at a time, confirmed
 
 Once confirmed, for each **missing** numbered folder only: create it and
-write the same generic placeholder `README.md` from Step 4's set below.
-Never touch a folder that already exists, even if its README looks
-different from the standard placeholder.
+copy the matching generic placeholder `README.md` from
+`${CLAUDE_PLUGIN_ROOT}/templates/wiki-folder-readmes/<folder>.md` (Step B4
+below uses the same set). Never touch a folder that already exists, even if
+its README looks different from the standard placeholder.
 
 If there's no `README.md` at the vault's root, offer the short Socratic
 scope interview from Path B Step 2 and write one. If a `README.md` already
@@ -148,167 +149,21 @@ mkdir -p 00_inbox 10_sources 20_summaries 30_concepts 40_methods 50_datasets 60_
 ```
 
 Every wiki in this vault documents each numbered folder's purpose with a
-short `README.md` — write the same eight placeholders (these are generic
-and theme-independent; do not customize their content per theme; Path A uses
-this same set for whichever folders it's filling in):
+short `README.md` — these eight placeholders are generic and
+theme-independent (do not customize their content per theme; Path A uses
+this same set for whichever folders it's filling in) and are shipped as
+standalone files, not re-derived here — copy each one verbatim:
 
-`00_inbox/README.md`
-```markdown
-# Inbox
-
-This folder is for unsorted incoming material.
-
-Examples:
-- rough notes
-- links
-- pasted abstracts
-- screenshots
-- temporary markdown notes
-- early thoughts not yet filed into the wiki
-
-Nothing should live here permanently.
-Inbox items should later be:
-- moved into `10_sources/` if they are raw source materials
-- turned into proper wiki pages
-- deleted if no longer useful
-```
-
-`10_sources/README.md`
-```markdown
-# Raw Sources
-
-This folder contains the raw source materials that feed the wiki.
-
-Examples:
-- paper PDFs
-- reports
-- markdown article clips
-- transcripts
-- tables
-- images
-
-Rules:
-- treat this folder as the immutable source layer
-- do not rewrite source files
-- do not use this folder for summaries or interpretation
-- every important source should eventually have a corresponding page in `20_summaries/`
-```
-
-`20_summaries/README.md`
-```markdown
-# Source Summaries
-
-This folder contains one page per important source.
-
-Each summary page should usually include:
-- source title
-- author(s)
-- year
-- source type
-- one-paragraph summary
-- key claims
-- method or identification strategy
-- main findings
-- limitations
-- relevance for my research
-- links to related concept, method, dataset, and project pages
-
-The goal is to make each source reusable without rereading the full raw document.
-```
-
-`30_concepts/README.md`
-```markdown
-# Concepts
-
-This folder contains concept and mechanism pages.
-
-A concept page should usually include:
-- definition
-- why it matters
-- mechanism
-- common measurements or proxies
-- related concepts
-- debates or ambiguities
-- links to summaries, methods, datasets, and projects
-
-Open long pages with a 2–3 sentence **In brief** lede; tag contested claims inline `(confidence: stated|high|medium|speculation)`; stamp genuinely aging facts `(as of YYYY-MM-DD)`.
-```
-
-`40_methods/README.md`
-```markdown
-# Methods
-
-This folder contains methodology pages.
-
-A method page should usually include:
-- what the method does
-- identification logic
-- assumptions
-- typical diagnostics
-- common pitfalls
-- best use cases
-- links to papers and projects using it
-```
-
-`50_datasets/README.md`
-```markdown
-# Datasets
-
-This folder contains dataset pages.
-
-A dataset page should usually include:
-- what the dataset covers
-- geography and period
-- unit of observation
-- key variables
-- strengths
-- limitations
-- likely use cases
-- related projects and methods
-```
-
-`60_people_institutions/README.md`
-```markdown
-# People and Institutions
-
-This folder contains entity pages for recurring people, institutions, journals, and organizations.
-
-Examples:
-- authors
-- research groups
-- journals
-- think tanks
-- ministries
-- firms
-- data providers
-
-Each page should explain:
-- who or what the entity is
-- why it matters for my research
-- related topics, methods, datasets, or projects
-```
-
-`90_synthesis/README.md`
-```markdown
-# Synthesis
-
-This folder contains higher-level synthesis pages, **within this theme only**
-— cross-theme or personal synthesis belongs in `_brain/synthesis/` instead.
-
-Examples:
-- literature overviews
-- comparison pages
-- competing hypotheses
-- research design comparisons
-- "what we know so far" notes
-- thematic briefings
-
-This folder should capture durable thinking, not temporary chat output. If a
-query or discussion produces a useful synthesis, it should be written here
-instead of disappearing into conversation history.
-
-Open with an **In brief** lede; tag claims inline with a `(confidence: …)` level; stamp aging facts `(as of YYYY-MM-DD)`.
-```
+| Folder | Copy from |
+|---|---|
+| `00_inbox/README.md` | `${CLAUDE_PLUGIN_ROOT}/templates/wiki-folder-readmes/00_inbox.md` |
+| `10_sources/README.md` | `${CLAUDE_PLUGIN_ROOT}/templates/wiki-folder-readmes/10_sources.md` |
+| `20_summaries/README.md` | `${CLAUDE_PLUGIN_ROOT}/templates/wiki-folder-readmes/20_summaries.md` |
+| `30_concepts/README.md` | `${CLAUDE_PLUGIN_ROOT}/templates/wiki-folder-readmes/30_concepts.md` |
+| `40_methods/README.md` | `${CLAUDE_PLUGIN_ROOT}/templates/wiki-folder-readmes/40_methods.md` |
+| `50_datasets/README.md` | `${CLAUDE_PLUGIN_ROOT}/templates/wiki-folder-readmes/50_datasets.md` |
+| `60_people_institutions/README.md` | `${CLAUDE_PLUGIN_ROOT}/templates/wiki-folder-readmes/60_people_institutions.md` |
+| `90_synthesis/README.md` | `${CLAUDE_PLUGIN_ROOT}/templates/wiki-folder-readmes/90_synthesis.md` |
 
 New note pages inside this wiki use the shared templates at
 `<ROOT>/_templates/` (`concept_template.md`, `method_template.md`,
