@@ -5,6 +5,25 @@ section says what to run and what "it worked" actually looks like —
 concrete files/entries to check, not just "no errors." Linked from the root
 [README.md](../../../README.md).
 
+## 0. Start here — `/research-os-help`
+
+This is the fundamental guide-through capability, so it's worth testing
+first, before anything else on this page. Try it a few different ways:
+
+- **`/research-os-help`** with no arguments, from inside a real project.
+  **Working looks like:** it reads that project's `passport.yaml`, names
+  exactly where you are in the pipeline, and gives you one concrete next
+  step (not a menu of everything).
+- **`/research-os-help eli5`** — the newcomer mode. **Working looks like:** a
+  plain-language walkthrough of the whole system a first-time user could
+  follow without already knowing the terminology.
+- **`/research-os-help list`** (or "what can you do") — **Working looks
+  like:** it can name every skill/agent group from the README, not just the
+  pipeline ones.
+- Ask it something free-form, e.g. "why isn't Dataview working" or "what's
+  next" — **Working looks like:** it answers directly, and — if you
+  confirm — actually runs the next step rather than just describing it.
+
 ## 1. Wiki setup — three scenarios
 
 research-os separates *structure* (`/wiki-setup`, `/add-vault` — folders,
@@ -81,23 +100,28 @@ paths:
 
 ## 4. Admin / scheduled tasks
 
-- **Manual dry-run first.** Before trusting the schedule, paste each
-  routine's exact prompt text from
-  [scheduled-agents.md](scheduled-agents.md) directly into a session, one at
-  a time, and confirm it behaves as labeled:
+Only two of the four routines run unattended in the cloud; the other two
+are manual/local. See [scheduled-agents.md](scheduled-agents.md) for why.
+
+- **Manual dry-run first, all four.** Paste each routine's exact prompt text
+  from `scheduled-agents.md` directly into a session, one at a time, and
+  confirm it behaves as labeled:
   - Morning brief → genuinely makes **no writes** (check `git status` after —
     should be clean).
+  - Weekly vault-health audit → reports frontmatter/dedup/broken-link/staleness
+    findings, makes **no writes**.
   - Nightly consolidation → commits locally in each touched project, never
     pushes, and only **flags** unpushed wiki knowledge rather than acting on
     it.
   - Weekly review + planning → **drafts** `_brain/weekly/<Monday>.md` and
     proposes calendar blocks but creates nothing without your confirmation.
-  - Weekly vault-health audit → runs `wiki_quality_check.py` and reports,
-    makes **no writes**.
-- **Then verify the real cron registration** (see section 6 below for how
-  these get registered) — run `/schedule` (list mode) and confirm all four
-  appear with the correct cron expressions from the table in
-  [scheduled-agents.md](scheduled-agents.md).
+- **Then verify the cloud registration for the two cloud-feasible routines**
+  — run `/schedule` (list mode) and confirm morning brief and weekly
+  vault-health audit appear with the correct UTC cron expressions from
+  `scheduled-agents.md`, pointed at the vault's private GitHub repo.
+- **Nightly consolidation and weekly planning have no cloud registration to
+  check** — by design, for now. Run them by hand, or set up `/loop` on a
+  machine that stays on if you want them automatic too.
 
 ## 5. Learning (engram)
 
@@ -118,9 +142,10 @@ paths:
 
 | Area | Concrete signal |
 |---|---|
+| `/research-os-help` | Names your exact pipeline stage unprompted; ELI5 mode reads as newcomer-friendly |
 | Wiki setup | `~/.claude/vaults.json` has `root`, `brain`, and every expected wiki key |
 | Add-vault | New wiki folder + `vaults.json` entry + `wikis-index.md` row all appear together |
 | Second brain | `_brain/profile.md`, `_brain/projects/<slug>.md`, `_brain/daily/*.md` exist and read like *your* notes |
 | Project pipeline | `passport.yaml`'s `pipeline.current_stage` advances after each phase |
-| Scheduled tasks | `/schedule` list shows all 4 with the right cron expressions; read-only ones leave `git status` clean |
+| Scheduled tasks | `/schedule` list shows the 2 cloud routines with correct UTC crons; the 2 manual ones behave correctly when dry-run by hand |
 | Learning | A due-review queue that behaves like FSRS scheduling, not immediate every time |

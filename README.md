@@ -253,18 +253,32 @@ token-cost notes, vendoring details), see
 ## Scheduled admin routines
 
 Four routines are specced (cron schedule + exact prompt) in
-[scheduled-agents.md](plugins/research-os/references/scheduled-agents.md)
-and registered as cloud cron jobs via the `/schedule` skill: a read-only
-morning brief, a bounded-mutation nightly consolidation (local commits
-only, never pushes), a draft-only weekly review + planning pass, and a
-read-only weekly vault-health audit. See that file for the exact specs, and
-the [testing guide](plugins/research-os/references/testing-guide.md) for
-how to dry-run each one manually before trusting the schedule.
+[scheduled-agents.md](plugins/research-os/references/scheduled-agents.md).
+Only two can actually run unattended in the cloud — `/schedule` spawns an
+isolated cloud sandbox that only sees a cloned GitHub repo, not your local
+machine:
+
+- **Morning brief** and **weekly vault-health audit** — both read-only, both
+  registered as cloud routines via `/schedule` against a private GitHub
+  repo the vault is pushed to for this purpose.
+- **Nightly consolidation** and **weekly review + planning** — stay
+  manual/local: the former commits directly in local project repos (and is
+  guardrailed to never push, which only a local execution model can honor
+  faithfully), the latter reads per-project state a cloud clone of the
+  vault alone can't see. Run these by hand, or wire them up via `/loop` on a
+  machine that stays on.
+
+See `scheduled-agents.md` for the exact crons/prompts and why the split
+exists, and the
+[testing guide](plugins/research-os/references/testing-guide.md) for how to
+dry-run each one manually before trusting any schedule.
 
 ## Privacy
 
 `vault/` — your notes, profile, and everything the thematic wikis have
 learned — is **gitignored** in this repo and lives in its own independent
-local git repo (`vault/.git`, no remote) instead. It is never part of this
-repo's history, including past commits, so this repo can be shared or made
-public without exposing any personal research content.
+git repo instead (`vault/.git`). It is never part of *this* repo's history,
+including past commits, so this repo can be shared or made public without
+exposing any personal research content. The vault repo itself has no remote
+by default; a **private** (never public) GitHub remote is only added if you
+want the two cloud routines above, which need somewhere to clone from.
