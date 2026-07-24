@@ -1,2 +1,6 @@
 .claude/
 __pycache__/
+
+# Personal vault/second-brain content — never part of the public plugin repo.
+# vault/ is its own independent local git repo (vault/.git) for version history.
+vault/
