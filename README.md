@@ -11,6 +11,26 @@ This repo is a [Claude Code](https://claude.com/claude-code) plugin
 (`plugins/research-os/`) plus the personal Obsidian vault it maintains
 (`vault/`, kept out of this public repo — see [Privacy](#privacy) below).
 
+## Contents
+
+- [The problem, in one breath](#the-problem-in-one-breath)
+- [The three layers](#the-three-layers)
+- [Two hats: research assistant, personal assistant](#two-hats-research-assistant-personal-assistant)
+- [What happens when you...](#what-happens-when-you)
+- [Skills vs. agents, in one paragraph](#skills-vs-agents-in-one-paragraph)
+- [Every skill and agent](#every-skill-and-agent)
+  - [Research workflow](#research-workflow-the-academic-pipeline)
+  - [Wiki & knowledge](#wiki--knowledge)
+  - [Second brain & admin](#second-brain--admin)
+  - [Learning (engram)](#learning-engram)
+  - [Coding](#coding)
+  - [Other / general-purpose](#other--general-purpose)
+- [Layout](#layout)
+- [Getting started](#getting-started)
+- [Built on the shoulders of](#built-on-the-shoulders-of)
+- [Scheduled admin routines](#scheduled-admin-routines)
+- [Privacy](#privacy)
+
 ## The problem, in one breath
 
 Every AI chat starts from nothing: you re-explain your project every time,
@@ -292,33 +312,34 @@ component inventory, token-cost notes, vendoring details), see
 
 ## Scheduled admin routines
 
-Four routines are specced (cron schedule + exact prompt) in
-[scheduled-agents.md](plugins/research-os/references/scheduled-agents.md).
-Only two can actually run unattended in the cloud — `/schedule` spawns an
-isolated cloud sandbox that only sees a cloned GitHub repo, not your local
-machine:
+Four routines run unattended, fully **locally** — no cloud, nothing pushed
+anywhere: a read-only morning brief (daily), bounded-mutation nightly
+consolidation (daily, commits locally, never pushes), a read-only weekly
+vault-health audit (Fridays), and a draft-only weekly review + planning pass
+(Fridays). Each is a small PowerShell script
+(`plugins/research-os/scripts/scheduled/*.ps1`) registered as a Windows
+Scheduled Task, calling `claude -p` with a permission allowlist scoped to
+exactly what that routine needs — nightly consolidation's allowlist simply
+has no `git push` in it, so it's structurally incapable of pushing, not just
+instructed not to. Two of the four call the matching skill directly
+(`/research-os:daily-summary`, `/research-os:weekly-planning`) with an
+explicit non-interactive override, since those skills normally ask
+conversational questions a scheduled run has no one to answer. Every run
+logs to `vault/_brain/.scheduled-logs/<routine>/`.
 
-- **Morning brief** and **weekly vault-health audit** — both read-only, both
-  registered as cloud routines via `/schedule` against a private GitHub
-  repo the vault is pushed to for this purpose.
-- **Nightly consolidation** and **weekly review + planning** — stay
-  manual/local: the former commits directly in local project repos (and is
-  guardrailed to never push, which only a local execution model can honor
-  faithfully), the latter reads per-project state a cloud clone of the
-  vault alone can't see. Run these by hand, or wire them up via `/loop` on a
-  machine that stays on.
-
-See `scheduled-agents.md` for the exact crons/prompts and why the split
-exists, and the
+See [scheduled-agents.md](plugins/research-os/references/scheduled-agents.md)
+for the exact schedule, prompts, and design rationale, and the
 [testing guide](plugins/research-os/references/testing-guide.md) for how to
-dry-run each one manually before trusting any schedule.
+dry-run each one by hand and inspect the registered tasks
+(`schtasks /query /tn ResearchOS-<name> /fo LIST /v`).
 
 ## Privacy
 
 `vault/` — your notes, profile, and everything the thematic wikis have
 learned — is **gitignored** in this repo and lives in its own independent
-git repo instead (`vault/.git`). It is never part of *this* repo's history,
-including past commits, so this repo can be shared or made public without
-exposing any personal research content. The vault repo itself has no remote
-by default; a **private** (never public) GitHub remote is only added if you
-want the two cloud routines above, which need somewhere to clone from.
+local git repo instead (`vault/.git`, no remote). It is never part of *this*
+repo's history, including past commits, so this repo can be shared or made
+public without exposing any personal research content. Nothing about the
+scheduled routines above changes this — they're local processes with the
+same filesystem access as an interactive session, not a reason to push
+anything anywhere.
