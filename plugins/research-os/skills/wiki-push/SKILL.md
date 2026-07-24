@@ -48,9 +48,13 @@ This skill should:
    `_brain` routing below).
 3. **If neither exists**: stop — say the knowledge layer is not available,
    ask the user to run `/wiki-setup`, and do not invent file updates.
-4. **Pick the target wiki**: `--wiki <theme>` argument > current project's
-   `passport.yaml` `meta.main_wiki` > the registry's only wiki > ask the user
-   (list registered themes, wait for the answer).
+4. **Pick the target wiki** (full algorithm:
+   `${CLAUDE_PLUGIN_ROOT}/rules/wiki-integration.md` §"Picking the target
+   wiki — no project required"): `--wiki <theme>` argument > current
+   project's `passport.yaml` `meta.main_wiki` > a `.research-os-wiki` pin
+   file in the cwd (`wiki:` value) > the registry's only wiki > ask the user
+   (list registered themes, wait for the answer, then offer to write the pin
+   file so this folder doesn't ask again).
 5. Resolve `<WIKI>` and `<BRAIN>` (`brain.path`).
 
 ## Routing: which layer does this belong in?

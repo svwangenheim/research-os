@@ -47,16 +47,22 @@ research theme, numbered `00_inbox` .. `90_synthesis`).
 3. **If neither exists**: skip all wiki/brain steps silently. Say nothing
    about it and proceed with whatever the user asked, using only what's in
    the current project. Do not hallucinate wiki contents.
-4. **Pick the target wiki** (registry case), in order:
+4. **Pick the target wiki** (registry case), in order (full algorithm:
+   `${CLAUDE_PLUGIN_ROOT}/rules/wiki-integration.md` §"Picking the target
+   wiki — no project required"):
    - `--wiki <theme>` argument, if given.
    - Else, if a `passport.yaml` exists in the current project, read
      `meta.main_wiki`.
+   - Else, if a `.research-os-wiki` pin file exists in the cwd, read its
+     `wiki:` value — the project-less equivalent of `meta.main_wiki`.
    - Else, if the registry has exactly one wiki, use it.
    - Else (ambiguous): ask the user in plain text which registered wiki to
      use — list the themes with their one-line descriptions from the
      registry. Wait for the answer. This is the one place this otherwise
      silently-degrading skill asks a question, because guessing the wrong
-     theme would return misleading results.
+     theme would return misleading results. After they answer, offer to
+     write `wiki: <theme>` to a new `.research-os-wiki` file in the cwd so
+     this folder doesn't ask again next time.
 5. Resolve `<WIKI>` (the chosen wiki's path) and `<BRAIN>` (`brain.path` from
    the registry, if present).
 

@@ -33,11 +33,15 @@ content is out of scope here; that belongs to `/wiki-push` or `/checkpoint`.
    - Confirm a vault directory is added to this session and create
      `~/.claude/VAULT_PATH` manually.
    Do not hallucinate wiki contents.
-4. **Pick the target wiki**: `--wiki <theme>` argument (parsed out of
+4. **Pick the target wiki** (full algorithm:
+   `${CLAUDE_PLUGIN_ROOT}/rules/wiki-integration.md` §"Picking the target
+   wiki — no project required"): `--wiki <theme>` argument (parsed out of
    `$ARGUMENTS` before the file path/citation) > current project's
-   `passport.yaml` `meta.main_wiki` > the registry's only wiki > ask the user
-   which registered wiki to ingest into (list themes + descriptions, wait for
-   the answer).
+   `passport.yaml` `meta.main_wiki` > a `.research-os-wiki` pin file in the
+   cwd (`wiki:` value) > the registry's only wiki > ask the user which
+   registered wiki to ingest into (list themes + descriptions, wait for the
+   answer, then offer to write the pin file so this folder doesn't ask
+   again).
 5. Resolve `$WIKI` = the chosen wiki's absolute path, and `$VAULT_ROOT` =
    its parent directory (where the shared `_templates/`, `index.md`, and
    `log.md` live). Under the legacy-pointer fallback, `$WIKI` and

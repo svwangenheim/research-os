@@ -419,6 +419,11 @@ Summarize:
   `/add-thematic-wiki`
 - **Next steps:** `/add-thematic-wiki` to register a new theme, `/wiki-pull` to start
   pulling from what's here
+- If more than one wiki was registered: mention that wiki-touching skills
+  used outside a research-os project (no `passport.yaml`) will ask which
+  theme applies the first time in a given folder, then offer to drop a
+  `.research-os-wiki` pin file there so it doesn't ask again — no need to
+  run `/create-project` just to pin a theme to an ad hoc folder.
 
 ## Guardrails
 

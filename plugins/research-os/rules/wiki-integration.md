@@ -95,6 +95,18 @@ Wiki paths are resolved through the registry **`~/.claude/vaults.json`** (a them
 
 **Fallback:** if `~/.claude/vaults.json` does not exist yet (knowledge layer not built), fall back to the legacy single-vault pointer `~/.claude/VAULT_PATH` if present; otherwise skip all wiki steps silently — agents work from `01_literature/sources/` only.
 
+### Picking the target wiki — no project required
+
+`passport.yaml` is not the only way to pin a theme. Every wiki-touching skill (`wiki-pull`, `wiki-push`, `wiki-ingest`, `wiki-maintain`, `wiki-librarian`) resolves the target wiki via this order:
+
+1. **`--wiki <theme>` argument**, if given — always wins.
+2. **`passport.yaml` `meta.main_wiki`**, if the cwd is a research-os project.
+3. **`.research-os-wiki`**, a one-line pin file in the cwd (`wiki: <theme>`) — the project-less equivalent of `meta.main_wiki`. Anyone can drop this into any folder — a notes folder, an unrelated code repo, a scratch directory — to pin it to a theme without scaffolding a whole project. Read only, cwd only (no upward directory search, matching how `passport.yaml` itself is looked up).
+4. **The registry has exactly one wiki** — use it, no ambiguity possible.
+5. **Ask** — list the registered themes with their one-line descriptions from `vaults.json`, wait for the answer. Never guess silently past this point; a wrong silent pick returns misleading results.
+
+After step 5 resolves, **offer to write the pin**: "Want me to remember this for this folder? I'll drop a `.research-os-wiki` file here so future wiki commands skip this question." If the user agrees, write `wiki: <theme>` to `.research-os-wiki` in the cwd. This turns the one-time question into a durable per-folder default — the same job `meta.main_wiki` does inside a project, without requiring `/create-project`. The file is plain and inspectable; the user can hand-edit or delete it anytime, and can commit it to a shared repo if collaborators use the same theme name, or gitignore it if it's machine-local.
+
 ---
 
 ## Two literature sources — always search both
