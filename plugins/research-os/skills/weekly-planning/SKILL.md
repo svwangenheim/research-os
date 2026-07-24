@@ -64,7 +64,11 @@ cannot be done from within a skill.
 ## Step 6 — Write the weekly file
 
 `_brain/weekly/<YYYY-MM-DD>.md`, dated to the Monday of the week being
-planned:
+planned. Also capture a few forward-looking questions for next week, biased
+toward contradictions noticed, entities that keep co-occurring but aren't
+linked, and next actions left unnamed. The canonical layout is the shipped
+template `${CLAUDE_PLUGIN_ROOT}/templates/brain-notes/weekly_template.md`;
+the block below is the same content, inline as a fallback:
 
 ```markdown
 ---
@@ -86,6 +90,9 @@ updated: "<YYYY-MM-DD>"
 
 ## Calendar
 - <blocks created, or "not created — connector not authorized / declined">
+
+## Questions for next week
+- <open threads for future-me: contradictions noticed, entities that keep co-occurring but aren't linked, next actions left unnamed>
 ```
 
 ## Step 7 — Report

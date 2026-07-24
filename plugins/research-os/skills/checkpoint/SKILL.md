@@ -93,7 +93,7 @@ Present a compact summary:
 - **00_admin/process/sessions/:** [handoff note filename — only if a one-liner is insufficient]
 
 ### Personal brain updates
-- [if configured: entry prepended to <_brain>/projects/<slug>.md]
+- [if configured: journal entry + Orientation "where we stand" refresh in <_brain>/projects/<slug>.md]
 - [if not configured: "Skipped — no ~/.claude/vaults.json or VAULT_PATH"]
 
 ### Memory updates
@@ -149,21 +149,9 @@ Write directly to the personal brain filesystem — no plugin or MCP required. T
 1. Resolve `<_brain>` from `~/.claude/vaults.json` (fallback `~/.claude/VAULT_PATH`).
 2. Slug from `passport.yaml` `meta.slug`.
 3. Target: `<_brain>/projects/<slug>.md`.
-4. If the file does not exist, create it:
+4. **If the file does not exist,** create it from the hybrid template `${CLAUDE_PLUGIN_ROOT}/templates/brain-notes/project_template.md` — frontmatter + the `## Orientation` block + an empty `## Journal`. Seed the header (`Working directory`, `Started`) and as much of the Orientation as the session supports.
 
-```markdown
-# [Project Name]
-
-**Working directory:** [basename]
-**Started:** [YYYY-MM-DD]
-
----
-
-## Journal
-
-```
-
-5. Prepend under `## Journal` (newest first):
+5. **Append a Journal entry** under `## Journal` (newest first):
 
 ```markdown
 ### YYYY-MM-DD
@@ -175,7 +163,13 @@ Write directly to the personal brain filesystem — no plugin or MCP required. T
 - [concrete next steps]
 ```
 
-Keep it tight — 3–5 bullets per section max. Objective, reusable knowledge (a new concept/method/dataset) goes *down* into the relevant wiki via `/wiki-ingest`; cross-theme/personal insight goes *up* into `<_brain>/synthesis/`. The project note is neither — it is the session-by-session narrative.
+6. **Refresh the Orientation snapshot.** Rewrite only the `### Where we stand right now (as of <date>)` region — the content between the `<!-- @generated:start checkpoint-orientation -->` and `<!-- @generated:end -->` sentinels — and bump the date. Leave the stable Orientation subsections (question, gap, data, strategy) untouched unless the session changed them, and never edit text outside the sentinels (human free-text). This keeps the refresh bounded within the ~60s budget.
+
+7. **Update frontmatter:** `updated`; `status` if it changed; keep `summary` synced to the one-breath Orientation line.
+
+**Upgrading a legacy note:** if the note is the old bare `# Title / ## Journal` form (no frontmatter/Orientation), upgrade it **additively** on next touch — add frontmatter and insert an Orientation block seeded from the existing content, without rewriting historical journal entries.
+
+Keep it tight — 3–5 bullets per section max. Objective, reusable knowledge (a new concept/method/dataset) goes *down* into the relevant wiki via `/wiki-ingest`; cross-theme/personal insight goes *up* into `<_brain>/synthesis/`. The project note is the session-by-session narrative plus a kept-current Orientation.
 
 #### 4e. Claude Code Auto-Memory
 

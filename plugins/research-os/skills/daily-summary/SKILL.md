@@ -68,7 +68,9 @@ within a skill.
 ## Step 4 — Write the consolidated daily entry
 
 `_brain/daily/<YYYY-MM-DD>.md` (create if absent, otherwise **update in
-place** — this is still the same day, not a new artifact):
+place** — this is still the same day, not a new artifact). The canonical
+layout is the shipped template `${CLAUDE_PLUGIN_ROOT}/templates/brain-notes/daily_template.md`;
+the block below is the same content, inline as a fallback:
 
 ```markdown
 ---

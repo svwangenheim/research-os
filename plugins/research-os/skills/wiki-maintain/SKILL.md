@@ -58,8 +58,12 @@ duplicates, broken links, or synthesis update needs.
 ```bash
 # single wiki:
 python "${CLAUDE_PLUGIN_ROOT}/scripts/wiki_quality_check.py" --vault "$WIKI"
-# every registered wiki (default, no --wiki given):
+# every registered wiki + the _brain/ personal layer (default, no --wiki given):
 python "${CLAUDE_PLUGIN_ROOT}/scripts/wiki_quality_check.py" --root "$VAULT_ROOT"
+
+# regenerate the Claude-readable map(s) so /wiki-pull reads a current index:
+python "${CLAUDE_PLUGIN_ROOT}/scripts/generate_wiki_moc.py" --vault "$WIKI"      # single wiki
+python "${CLAUDE_PLUGIN_ROOT}/scripts/generate_wiki_moc.py" --root "$VAULT_ROOT" # all wikis
 ```
 
 Capture, per wiki:
@@ -69,6 +73,12 @@ Capture, per wiki:
 - orphan and weakly-linked notes;
 - broken wikilinks;
 - index/log staleness.
+
+In `--root` mode the checker also reports the `_brain/` personal layer
+(frontmatter gaps, catalog-invisible project notes, stale active projects).
+Those findings are **detection only** — surface them for the human or the
+owning skill (`/checkpoint` maintains project notes); this skill never
+remediates or writes into `_brain/`.
 
 If the checker is unavailable, perform the same checks manually with `Grep`,
 `Glob`, and file reads.
@@ -197,7 +207,7 @@ Update `$VAULT_ROOT/log.md` with a dated, theme-prefixed maintenance entry:
 ```
 ## [YYYY-MM-DD] maintain | <theme> | [short summary of what changed]
 ```
-No manual `index.md` edit is needed — it is Dataview-driven.
+No manual `index.md` edit is needed — it is Dataview-driven. Regenerate the Claude-readable `_map.md` (`generate_wiki_moc.py`) so the fast index reflects the changes.
 
 Ensure: every summary links to relevant canonical pages; every canonical
 page links back to relevant summaries; synthesis pages link both
@@ -208,6 +218,7 @@ links are introduced.
 
 ```bash
 python "${CLAUDE_PLUGIN_ROOT}/scripts/wiki_quality_check.py" --vault "$WIKI"
+python "${CLAUDE_PLUGIN_ROOT}/scripts/generate_wiki_moc.py" --vault "$WIKI"
 ```
 
 Do not stop after the first pass if the checker reports: thin or

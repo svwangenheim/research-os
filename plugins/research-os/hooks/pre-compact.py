@@ -173,6 +173,7 @@ def format_compaction_message(plan_info: dict | None, decisions: list[str], pass
     lines.append(f"{CYAN}Context Survival Checklist:{NC}")
     lines.append("  [ ] Active plan saved to 00_admin/process/plans/")
     lines.append("  [ ] passport.yaml up to date (pipeline.current_stage, sessions)")
+    lines.append("  [ ] Durable knowledge pushed (/wiki-push) — down to a wiki, up to _brain/synthesis")
     lines.append("  [ ] Open questions documented")
     lines.append("")
 

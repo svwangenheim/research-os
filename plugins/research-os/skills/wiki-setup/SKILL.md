@@ -111,16 +111,22 @@ auto-registered).
 3. **Root docs.** Do `<root>/CLAUDE.md`, `README.md`, `index.md`, `log.md`
    all exist? Check each independently. *(auto-fixable per missing file: copy
    from `${CLAUDE_PLUGIN_ROOT}/templates/vault-root/`)*
-4. **`_templates/`.** Does `<root>/_templates/` exist, and does it contain
-   all 7 of `concept_template.md`, `method_template.md`, `dataset_template.md`,
-   `entity_template.md`, `source_summary_template.md`, `synthesis_template.md`,
-   `project_template.md`? *(auto-fixable per missing file: copy from
-   `${CLAUDE_PLUGIN_ROOT}/templates/wiki-notes/`)*
+4. **`_templates/`.** Does `<root>/_templates/` exist, and does it contain all
+   11 templates — the 6 wiki-note templates (`concept_template.md`,
+   `method_template.md`, `dataset_template.md`, `entity_template.md`,
+   `source_summary_template.md`, `synthesis_template.md`) and the 5 brain-note
+   templates (`daily_template.md`, `weekly_template.md`, `thought_template.md`,
+   `learning_template.md`, `project_template.md`)? *(auto-fixable per missing
+   file: copy wiki templates from `${CLAUDE_PLUGIN_ROOT}/templates/wiki-notes/`,
+   brain templates from `${CLAUDE_PLUGIN_ROOT}/templates/brain-notes/`)*
 5. **`_brain/`.** Does `<root>/_brain/` exist with `profile.md`,
-   `wikis-index.md`, and the six subfolders `daily/ weekly/ thoughts/
-   projects/ synthesis/ learning/`? *(auto-fixable per missing piece: create
-   the missing subfolder with a `.gitkeep`, or recreate `profile.md` /
-   `wikis-index.md` — see Step 2B's exact content)*
+   `wikis-index.md`, `README.md`, and the six subfolders `daily/ weekly/
+   thoughts/ projects/ synthesis/ learning/` — **each subfolder containing a
+   `README.md`**? *(auto-fixable per missing piece: create the missing
+   subfolder, copy `_brain/README.md` from
+   `${CLAUDE_PLUGIN_ROOT}/templates/brain/README.md`, copy each folder
+   `README.md` from `${CLAUDE_PLUGIN_ROOT}/templates/brain/folder-readmes/<folder>.md`,
+   or recreate `profile.md` / `wikis-index.md` — see Step 2B)*
 6. **Per-wiki folder layout.** For each registered wiki (from the registry's
    `wikis` map), or — if there is no registry yet — any folder directly under
    the candidate root that contains a `10_sources/` subfolder: check all 8
@@ -194,12 +200,16 @@ individually.
    > `~/.claude/vaults.json` (plus wire it into `~/.claude/settings.json` and
    > `~/.claude/VAULT_PATH`). Proceed?
 3. On yes, create everything in one pass:
-   - `<root>/_templates/` ← copy all 7 files from
-     `${CLAUDE_PLUGIN_ROOT}/templates/wiki-notes/`.
+   - `<root>/_templates/` ← copy all wiki-note templates from
+     `${CLAUDE_PLUGIN_ROOT}/templates/wiki-notes/` **and** all brain-note
+     templates from `${CLAUDE_PLUGIN_ROOT}/templates/brain-notes/`.
    - `<root>/CLAUDE.md`, `README.md`, `index.md`, `log.md` ← copy from
      `${CLAUDE_PLUGIN_ROOT}/templates/vault-root/`.
+   - `<root>/_brain/README.md` ← copy from
+     `${CLAUDE_PLUGIN_ROOT}/templates/brain/README.md`.
    - `<root>/_brain/{daily,weekly,thoughts,projects,synthesis,learning}/`,
-     each with a `.gitkeep`.
+     each with a `.gitkeep` and a `README.md` copied from
+     `${CLAUDE_PLUGIN_ROOT}/templates/brain/folder-readmes/<folder>.md`.
    - `<root>/_brain/profile.md` — the uninitialized placeholder, exactly:
      ```markdown
      ---

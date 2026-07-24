@@ -18,6 +18,12 @@
       "role": "Spaced-repetition learning engine. VENDORED (not a separate installed plugin) — scripts/engram.py, agents/engram-*.md, skills/_shared/{dialogue,problem}-grammar.md + explorable-contract.md, docs/, gold/ copied in directly; learn/recall/coach SKILL.md files adapted (simplified for Claude-Code-only, wiki/project linkage woven in). A diff here means: re-copy the changed upstream files, then re-apply the same adaptation by hand — not a plugin update.",
       "last_seen_sha": "688877e0b72df3623cd7ccb6d95e0da922c83d0b",
       "last_checked": "2026-07-23"
+    },
+    "obsidian-second-brain": {
+      "github": "eugeniughelbur/obsidian-second-brain",
+      "role": "Peer LLM-maintained vault system (OKM standard). NOT integrated — watched for adoptable ideas only. research-os is deliberately more rigorous for research (immutable sources, preserved contradictions, human-readable notes); a diff here means: scan new commits for patterns worth porting (freshness/confidence conventions, MOC/index ideas, capture->graduate flow, scheduled-agent designs), never a wholesale adoption.",
+      "last_seen_sha": "ff3867b8fe95ff8a28fc2dafda3af579c739d80c",
+      "last_checked": "2026-07-23"
     }
   }
 }

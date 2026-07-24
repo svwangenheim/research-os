@@ -8,9 +8,11 @@ Bridge between this project and the thematic wiki(s). Refreshed by `/wiki-pull`,
 
 Full summaries live in `<theme>/20_summaries/`. This table is the project's view; `01_literature/` holds the extracted digest of `cited` + `intended` sources.
 
+<!-- @generated:start wiki-links-sources — refreshed by /wiki-pull, /wiki-push, /checkpoint; do not hand-edit inside these markers -->
 | Bibkey | Short cite | Proximity | Status | Wiki summary |
 |--------|-----------|-----------|--------|--------------|
 | <e.g. callaway2021> | Callaway & Sant'Anna (2021) | 2 | intended | `<theme>/20_summaries/callaway-santanna-2021.md` |
+<!-- @generated:end -->
 
 <!-- Status: relevant (in wiki, not used) · intended (plan to cite) · cited (in the draft) -->
 
@@ -34,3 +36,9 @@ Full summaries live in `<theme>/20_summaries/`. This table is the project's view
 
 - [ ] <objective concept/method/dataset learned here → down into the wiki>
 - [ ] <project synthesis / cross-theme insight → up into _brain/synthesis/>
+
+## Notes
+
+<!-- @user:start — freeform notes; preserved across every refresh, never overwritten -->
+
+<!-- @user:end -->

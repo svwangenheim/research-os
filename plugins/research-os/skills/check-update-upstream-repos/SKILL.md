@@ -1,19 +1,20 @@
 ---
 name: check-update-upstream-repos
-description: Diff research-os's tracked upstream repositories (clo-author, ARS/academic-research-skills, and — once Phase 5 integrates it — engram) against their live current state, summarize what changed since we last looked, and recommend what's worth adopting. Manual, ~bimonthly cadence — not automated. Use when the user asks "check for upstream updates", "is clo-author/ARS ahead of us", "any new engram changes", or runs this on a schedule they set up themselves.
+description: Diff research-os's tracked upstream repositories (clo-author, ARS/academic-research-skills, engram, and obsidian-second-brain) against their live current state, summarize what changed since we last looked, and recommend what's worth adopting. Manual, ~bimonthly cadence — not automated. Use when the user asks "check for upstream updates", "is clo-author/ARS ahead of us", "any new engram or obsidian-second-brain changes", or runs this on a schedule they set up themselves.
 argument-hint: "[repo name, optional — checks all tracked repos by default]"
 allowed-tools: Read, Write, Edit, Bash, WebFetch
 ---
 
 # Check Update: Upstream Repos
 
-research-os's pipeline is built on two (soon three) reference repos. This
-skill diffs their **live** current state against what we last looked at —
+research-os's pipeline is built on three reference repos (clo-author, ARS,
+engram) and watches one more for adoptable ideas (obsidian-second-brain).
+This skill diffs their **live** current state against what we last looked at —
 never a static local mirror, which would itself need to be kept in sync to
 stay meaningful as a diff target.
 
 **Input:** `$ARGUMENTS` — optionally a repo name (`clo-author`, `academic-research-skills`,
-`engram`) to check just one; otherwise checks every tracked repo.
+`engram`, `obsidian-second-brain`) to check just one; otherwise checks every tracked repo.
 
 State lives in `${CLAUDE_PLUGIN_ROOT}/state/upstream-repos.json` — the single
 source of truth for what "last checked" means per repo. Read it first.
@@ -30,9 +31,9 @@ Compare the returned SHA to `last_seen_sha`.
 - **Same** → up to date. Report and move on; no further steps for this repo.
 - **Different** → there's a gap. Continue to Step 2.
 
-For `engram` specifically, while `last_seen_sha` is still `null`: skip the
-diff entirely and report "not yet integrated (Phase 5) — nothing to diff
-against yet." Do not fabricate a baseline.
+If any repo's `last_seen_sha` is `null` (freshly added, not yet baselined):
+skip the diff, fetch the current HEAD, and — after the user confirms — record
+it as the baseline. Do not fabricate a baseline or diff against nothing.
 
 ## Step 2 — Summarize what changed (repos with a gap)
 
@@ -85,17 +86,15 @@ to set up their own cadence.
 
 ## Adding a new tracked repo
 
-When a future phase integrates another upstream reference (or Phase 5
-integrates engram), add an entry to `state/upstream-repos.json` with a real
-`last_seen_sha` fetched via `git ls-remote` at integration time — never a
-placeholder.
+When adopting or starting to watch another upstream reference, add an entry
+to `state/upstream-repos.json` with a real `last_seen_sha` fetched via
+`git ls-remote` at add time — never a placeholder.
 
 ## Guardrails
 
 Do not:
 - diff against a local checkout — always the live upstream via `git ls-remote`
-- fabricate a `last_seen_sha` for a repo that hasn't actually been integrated
-  yet (see engram)
+- fabricate a `last_seen_sha` for a repo — fetch the real HEAD via `git ls-remote`
 - silently apply a recommended change — this skill reports, it doesn't edit
 - update the state file before the user has seen the summary
 - recommend adopting something irrelevant to research-os just because it

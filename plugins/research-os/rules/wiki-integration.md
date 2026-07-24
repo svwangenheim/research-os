@@ -178,6 +178,8 @@ If a local Obsidian config exists AND the Obsidian MCP is connected, `/checkpoin
 
 Each project keeps `wiki-links.md` at its root — a curated index of the wiki notes relevant to this project, plus each source's citation status (relevant / intended / cited). It is refreshed by `/wiki-pull`, `/wiki-push`, and `/checkpoint`, and reflected in `project_dashboard.html`. Agents read it as a fast path to the most relevant wiki pages without scanning the full corpus. The template is `${CLAUDE_PLUGIN_ROOT}/templates/wiki-links.md`.
 
+**Regeneration safety.** Where Claude regenerates a file that also carries human edits, it only rewrites content inside `<!-- @generated:start … -->` / `<!-- @generated:end -->` markers and preserves any `<!-- @user -->` region verbatim. This applies to `wiki-links.md` (the sources table), the checkpoint Orientation snapshot in `_brain/projects/<slug>.md` (the `### Where we stand right now` region), and the generated regions of `project_dashboard.html`. Fully-generated files (`index.md`, `_map.md`) carry no human edits and need no markers.
+
 - `/wiki-pull` — at the start of a session, load the relevant wiki notes into the bridge
 - `/wiki-push` — at the end, push objective knowledge down into the wikis and personal/cross-theme insight up into `_brain/synthesis/`
 - `/checkpoint` — refresh the bridge and write the `_brain/projects/<slug>.md` note

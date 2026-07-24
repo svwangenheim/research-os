@@ -769,7 +769,7 @@ def build_plans_panel(plans):
     </section>"""
 
 
-def build_dashboard(root):
+def build_dashboard(root, user_notes=""):
     passport = load_passport(root)
     meta = scan_metadata(root, passport)
     data = scan_data(root)
@@ -839,6 +839,12 @@ def build_dashboard(root):
   <script type="application/json" id="report-data">{json.dumps(dashboard_data, indent=None)}</script>
   <div class="page">
     {body}
+    <section class="user-notes panel">
+      <h2>Notes</h2>
+      <!-- @user:start — freeform notes; preserved across every dashboard regeneration -->
+      {user_notes}
+      <!-- @user:end -->
+    </section>
     <footer class="generated-footer">
       Generated {generated} by research-os
     </footer>
@@ -846,6 +852,23 @@ def build_dashboard(root):
   <script>{js}</script>
 </body>
 </html>"""
+
+
+USER_REGION_RE = re.compile(r"<!-- @user:start.*?-->(.*?)<!-- @user:end -->", re.DOTALL)
+
+
+def extract_user_region(output_path):
+    """Return the preserved freeform user-notes HTML from an existing dashboard, or ''.
+
+    The dashboard is fully regenerated each run; this keeps any hand-written
+    notes inside the @user sentinels alive across regenerations.
+    """
+    try:
+        prior = output_path.read_text(encoding="utf-8", errors="replace")
+    except OSError:
+        return ""
+    match = USER_REGION_RE.search(prior)
+    return match.group(1).strip("\n") if match else ""
 
 
 def main():
@@ -857,7 +880,8 @@ def main():
     root = find_project_root(args.project_root)
     output = Path(args.output) if args.output else root / "project_dashboard.html"
 
-    html = build_dashboard(root)
+    user_notes = extract_user_region(output)
+    html = build_dashboard(root, user_notes=user_notes)
     output.write_text(html, encoding="utf-8")
     print(f"Dashboard generated: {output}")
 

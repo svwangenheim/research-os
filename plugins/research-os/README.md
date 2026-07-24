@@ -26,10 +26,10 @@ After editing anything under `plugins/research-os/`, run `claude plugin marketpl
 |-----|----------|
 | `skills/` | Slash-command skills (pipeline, wiki, routines, upstream-sync, help, learning, + consolidated general-purpose skills) |
 | `agents/` | Worker↔critic agents (clo-author roster + ARS capabilities merged in) + `wiki-librarian`, `python-reviewer`, `code-reviewer` + `engram-curriculum-architect`, `engram-assessor`, `engram-artifact-smith` |
-| `hooks/` | `hooks.json` (note: plugin hook manifests need a top-level `"hooks"` wrapper key — unlike a project's `.claude/settings.json`) + hook scripts (SessionStart nudges incl. engram's due-reviews nudge, guards) |
+| `hooks/` | `hooks.json` (note: plugin hook manifests need a top-level `"hooks"` wrapper key — unlike a project's `.claude/settings.json`) + hook scripts (SessionStart nudges incl. engram's due-reviews nudge, a Stop two-output `/wiki-push` nudge, guards) |
 | `rules/` | Governance rules (permissions, quality gates, folder-map, output-discipline, wiki-integration) |
 | `templates/` | Project + vault + passport scaffolds |
-| `state/` | Upstream-repo tracking (`upstream-repos.json`) |
+| `state/` | Upstream-repo tracking (`upstream-repos.json` — clo-author, ARS, engram vendored; obsidian-second-brain watched for adoptable ideas) |
 | `scripts/engram.py` | Vendored FSRS-4.5 learning engine — stdlib-only, self-testing, never hand-edited (see Update note below) |
 | `docs/`, `gold/`, `references/` | Vendored engram pedagogy docs, grader gold-set, and upstream README/LICENSE — cited by the learning skills for provenance |
 
@@ -44,6 +44,7 @@ After editing anything under `plugins/research-os/`, run `claude plugin marketpl
 - [x] DZ-specific output types (Geldbrief/Fachtext/Hintergrundpapier/Policy Brief) removed — academic paper only, per house-style calibration never materializing
 - [x] Global skill/agent consolidation — audited every remaining global skill/agent against research-os's own coverage; survivors vendored here, `claude-global/` retired, `~/.claude/skills`+`agents` now empty of custom content
 - [x] Phase 5: learning layer — engram **vendored directly** into this plugin (engine, agents, and shared pedagogy files copied in; not installed as a separate plugin); `/learn` is the context-sourced intake woven into engram's real teaching loop; `/recall` is engram's review loop (renamed to avoid colliding with `/peer-review`); `/coach` is engram's telemetry/strategy/dashboard loop, also vendored
+- [x] Phase 6: second-brain layer — per-folder READMEs + `note_type` templates for every `_brain/` folder, hybrid project note (Orientation + Journal, repairs the `index.md` catalog), surgical wiki conventions (In-brief lede, inline `confidence` tags, `(as of …)` stamps), Claude-readable `_map.md` MOC (`generate_wiki_moc.py`), `/connect` cross-theme bridge-finder, a standing two-output/propagation rule + Stop-hook `/wiki-push` nudge, narrow regeneration sentinels, `_brain` checks in `wiki_quality_check.py`, scheduled agents (morning brief / nightly consolidation / weekly review+planning / weekly health audit), and obsidian-second-brain added as a watched upstream
 
 ## Publishing note
 

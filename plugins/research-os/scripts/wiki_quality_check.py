@@ -3,12 +3,15 @@
 wiki_quality_check.py - advisory quality checker for research-os thematic wikis.
 
 Two-layer model aware: checks the Claude-maintained thematic wikis
-(`<wiki>/00_inbox .. 90_synthesis`), never `_brain/` (the human-owned layer,
-out of scope for this tool).
+(`<wiki>/00_inbox .. 90_synthesis`) and, in --root or --brain mode, the
+personal `_brain/` layer (frontmatter gaps, catalog-invisible project notes,
+stale active projects). Engram's non-markdown state under `_brain/learning/`
+is ignored.
 
 Usage:
     python wiki_quality_check.py --vault <path/to/one/wiki>
     python wiki_quality_check.py --root  <path/to/vault/root>
+    python wiki_quality_check.py --brain <path/to/vault/_brain>
 
 --vault checks a single wiki folder (must contain 10_sources/).
 --root checks every wiki registered in ~/.claude/vaults.json; if that
@@ -82,6 +85,30 @@ CORE_LINK_FOLDERS = (
     "60_people_institutions",
     "90_synthesis",
 )
+
+# _brain/ (personal layer) checks
+BRAIN_FOLDERS = ("projects", "thoughts", "learning", "synthesis", "daily", "weekly")
+
+BRAIN_FOLDER_NOTE_TYPES: dict[str, tuple[str, ...]] = {
+    "projects": ("project",),
+    "thoughts": ("thought",),
+    "learning": ("learning",),
+    "synthesis": ("synthesis",),
+    "daily": ("daily",),
+    "weekly": ("weekly",),
+}
+
+# folder -> required frontmatter keys (presence + non-empty)
+BRAIN_REQUIRED_FIELDS: dict[str, tuple[str, ...]] = {
+    "projects": ("title", "status", "updated"),
+    "thoughts": ("title", "updated"),
+    "learning": ("title", "confidence", "updated"),
+    "synthesis": ("title", "updated"),
+    "daily": ("updated",),
+    "weekly": ("updated",),
+}
+
+BRAIN_STALE_DAYS = 120  # an 'active' project note untouched this long is flagged
 
 MIN_SUMMARY_WORDS = 120  # below this, a summary body is "thin"
 DUPLICATE_TITLE_RATIO = 0.80  # difflib ratio threshold for "possible duplicate"
@@ -522,6 +549,130 @@ def render_report(report: WikiReport) -> str:
 
 
 # ---------------------------------------------------------------------------
+# _brain/ personal-layer checks
+# ---------------------------------------------------------------------------
+
+
+def load_brain_notes(brain_root: Path) -> list[Note]:
+    """Load notes from the six _brain/ content folders (top level only).
+
+    Skips READMEs, the frozen synthesis archive (a subfolder, so not globbed),
+    and engram's non-markdown state under learning/.
+    """
+    notes: list[Note] = []
+    for folder in BRAIN_FOLDERS:
+        folder_path = brain_root / folder
+        if not folder_path.is_dir():
+            continue
+        for md_path in sorted(folder_path.glob("*.md")):
+            if md_path.name.lower() in ("readme.md", "pending-topics.md"):
+                continue
+            note = load_note(brain_root, md_path)
+            if note is not None:
+                notes.append(note)
+    return notes
+
+
+def _parse_iso_date(raw: Any) -> Any:
+    from datetime import datetime as _dt
+
+    if not isinstance(raw, str):
+        return None
+    try:
+        return _dt.strptime(raw.strip()[:10], "%Y-%m-%d")
+    except ValueError:
+        return None
+
+
+def check_brain_note(note: Note) -> list[Finding]:
+    required = BRAIN_REQUIRED_FIELDS.get(note.folder, ())
+    missing = [key for key in required if is_empty(note.frontmatter.get(key))]
+    accepted = BRAIN_FOLDER_NOTE_TYPES.get(note.folder, ())
+    note_type = note.frontmatter.get("note_type")
+    if accepted and note_type not in accepted:
+        missing.append(f"note_type (found {note_type!r}, expected one of {accepted})")
+    if not missing:
+        return []
+    return [Finding("gap", note.rel, f"missing/empty frontmatter: {', '.join(missing)}")]
+
+
+def check_brain_orphans(notes: list[Note]) -> list[Finding]:
+    """Project notes lacking `note_type: project` are invisible to the
+    Dataview catalog (index.md queries WHERE note_type = 'project')."""
+    findings: list[Finding] = []
+    for note in notes:
+        if note.folder == "projects" and note.frontmatter.get("note_type") != "project":
+            findings.append(
+                Finding("orphan", note.rel, "no `note_type: project` frontmatter - invisible to the index.md catalog")
+            )
+    return findings
+
+
+def check_brain_staleness(notes: list[Note], today: Any = None) -> list[Finding]:
+    from datetime import datetime as _dt
+
+    today = today or _dt.now()
+    findings: list[Finding] = []
+    for note in notes:
+        if note.folder != "projects":
+            continue
+        if note.frontmatter.get("status") not in (None, "active"):
+            continue
+        updated = _parse_iso_date(note.frontmatter.get("updated"))
+        if updated is None:
+            continue
+        age = (today - updated).days
+        if age > BRAIN_STALE_DAYS:
+            findings.append(Finding("stale", note.rel, f"active project note not updated in {age} days (> {BRAIN_STALE_DAYS})"))
+    return findings
+
+
+@dataclass
+class BrainReport:
+    path: Path
+    counts: dict[str, int]
+    findings: list[Finding]
+
+
+def check_brain(brain_path: Path) -> BrainReport:
+    notes = load_brain_notes(brain_path)
+    counts = {folder: sum(1 for n in notes if n.folder == folder) for folder in BRAIN_FOLDERS}
+    findings: list[Finding] = []
+    for note in notes:
+        findings.extend(check_brain_note(note))
+    findings.extend(check_brain_orphans(notes))
+    findings.extend(check_brain_staleness(notes))
+    return BrainReport(path=brain_path, counts=counts, findings=findings)
+
+
+def render_brain_report(report: BrainReport) -> str:
+    lines: list[str] = [f"\n## Personal brain: _brain/  ({report.path})"]
+    counts_str = "  ".join(f"{folder}={report.counts.get(folder, 0)}" for folder in BRAIN_FOLDERS)
+    lines.append(f"Counts: {counts_str}")
+
+    by_kind: dict[str, list[Finding]] = {}
+    for finding in report.findings:
+        by_kind.setdefault(finding.kind, []).append(finding)
+
+    sections = [
+        ("gap", "Frontmatter gaps"),
+        ("orphan", "Catalog-invisible project notes"),
+        ("stale", "Stale active project notes"),
+    ]
+    total = 0
+    for kind, title in sections:
+        items = by_kind.get(kind, [])
+        total += len(items)
+        if not items:
+            continue
+        lines.append(f"\n### {title} ({len(items)})")
+        for item in items:
+            lines.append(f"  - {item.rel} - {item.detail}")
+    lines.append("\nNo issues found in _brain/." if total == 0 else f"\nTotal findings for _brain/: {total}")
+    return "\n".join(lines)
+
+
+# ---------------------------------------------------------------------------
 # Registry resolution
 # ---------------------------------------------------------------------------
 
@@ -579,7 +730,8 @@ def build_arg_parser() -> argparse.ArgumentParser:
     )
     group = parser.add_mutually_exclusive_group(required=True)
     group.add_argument("--vault", type=str, help="Path to a single wiki folder (contains 10_sources/, 20_summaries/, ...).")
-    group.add_argument("--root", type=str, help="Path to the vault root; checks every registered wiki under it.")
+    group.add_argument("--root", type=str, help="Path to the vault root; checks every registered wiki, plus _brain/ if present.")
+    group.add_argument("--brain", type=str, help="Path to the vault's _brain/ folder; checks the personal layer only.")
     return parser
 
 
@@ -612,6 +764,15 @@ def main(argv: list[str] | None = None) -> int:
         print(render_report(report))
         return 0
 
+    if args.brain:
+        brain_path = Path(args.brain).expanduser().resolve()
+        if not brain_path.is_dir():
+            print(f"'{brain_path}' is not a directory - nothing to check.")
+            return 0
+        print(f"wiki_quality_check - brain mode ({brain_path})")
+        print(render_brain_report(check_brain(brain_path)))
+        return 0
+
     root_path = Path(args.root).expanduser().resolve()
     wiki_paths = resolve_root_wikis(root_path)
     print(f"wiki_quality_check - root mode ({root_path})")
@@ -624,6 +785,10 @@ def main(argv: list[str] | None = None) -> int:
     reports = [check_one_wiki(p, external_stems) for p in wiki_paths if p.is_dir()]
     for report in reports:
         print(render_report(report))
+
+    brain_path = root_path / "_brain"
+    if brain_path.is_dir():
+        print(render_brain_report(check_brain(brain_path)))
 
     print("\n## Totals across all wikis")
     for report in reports:

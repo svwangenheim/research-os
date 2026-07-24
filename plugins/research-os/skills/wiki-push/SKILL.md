@@ -88,11 +88,12 @@ then route each item using the table above.
 
 ### Step 2: Push UP into `_brain/`
 - **`<BRAIN>/projects/<slug>.md`** — if the file doesn't exist, create it
-  (header + `## Journal`). Append project-specific durable takeaways. Note:
-  `/checkpoint` also writes here (the session log, newest-first, under
-  `## Journal`) — wiki-push instead writes interpretive findings; use a
-  distinct `## Findings` section (append, don't duplicate today's entry if
-  checkpoint already ran this session).
+  from the hybrid template `${CLAUDE_PLUGIN_ROOT}/templates/brain-notes/project_template.md`
+  (frontmatter + `## Orientation` + `## Journal`). Append project-specific
+  durable takeaways in a distinct `## Findings` section. `/checkpoint` owns
+  the `## Journal` and the Orientation snapshot — don't duplicate today's
+  journal entry, and never write inside the `<!-- @generated -->` Orientation
+  markers or any `<!-- @user -->` region.
 - **`<BRAIN>/synthesis/`** — for personal/cross-theme insight, update an
   existing synthesis note if one fits, else create one.
 
@@ -118,6 +119,8 @@ Update `wiki-links.md`, if it exists, to record:
 - what was pushed and to which layer
 - which wiki notes now matter for the project
 - what still remains to be pushed later
+
+Only rewrite content inside the `<!-- @generated -->` markers (the sources table); preserve any `<!-- @user -->` region verbatim.
 
 ### Step 6: Append to the wiki log
 Append an entry to the vault root's `log.md` (one level above `<WIKI>`,
