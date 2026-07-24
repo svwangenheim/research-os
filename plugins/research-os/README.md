@@ -48,6 +48,11 @@ You do not need to track which role is active at a given moment. Running `/check
 
 ## Getting started
 
+**Prerequisites:**
+- **Claude Code** — install the CLI first if you haven't already, from [claude.com/claude-code](https://claude.com/claude-code), and sign in with an Anthropic/Claude account that has Claude Code access (it will prompt you to log in on first run).
+- **Git** — installed and available on your `PATH` (check with `git --version`; install from [git-scm.com](https://git-scm.com) if missing). Claude Code clones this repo when you register it as a plugin marketplace source, so it needs a working `git` command.
+- **No GitHub login needed** — this repo is public, so nothing beyond git itself is required to add it as a marketplace source.
+
 Four steps, in order. The first two are required; the remainder depend on what you need.
 
 **1. Install** the plugin (not just source in this repo — a real install):
