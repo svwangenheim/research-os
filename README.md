@@ -8,6 +8,7 @@ This repo is a [Claude Code](https://claude.com/claude-code) plugin (`plugins/re
 
 - [Motivation](#motivation)
 - [The three layers](#the-three-layers)
+- [How the vault, wikis, and projects fit together](#how-the-vault-wikis-and-projects-fit-together)
 - [Two roles: research assistant and personal assistant](#two-roles-research-assistant-and-personal-assistant)
 - [Getting started](#getting-started)
 - [Common workflows](#common-workflows)
@@ -37,6 +38,32 @@ Every AI conversation otherwise starts from a blank slate: you re-explain your p
 **2. A two-layer knowledge base.** `_brain/` is your personal space — profile, daily/weekly notes, project journals, your own synthesis. Alongside it sit one or more **thematic wikis** — Claude-maintained knowledge bases, one per research theme, that absorb every paper, dataset, and method you feed them and continuously rewrite themselves to stay current rather than simply accumulating notes. You read the wikis; you do not edit them directly.
 
 **3. A learning layer.** Built on [engram](https://github.com/nagisanzenin/engram), vendored directly into this plugin: point it at anything that was unclear, and it teaches the concept properly — a first-principles breakdown, Socratic dialogue, tested recall — then schedules spaced-repetition reviews so it is retained.
+
+## How the vault, wikis, and projects fit together
+
+There is exactly **one vault** (`vault/` in this repo, though it can live anywhere — see [Privacy](#privacy)). It is the single top-level container for everything durable, and it holds two kinds of things:
+
+- **`_brain/`** — your personal second brain. One per vault: profile, daily/weekly notes, freeform thoughts, project journals, and cross-theme synthesis that spans multiple wikis.
+- **One or more thematic wikis** — each wiki stores the sources, summaries, concepts, methods, and datasets for a single research theme (e.g. `climate/`, `pensions/`, `innovation/`). A wiki isn't scoped to one project: it accumulates knowledge that *any* project on that theme can draw on.
+
+Projects themselves live outside the vault, in their own folders (created by `/create-project`). Each project points to a **main wiki** — the theme its research question belongs to, recorded in `passport.yaml`'s `meta.main_wiki` and bridged via the project's `wiki-links.md`. A project reads from its main wiki (and can read others) but never edits one directly; all wiki writes go through Claude via `/wiki-ingest`, `/wiki-push`, and `/wiki-maintain`.
+
+The relationship nests, many-to-one at each level:
+
+```
+vault (exactly one)
+ ├── _brain/                     one personal space, shared by every wiki and project
+ ├── wiki: climate/               ← several projects can share one wiki
+ │    ├── project: "carbon-tax-incidence"
+ │    └── project: "eu-ets-reform"
+ ├── wiki: pensions/
+ │    └── project: "pension-reform-2026"
+ └── wiki: innovation/
+      ├── project: "patent-citations"
+      └── project: "vc-funding-cycles"
+```
+
+In short: one or more **projects** connect to a **wiki** → one or more **wikis** connect to the **vault** → there is only ever one vault, containing all wikis and, through them, all projects. Use `/add-thematic-wiki` once per research theme (not once per project — projects on the same theme should share a wiki); use `/create-project` to start a research project and assign it to an existing or new wiki.
 
 ## Two roles: research assistant and personal assistant
 
@@ -77,6 +104,8 @@ For the plugin's technical internals (directory-by-directory component inventory
 ## Common workflows
 
 **Starting a new project** — `/create-project "does X affect Y"` runs a short interview, identifies (or asks about) which thematic wiki the project belongs to, and scaffolds the full folder tree, a project config, and a starter dashboard. Nothing is inferred silently; every step is confirmed.
+
+**Adding a new thematic wiki** — `/add-thematic-wiki` registers a new theme with the two-layer knowledge system: point it at a vault or notes folder you already have to adopt it, or let it scaffold a brand-new empty one with the standard numbered layout (`00_inbox` → `90_synthesis`). Either way it adds an entry to `~/.claude/vaults.json` and a row to `_brain/wikis-index.md`, so `/create-project` and `/wiki-pull` can find it. Do this once per research theme, not once per project — projects that share a theme should share a wiki.
 
 **Ingesting a paper** — `/wiki-ingest paper.pdf` extracts the source, writes a proper summary page, updates or creates the relevant concept, method, and dataset pages in the wiki, and links everything together. The next time this topic comes up in any project, `/wiki-pull` retrieves it automatically.
 
