@@ -46,6 +46,25 @@ this plugin: point it at anything that confused you, and it teaches it to
 you properly — a first-principles breakdown, Socratic back-and-forth, tested
 recall — then schedules spaced-repetition reviews so it actually sticks.
 
+## Two hats: research assistant, personal assistant
+
+Split the skills above into what they're actually doing for you, and it's
+two separate jobs wearing one system:
+
+- **Research assistant** — the pipeline and the wikis. This is the part
+  that helps you *do the research*: find the literature, design the
+  strategy, run the analysis, write the paper, survive peer review, and keep
+  a knowledge base that gets smarter every time you feed it a source.
+- **Personal assistant** — the daily/weekly admin routines and the learning
+  layer. This is the part that runs *you*: what happened today, what's
+  planned for the week, what's due for review, what you asked to actually
+  learn instead of just having Claude do it for you.
+
+Neither needs you to remember which hat is on. You just run `/checkpoint`
+at the end of a session, `/daily-summary` at the end of a day,
+`/weekly-planning` at the end of a week, and `/learn` whenever something
+confuses you — the system routes the rest.
+
 ## What happens when you...
 
 **...start a new project** — `/create-project "does X affect Y"` → Claude
@@ -217,20 +236,41 @@ No dedicated agents in this group — these work directly, without dispatching a
 
 ## Getting started
 
-Install as a real Claude Code plugin (not just source in this repo):
+Four steps, in order — the first two aren't optional, the rest is up to you.
+
+**1. Install** the plugin (not just source in this repo — a real install):
 ```
 claude plugin marketplace add <path-to-this-repo>
 claude plugin install research-os@research-os
 ```
-Then run `/wiki-setup` — it's conversational and figures out whether you're
-starting fresh or already have a vault somewhere, and creates or repairs
-whatever's needed either way.
 
-For a full walkthrough of everything above, with a "what should now exist"
-check for each area, see the
-[testing guide](plugins/research-os/references/testing-guide.md). For the
-plugin's technical internals (directory-by-directory component inventory,
-token-cost notes, vendoring details), see
+**2. Set up the knowledge base — `/wiki-setup`.** Run this before anything
+else; every other capability assumes it exists. It's conversational: it
+asks whether you already have a wiki/vault somewhere (point it there) or
+you're starting fresh (it builds everything — folder structure, Obsidian
+config, the registry — in one pass), then runs a short profile interview.
+You'll come out the other side with a real `_brain/profile.md` and, if you
+gave it one, at least one registered thematic wiki.
+
+**3. Get oriented — `/research-os-help`.** Never used this before? Run
+`/research-os-help eli5` for a plain-language walkthrough of the whole
+system. Already in a project and just not sure what's next? Plain
+`/research-os-help` reads that project's state and tells you exactly where
+you are and what to do next. Come back to this command any time you're
+unsure — it's the front door, not a one-time onboarding step.
+
+**4. Do something.** Pick whichever matches what's actually in front of you:
+- Have a research question? → `/create-project "does X affect Y"`
+- Have a paper or dataset you want preserved? → `/wiki-ingest paper.pdf`
+- Something just confused you (a method, a piece of code, anything)? → `/learn`
+- Just want to see everything that exists? → the tables further down, or
+  `/research-os-help list`
+
+From here, the [testing guide](plugins/research-os/references/testing-guide.md)
+walks through every capability area with a concrete "what should now exist"
+check, and is the fastest way to actually learn the system by doing rather
+than reading. For the plugin's technical internals (directory-by-directory
+component inventory, token-cost notes, vendoring details), see
 [plugins/research-os/README.md](plugins/research-os/README.md).
 
 ## Built on the shoulders of
