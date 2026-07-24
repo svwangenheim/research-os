@@ -1,7 +1,7 @@
 ---
 name: research-os-help
-description: Your research-os front door and complete guide. Reads the current project's passport.yaml and tells you exactly where you are in the pipeline and the next step (required vs optional); explains the whole system; knows every skill and agent in the plugin and what each is for; and — if you confirm — runs the next step for you. Has an ELI5 mode (`/research-os-help eli5`) that explains everything in plain language for a newcomer. Use anytime you're unsure what to do next, want the full capability list, or ask e.g. "what's next", "what can this do", "explain the whole workflow".
-argument-hint: "[nothing | 'what's next' | 'explain' | 'list' / 'what can you do' | 'eli5' | a free-form question]"
+description: Your research-os front door and complete guide — useful whether or not you're inside a project folder. Inside a project, reads passport.yaml and tells you exactly where you are in the pipeline and the next step (required vs optional). Outside a project, routes you straight to whichever skill fits whatever you're actually doing — the knowledge base, the learning layer, the admin routines, general-purpose skills, or a pipeline skill invoked directly on a target (a file, a topic) — with `/create-project` offered as the way to formalize the work into a tracked paper once that's what's wanted, not a precondition. Knows every skill and agent in the plugin and what each is for, and — if you confirm — runs the next step for you. Has an ELI5 mode (`/research-os-help eli5`) that explains everything in plain language for a newcomer. Use anytime you're unsure what to do next, want the full capability list, or ask e.g. "what's next", "what can this do", "explain the whole workflow".
+argument-hint: "[nothing | explain | list | eli5]"
 allowed-tools: Read,Glob,Grep,Bash,AskUserQuestion,Skill,Task
 ---
 
@@ -34,7 +34,14 @@ been added or renamed since this file was written.
 ### Step 1 — Locate state
 1. Look for `passport.yaml` in the current project (cwd, or a path in `$ARGUMENTS`).
 2. **If found:** read `meta`, `research`, `pipeline` (current_stage + per-stage status/score/gate), `integrity`, and `literature_corpus`. This is the source of truth for "where am I."
-3. **If not found:** the user isn't inside a project. Give the system overview (Mode B / the catalog) and point them to `/create-project` — or, if they're doing knowledge/learning work, route to the relevant cross-cutting skill below.
+3. **If not found:** the user isn't inside a project folder — that's a normal, common state, not a dead end. research-os isn't limited to tracked, staged research-paper projects: it's useful for whatever the user is actually doing, project or not. Most skills work directly on a target — a file, a topic, a question — rather than requiring `passport.yaml`:
+   - **Knowledge layer:** `/wiki-pull`, `/wiki-ingest`, `/wiki-push`, `/wiki-maintain`, `/connect`, `/wiki-setup`, `/add-thematic-wiki`.
+   - **Learning layer:** `/learn`, `/recall`, `/coach`.
+   - **Admin routines:** `/daily-summary`, `/weekly-planning`.
+   - **General-purpose:** `/article-writing`, `/content-engine`, `/frontend-slides`, `/exa-search`, `/prompt-optimizer`, `/python-patterns`, `/python-testing`, `/documentation-lookup`, `/git-workflow`, `/data-scraper-agent`, `/continuous-learning-v2`.
+   - **Pipeline skills too, when invoked on a specific target:** most route by explicit input (a file path, a topic, a flag) rather than by pipeline stage, so a project isn't a precondition for using them one-off — e.g. `/peer-review --code path/to/script.py` or `/discover lit "some topic"`, but this pattern isn't limited to those two; check the skill's own argument-hint for what it accepts directly.
+
+   Ask what they're actually trying to do and route straight to the matching skill — don't default to pointing at `/create-project` just because no project was found. Offer `/create-project` as the option to formalize the work into a fully tracked paper (discover → strategize → analyze → write → review → revise → submit) once that's what the user actually wants, not a gate they have to pass through first. If their intent isn't clear from the question, ask a short clarifying question before routing rather than dumping the whole catalog unprompted.
 
 ### Step 2 — Determine the next step
 From `pipeline`: find `current_stage` and the first stage whose `status` isn't `passed`.
@@ -63,17 +70,20 @@ From `pipeline`: find `current_stage` and the first stage whose `status` isn't `
 - **Overview anytime:** `/dashboard` (living `project_dashboard.html`).
 - **Confused by a method/code Claude introduced:** `/learn`; clear due reviews with `/recall`; check retention/strategy with `/coach`.
 - **End of day / week:** `/daily-summary` · `/weekly-planning`. (Also available as scheduled agents — see the catalog.)
-- **First time / new machine:** `/wiki-setup` (bootstrap or repair the whole knowledge layer); `/add-vault` to register a new thematic wiki.
+- **First time / new machine:** `/wiki-setup` (bootstrap or repair the whole knowledge layer); `/add-thematic-wiki` to register a new thematic wiki.
 - **~Bimonthly:** `/check-update-upstream-repos` (diffs clo-author / ARS / engram / obsidian-second-brain against upstream).
 
 ### Step 3 — Present + optionally advance
-Report concisely:
+
+**If a project was found (Step 1.2),** report concisely:
 1. **You are here:** current stage + one-line status of each stage (✓ passed / ▶ in progress / ○ pending / ✗ blocked).
 2. **Next step (required):** the exact command + mode, and why.
 3. **Optional next steps:** e.g. `/wiki-pull`, `/learn`, `/dashboard`, `/connect`.
 4. **Integrity flags:** anything in `integrity.unresolved`.
 
-Then offer **guided auto-advance**:
+**If no project was found (Step 1.3),** skip the stage report entirely — there's no pipeline state to summarize. Instead name the one skill (or short sequence) that matches what the user asked for, and why it's the right fit standalone.
+
+Either way, then offer **guided auto-advance**:
 > Want me to run **`<next command>`** now? (yes / no — I'll wait)
 
 - On **yes**: invoke the recommended skill (via the Skill tool); let it run its normal flow.
@@ -118,7 +128,7 @@ also enumerate live from `${CLAUDE_PLUGIN_ROOT}/skills/*/SKILL.md` +
 
 **Knowledge (two-layer vault):**
 - `/wiki-setup` — bootstrap or repair the whole knowledge layer (structure, templates, root docs, registry).
-- `/add-vault` — register a new thematic wiki (numbered layout + READMEs).
+- `/add-thematic-wiki` — register a new thematic wiki (numbered layout + READMEs).
 - `/wiki-pull` — retrieve prior knowledge before work (reads each wiki's `_map.md` first).
 - `/wiki-push` — write durable knowledge back (down to a wiki, up into `_brain/synthesis/`).
 - `/wiki-ingest` — ingest a source (PDF/markdown/Office/citation) into a thematic wiki.
@@ -202,7 +212,7 @@ End by asking if they want to try one of these now.
 
 research-os layers:
 - **Projects** — `/create-project` scaffolds a numbered project; the pipeline turns it into a paper.
-- **Knowledge** — two layers in one Obsidian root: Claude-only **thematic wikis** (`/wiki-ingest`, `/wiki-maintain`, `/connect`) and your personal **`_brain/`** second brain (`/wiki-setup`, `/add-vault`, `/wiki-pull`, `/wiki-push`). Objective facts go down to a wiki; personal/cross-theme thinking goes up into `_brain/`. Humans read the wikis but don't hand-edit them.
+- **Knowledge** — two layers in one Obsidian root: Claude-only **thematic wikis** (`/wiki-ingest`, `/wiki-maintain`, `/connect`) and your personal **`_brain/`** second brain (`/wiki-setup`, `/add-thematic-wiki`, `/wiki-pull`, `/wiki-push`). Objective facts go down to a wiki; personal/cross-theme thinking goes up into `_brain/`. Humans read the wikis but don't hand-edit them.
 - **Routines** — `/daily-summary`, `/weekly-planning`, plus opt-in scheduled agents.
 - **Learning** — `/learn`, `/recall`, `/coach`: **engram**'s spaced-repetition engine (FSRS-4.5, blind assessor), **vendored** directly into this plugin (not a separate install); its state lives in `_brain/learning/`.
 - **Maintenance** — `/check-update-upstream-repos` tracks clo-author, ARS, the vendored engram commit, and obsidian-second-brain (watched for ideas).
@@ -212,7 +222,7 @@ research-os layers:
 
 ## Principles
 
-- **Passport is truth.** Never guess the stage — read `passport.yaml`.
+- **Passport is truth, when one exists.** Never guess the stage — read `passport.yaml`. No passport is not an error state — it just means route by intent instead of by pipeline stage.
 - **One step at a time.** Recommend the single next step; advance only on explicit confirmation.
 - **Required vs optional, always.** Don't bury the one thing they must do next.
 - **Name the exact command + mode.** No vague "continue the analysis."

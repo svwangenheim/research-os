@@ -77,7 +77,7 @@ for batch in chunks(items, size=5):
 
 ### Step 1: Understand the Goal
 
-This is conversational, not a form dump — ask one or two at a time and wait for the user's reply before moving to the next, the same way `/discover` and `/add-vault` scope new work. By the end you need answers to all five:
+This is conversational, not a form dump — ask one or two at a time and wait for the user's reply before moving to the next, the same way `/discover` and `/add-thematic-wiki` scope new work. By the end you need answers to all five:
 
 1. **What to collect:** "What data source? URL / API / RSS / public endpoint?"
 2. **What to extract:** "What fields matter? Title, price, URL, date, score?"

@@ -13,7 +13,7 @@
 | synthesis/ | personal & cross-theme synthesis | `/wiki-push` |
 | learning/ | durable lessons + engram's spaced-repetition state | `/learn`, `/recall`, engram |
 | `profile.md` | your standing context / "critical facts", loaded each session | `/wiki-setup`, `/wiki-pull` |
-| `wikis-index.md` | index of the registered thematic wikis | `/add-vault` |
+| `wikis-index.md` | index of the registered thematic wikis | `/add-thematic-wiki` |
 | `index.md` | Dataview catalog of this layer | generated |
 
 ## Note conventions

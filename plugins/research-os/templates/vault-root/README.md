@@ -8,7 +8,7 @@ This is the unified knowledge root for research-os: one Obsidian vault holding a
 - **`_brain/`** — the human's space: profile, daily/weekly notes, freeform thoughts, per-project
   journals, personal + cross-theme synthesis, durable learnings. Humans write here; Claude writes
   here too (via `/checkpoint`, `/wiki-push`).
-- **`<theme>/`** (e.g. a wiki registered via `/add-vault`) — thematic wikis. Claude maintains these
+- **`<theme>/`** (e.g. a wiki registered via `/add-thematic-wiki`) — thematic wikis. Claude maintains these
   automatically (ingesting sources, writing summaries, canonicalizing concepts/methods/datasets).
   Humans read them; they don't hand-edit them.
 - **`_templates/`** — shared note templates used across every wiki and `_brain/`.
@@ -25,7 +25,7 @@ notes — the wiki (and the brain) should feel cumulative, not scattered.
 
 ## Adding a new theme
 
-Run `/add-vault` rather than creating a folder by hand — it registers the theme in
+Run `/add-thematic-wiki` rather than creating a folder by hand — it registers the theme in
 `~/.claude/vaults.json` and scaffolds the numbered layout.
 
 ## Checking structural health

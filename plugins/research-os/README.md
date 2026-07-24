@@ -1,20 +1,15 @@
 # research-os (plugin)
 
-This is the `research-os` Claude Code plugin itself — the `plugins/research-os/`
-folder inside the [research-os](../../README.md) repo. Everything below is
-the same full guide as the repo root README (so this plugin folder is
-self-documenting on its own, e.g. if viewed through a plugin marketplace
-listing rather than the repo); a short **[Plugin internals](#plugin-internals)**
-section at the end adds the install/technical details specific to this
-folder that don't belong in the ELI5 version.
+This document covers the `plugins/research-os/` folder within the [research-os](../../README.md) repository — the plugin itself. It mirrors the guide in the repository root README so this folder remains self-contained when viewed through a plugin marketplace listing rather than the repository. A short **[Plugin internals](#plugin-internals)** section at the end adds install and technical details specific to this folder that don't belong in the general-audience version above it.
 
 ## Contents
 
-- [The problem, in one breath](#the-problem-in-one-breath)
+- [Motivation](#motivation)
 - [The three layers](#the-three-layers)
-- [Two hats: research assistant, personal assistant](#two-hats-research-assistant-personal-assistant)
-- [What happens when you...](#what-happens-when-you)
-- [Skills vs. agents, in one paragraph](#skills-vs-agents-in-one-paragraph)
+- [Two roles: research assistant and personal assistant](#two-roles-research-assistant-and-personal-assistant)
+- [Getting started](#getting-started)
+- [Common workflows](#common-workflows)
+- [Skills vs. agents](#skills-vs-agents)
 - [Every skill and agent](#every-skill-and-agent)
   - [Research workflow](#research-workflow-the-academic-pipeline)
   - [Wiki & knowledge](#wiki--knowledge)
@@ -23,188 +18,154 @@ folder that don't belong in the ELI5 version.
   - [Coding](#coding)
   - [Other / general-purpose](#other--general-purpose)
 - [Layout](#layout)
-- [Getting started](#getting-started)
-- [Built on the shoulders of](#built-on-the-shoulders-of)
+- [Acknowledgments](#acknowledgments)
 - [Scheduled admin routines](#scheduled-admin-routines)
 - [Privacy](#privacy)
 - [Plugin internals](#plugin-internals)
 
-## The problem, in one breath
+## Motivation
 
-Every AI chat starts from nothing: you re-explain your project every time,
-good ideas said mid-conversation just evaporate, and your Obsidian notes
-never talk to your AI at all. Meanwhile, real research has a lot of
-repetitive scaffolding — folder structures, literature reviews, citation
-formatting, replication packages — that a careful process can mostly do for
-you, if something actually holds you to the process. research-os is an
-attempt to fix both: a system that remembers, and a system that doesn't skip
-steps.
+research-os is a single AI research assistant setup that works across every research project you run. It organizes your work and assists you through the entire empirical research process — from an initial idea to a submitted paper — while retaining context across all of your projects, not just within one conversation. It doubles as a second brain and knowledge wiki for researchers: literature, methods, datasets, and your own thinking accumulate in one place instead of evaporating at the end of each session.
+
+Every AI conversation otherwise starts from a blank slate: you re-explain your project each time, ideas raised mid-conversation are lost, and your notes never reach your AI assistant. At the same time, research work involves a lot of repetitive scaffolding — folder structures, literature reviews, citation formatting, replication packages — that a disciplined process can largely handle for you, provided something actually enforces that process. research-os is built to solve both: a system that retains context, and a system that does not skip steps.
 
 ## The three layers
 
-**1. A research pipeline.** Discover a question → design the strategy →
-analyze the data → write the paper → get it peer-reviewed → revise → submit.
-Each phase has a specialist "worker" agent and, in most phases, a paired
-"critic" agent whose entire job is to find problems in the worker's output —
-critics can't edit files, and workers can't grade their own work. This part
-is built on [clo-author](https://github.com/hugosantanna/clo-author) with
-[ARS](https://github.com/Imbad0202/academic-research-skills)'s integrity
-checks folded in (see [Built on the shoulders of](#built-on-the-shoulders-of)).
+**1. A research pipeline.** Discover a question → design the strategy → analyze the data → write the paper → get it peer-reviewed → revise → submit. Each phase has a specialist "worker" agent and, in most phases, a paired "critic" agent whose sole job is to find problems in the worker's output — critics cannot edit files, and workers cannot grade their own work. This part is built on [clo-author](https://github.com/hugosantanna/clo-author), with [ARS](https://github.com/Imbad0202/academic-research-skills)'s integrity checks incorporated (see [Acknowledgments](#acknowledgments)).
 
-**2. A two-layer knowledge base.** `_brain/` is *your* space — profile,
-daily/weekly notes, project journals, your own synthesis. Alongside it sit
-one or more **thematic wikis** — Claude-maintained knowledge bases, one per
-research theme, that absorb every paper/dataset/method you feed them and
-keep rewriting themselves to stay current rather than just piling up notes.
-You read the wikis; you don't hand-edit them.
+**2. A two-layer knowledge base.** `_brain/` is your personal space — profile, daily/weekly notes, project journals, your own synthesis. Alongside it sit one or more **thematic wikis** — Claude-maintained knowledge bases, one per research theme, that absorb every paper, dataset, and method you feed them and continuously rewrite themselves to stay current rather than simply accumulating notes. You read the wikis; you do not edit them directly.
 
-**3. A learning layer.** Built on
-[engram](https://github.com/nagisanzenin/engram), vendored directly into
-this plugin: point it at anything that confused you, and it teaches it to
-you properly — a first-principles breakdown, Socratic back-and-forth, tested
-recall — then schedules spaced-repetition reviews so it actually sticks.
+**3. A learning layer.** Built on [engram](https://github.com/nagisanzenin/engram), vendored directly into this plugin: point it at anything that was unclear, and it teaches the concept properly — a first-principles breakdown, Socratic dialogue, tested recall — then schedules spaced-repetition reviews so it is retained.
 
-## Two hats: research assistant, personal assistant
+## Two roles: research assistant and personal assistant
 
-Split the skills above into what they're actually doing for you, and it's
-two separate jobs wearing one system:
+The skills described here serve two distinct functions within one system:
 
-- **Research assistant** — the pipeline and the wikis. This is the part
-  that helps you *do the research*: find the literature, design the
-  strategy, run the analysis, write the paper, survive peer review, and keep
-  a knowledge base that gets smarter every time you feed it a source.
-- **Personal assistant** — the daily/weekly admin routines and the learning
-  layer. This is the part that runs *you*: what happened today, what's
-  planned for the week, what's due for review, what you asked to actually
-  learn instead of just having Claude do it for you.
+- **Research assistant** — the pipeline and the wikis. This is the part that helps you conduct the research itself: finding the literature, designing the strategy, running the analysis, writing the paper, navigating peer review, and maintaining a knowledge base that improves with every source you add.
+- **Personal assistant** — the daily and weekly admin routines and the learning layer. This is the part that tracks your work: what happened today, what is planned for the week, what is due for review, and what you asked to actually learn rather than delegate outright.
 
-Neither needs you to remember which hat is on. You just run `/checkpoint`
-at the end of a session, `/daily-summary` at the end of a day,
-`/weekly-planning` at the end of a week, and `/learn` whenever something
-confuses you — the system routes the rest.
+You do not need to track which role is active at a given moment. Running `/checkpoint` at the end of a session, `/daily-summary` at the end of a day, `/weekly-planning` at the end of a week, and `/learn` whenever something is unclear is enough — the system routes the rest.
 
-## What happens when you...
+## Getting started
 
-**...start a new project** — `/create-project "does X affect Y"` → Claude
-runs a short interview, picks (or asks about) which thematic wiki this
-belongs to, and scaffolds the whole folder tree, a project config, and a
-starter dashboard. Nothing is guessed silently; every step is confirmed.
+Four steps, in order. The first two are required; the remainder depend on what you need.
 
-**...find an interesting paper** — `/wiki-ingest paper.pdf` → Claude extracts
-it, writes a proper summary page, updates or creates the relevant concept /
-method / dataset pages in the wiki, and links everything together. The next
-time this topic comes up in any project, `/wiki-pull` finds it automatically.
+**1. Install** the plugin (not just source in this repo — a real install):
+```
+claude plugin marketplace add <path-to-this-repo>
+claude plugin install research-os@research-os
+```
 
-**...finish a work session** — `/checkpoint` → Claude writes down what
-happened and what's next into that project's journal note, so the next
-session (yours or a future Claude's) doesn't start blind. At the end of the
-day, `/daily-summary` rolls that up across every project you touched, plus a
-scan of Slack/mail for anything relevant — and `/weekly-planning` does the
-same at the end of the week, checking what actually happened against what
-was planned.
+**2. Set up the knowledge base — `/wiki-setup`.** Run this before anything else; every other capability assumes it exists. It is conversational: it asks whether you already have a wiki or vault somewhere (point it there), or whether you are starting fresh (it builds everything — folder structure, Obsidian config, the registry — in one pass), then runs a short profile interview. You will come out the other side with a real `_brain/profile.md` and, if you provided one, at least one registered thematic wiki.
 
-**...get confused by something** — `/learn` (no need to name the topic —
-point it at whatever just confused you) → Claude breaks it into a
-first-principles concept map, teaches it Socratically (asking you to
-generate answers, not just reading them to you), and schedules a review so
-it's still there in a month.
+**3. Get oriented — `/research-os-help`.** New to this system? Run `/research-os-help eli5` for a plain-language walkthrough. Already in a project and unsure what's next? Plain `/research-os-help` reads that project's state and tells you exactly where you are and what to do next. Return to this command any time you're unsure — it's the front door, not a one-time onboarding step.
 
-## Skills vs. agents, in one paragraph
+**4. Do something.** Pick whichever matches what's in front of you:
+- Have a research question? → `/create-project "does X affect Y"`
+- Have a paper or dataset worth preserving? → `/wiki-ingest paper.pdf`
+- Something was unclear (a method, a piece of code, anything)? → `/learn`
+- Want the full inventory? → the tables below, or `/research-os-help list`
 
-A **skill** is something *you* invoke — a slash command like `/checkpoint`,
-a recipe Claude follows step by step. An **agent** is a specialized *worker*
-that a skill dispatches to do one bounded piece of work and report back
-(e.g. `/analyze` dispatches the `coder` agent to write analysis code, and
-the `coder-critic` agent to check it). You'll use skills constantly; you'll
-almost never invoke an agent by name yourself — they work behind the scenes.
+## Common workflows
+
+**Starting a new project** — `/create-project "does X affect Y"` runs a short interview, identifies (or asks about) which thematic wiki the project belongs to, and scaffolds the full folder tree, a project config, and a starter dashboard. Nothing is inferred silently; every step is confirmed.
+
+**Ingesting a paper** — `/wiki-ingest paper.pdf` extracts the source, writes a proper summary page, updates or creates the relevant concept, method, and dataset pages in the wiki, and links everything together. The next time this topic comes up in any project, `/wiki-pull` retrieves it automatically.
+
+**Closing a work session** — `/checkpoint` records what happened and what comes next in that project's journal note, so the next session — yours or a future Claude's — does not start from zero. At the end of the day, `/daily-summary` rolls that up across every project touched, along with a scan of Slack and mail for anything relevant; `/weekly-planning` does the same at the end of the week, checking what actually happened against what was planned.
+
+**Encountering something unclear** — `/learn` (no need to name the topic — point it at whatever was unclear) breaks it into a first-principles concept map, teaches it Socratically (prompting you to generate answers rather than reading them to you), and schedules a review so it is still retained a month later.
+
+## Skills vs. agents
+
+A **skill** is something you invoke directly — a slash command like `/checkpoint`, a procedure Claude follows step by step. An **agent** is a specialized worker that a skill dispatches to complete one bounded piece of work and report back (for example, `/analyze` dispatches the `coder` agent to write analysis code, and the `coder-critic` agent to review it). You will use skills constantly; you will rarely invoke an agent by name yourself — they operate behind the scenes.
 
 ## Every skill and agent
 
-Grouped by what they're for. One line each, plain language — see each
-skill's own file for the full technical description.
+Grouped by function. One line each, in plain language — see each skill's own file for the full technical description.
 
 ### Research workflow (the academic pipeline)
 
 | Skill | What it's for |
 |---|---|
-| `/create-project` | Scaffold a brand-new research project — folders, config, dashboard. |
-| `/discover` | Kick off a project: literature search, data search, brainstorming, or a guided interview to land on a research question. |
+| `/create-project` | Scaffold a new research project — folders, config, dashboard. |
+| `/discover` | Start a project: literature search, data search, brainstorming, or a guided interview to land on a research question. |
 | `/strategize` | Design the empirical strategy — identification approach, pre-analysis plan, or formal theory. |
-| `/analyze` | Turn the strategy into real code and results (R, Python, or Julia). |
-| `/write` | Draft the paper itself, section by section, in a real academic voice. |
-| `/peer-review` | Simulate a real journal's peer review — an editor and referees who can disagree with you. |
+| `/analyze` | Turn the strategy into code and results (R, Python, or Julia). |
+| `/write` | Draft the paper itself, section by section, in an academic voice. |
+| `/peer-review` | Simulate a journal's peer review — an editor and referees who can disagree with you. |
 | `/revise` | Respond to referee comments: classify, draft the response, then audit the response letter itself. |
-| `/submit` | Get ready to actually submit — journal targeting, replication package, AI-use disclosure, final checks. |
+| `/submit` | Prepare for submission — journal targeting, replication package, AI-use disclosure, final checks. |
 | `/talk` | Turn the paper into a presentation — Beamer or a modern web deck. |
-| `/dashboard` | Generate a single-page HTML overview of the whole project. |
-| `/tools` | Grab-bag of utilities: commit, compile, check the bibliography, deploy. |
-| `/freeze` | Lock a set of folders from accidental edits while you focus elsewhere. |
-| `/careful` | Block dangerous shell commands (`rm -rf`, force-push, ...) for the rest of the session. |
+| `/dashboard` | Generate a single-page HTML overview of the project. |
+| `/tools` | Project utilities: commit, compile, check the bibliography, deploy. |
+| `/freeze` | Lock a set of folders against accidental edits while you focus elsewhere. |
+| `/careful` | Block dangerous shell commands (`rm -rf`, force-push, etc.) for the rest of the session. |
 
-Agents dispatched by the above (you don't call these directly):
+Agents dispatched by the above (not called directly):
 
 | Agent(s) | Dispatched by | What they do |
 |---|---|---|
-| `librarian` / `librarian-critic` | `/discover` | Find related papers and build a lit review; the critic checks for coverage gaps. |
+| `librarian` / `librarian-critic` | `/discover` | Find related papers and build a literature review; the critic checks for coverage gaps. |
 | `explorer` / `explorer-critic` | `/discover` | Find and evaluate datasets; the critic checks measurement validity and identification fit. |
-| `strategist` / `strategist-critic` | `/strategize` | Design the empirical strategy; the critic is the gatekeeper who has to sign off. |
+| `strategist` / `strategist-critic` | `/strategize` | Design the empirical strategy; the critic serves as gatekeeper and must sign off. |
 | `theorist` / `theorist-critic` | `/strategize` | Write formal theory and proofs; the critic checks logical validity. |
 | `coder` / `data-engineer` / `coder-critic` | `/analyze` | Write the analysis code and cleaning scripts; the critic reviews both. |
 | `writer` / `writer-critic` | `/write` | Draft paper sections; the critic checks the draft against the evidence. |
 | `storyteller` / `storyteller-critic` | `/talk` | Build the presentation; the critic checks narrative flow and whether it compiles. |
-| `domain-referee` / `methods-referee` / `editor` | `/peer-review` | Referee the field-substance and the methods separately; the editor makes the final call. |
-| `orchestrator` | (infrastructure) | The traffic controller behind the whole pipeline — decides what runs next, enforces quality gates. |
-| `verifier` | (infrastructure) | Checks everything actually compiles/runs/replicates before a commit, PR, or submission. |
+| `domain-referee` / `methods-referee` / `editor` | `/peer-review` | Referee field substance and methods separately; the editor makes the final call. |
+| `orchestrator` | (infrastructure) | Coordinates execution across the pipeline — determines what runs next and enforces quality gates. |
+| `verifier` | (infrastructure) | Confirms everything compiles, runs, and replicates before a commit, PR, or submission. |
 
 ### Wiki & knowledge
 
 | Skill | What it's for |
 |---|---|
-| `/wiki-setup` | Set up or repair the whole two-layer knowledge system — the first thing you run on a new machine. |
-| `/add-vault` | Register a new thematic wiki — adopt one you already have, or start a brand-new empty one. |
-| `/wiki-ingest` | Feed in a source (PDF, doc, citation) and have it properly filed — summary, linked concept/method/dataset pages. |
-| `/wiki-pull` | At the start of work, pull in what's already known about this topic. |
-| `/wiki-push` | At the end of work, push new knowledge back into the wikis and your personal brain. |
-| `/wiki-maintain` | Health-check and clean up a wiki — dedupe, fix broken links, tidy summaries. |
-| `/connect` | Ask "what connects these two themes?" and get non-obvious links surfaced (read-only, never writes). |
+| `/wiki-setup` | Set up or repair the two-layer knowledge system — run this first on a new machine. |
+| `/add-thematic-wiki` | Register a new thematic wiki — adopt an existing one or start a new, empty one. |
+| `/wiki-ingest` | Feed in a source (PDF, document, citation) and have it properly filed — summary, linked concept/method/dataset pages. |
+| `/wiki-pull` | At the start of work, retrieve what is already known about the topic. |
+| `/wiki-push` | At the end of work, write new knowledge back into the wikis and your personal brain. |
+| `/wiki-maintain` | Audit and clean up a wiki — deduplicate, fix broken links, tidy summaries. |
+| `/connect` | Ask what connects two themes and surface non-obvious links (read-only, never writes). |
 
 | Agent | Dispatched by | What it does |
 |---|---|---|
-| `wiki-librarian` | all of the above | Knows the two-layer knowledge model's standards inside out and enforces them behind the scenes. |
+| `wiki-librarian` | all of the above | Enforces the two-layer knowledge model's standards behind the scenes. |
 
 ### Second brain & admin
 
 | Skill | What it's for |
 |---|---|
-| `/checkpoint` | End-of-session save: what happened, what's next, into the project's journal. |
-| `/daily-summary` | End-of-day routine: commits today's work, writes a summary, checks Slack/mail for anything relevant. |
-| `/weekly-planning` | End-of-week routine: reviews the plan vs. reality, sets next week's goals, proposes calendar blocks. |
-| `/check-update-upstream-repos` | Checks whether the open-source projects this system is built on have moved since we last looked. |
-| `/research-os-help` | The front door — "what's next", "what can this do", or a full ELI5 walkthrough of the whole system. |
+| `/checkpoint` | End-of-session save: what happened and what's next, into the project's journal. |
+| `/daily-summary` | End-of-day routine: commits the day's work, writes a summary, checks Slack/mail for anything relevant. |
+| `/weekly-planning` | End-of-week routine: reviews plan against reality, sets next week's goals, proposes calendar blocks. |
+| `/check-update-upstream-repos` | Checks whether the open-source projects this system is built on have changed since last reviewed. |
+| `/research-os-help` | The front door — "what's next," "what can this do," or a full plain-language walkthrough of the system. |
 
-No dedicated agents in this group — these work directly, without dispatching a named worker.
+No dedicated agents in this group — these skills operate directly, without dispatching a named worker.
 
 ### Learning (engram)
 
 | Skill | What it's for |
 |---|---|
-| `/learn` | Actually learn something properly — first-principles teaching, Socratic dialogue, tested recall. |
-| `/recall` | Your two-minute daily habit: clear whatever's due for spaced-repetition review. |
-| `/coach` | How's your learning going — retention stats, a dashboard, tuning how the tutor teaches you. |
+| `/learn` | Learn a concept properly — first-principles teaching, Socratic dialogue, tested recall. |
+| `/recall` | A two-minute daily habit: clear whatever is due for spaced-repetition review. |
+| `/coach` | Track learning progress — retention stats, a dashboard, tuning how the tutor teaches. |
 
 | Agent | Dispatched by | What it does |
 |---|---|---|
-| `engram-curriculum-architect` | `/learn` | Breaks a topic into a first-principles concept map before teaching starts. |
-| `engram-assessor` | `/learn`, `/coach` | Grades what you produced — deliberately blind to the conversation so it can't be swayed. |
-| `engram-artifact-smith` | `/learn` | Builds an interactive HTML explainer for a concept that keeps tripping you up. |
+| `engram-curriculum-architect` | `/learn` | Breaks a topic into a first-principles concept map before teaching begins. |
+| `engram-assessor` | `/learn`, `/coach` | Grades what was produced — deliberately blind to the conversation so it cannot be swayed. |
+| `engram-artifact-smith` | `/learn` | Builds an interactive HTML explainer for a concept that keeps causing difficulty. |
 
 ### Coding
 
 | Skill | What it's for |
 |---|---|
-| `/python-patterns` | Pythonic idioms and best practices, on tap while you code. |
-| `/python-testing` | pytest/TDD guidance while you write tests. |
-| `/documentation-lookup` | Pull real, current library docs instead of guessing from training data. |
+| `/python-patterns` | Pythonic idioms and best practices while coding. |
+| `/python-testing` | pytest/TDD guidance while writing tests. |
+| `/documentation-lookup` | Pull current library documentation instead of relying on training data. |
 | `/git-workflow` | Branching, commit conventions, merge-vs-rebase guidance. |
 
 | Agent | Dispatched by | What it does |
@@ -218,16 +179,16 @@ No dedicated agents in this group — these work directly, without dispatching a
 |---|---|
 | `/article-writing` | Long-form writing — blog posts, guides, newsletters — in a consistent voice. |
 | `/content-engine` | Turn one idea into platform-native content for X, LinkedIn, TikTok, YouTube, newsletters. |
-| `/exa-search` | Neural web/code/company search. |
-| `/prompt-optimizer` | Feed it a rough prompt, get back a sharper one — never runs the task itself. |
+| `/exa-search` | Neural web, code, and company search. |
+| `/prompt-optimizer` | Feed it a rough prompt and get back a sharper one — never runs the task itself. |
 | `/frontend-slides` | Build an animated HTML presentation, or convert a PowerPoint into one. |
 | `/data-scraper-agent` | Stand up a free, scheduled scraper for any public data source. |
-| `/continuous-learning-v2` | Claude observes its own sessions and slowly builds up small learned preferences over time. |
-| `/skill-stocktake` | Audit all the skills/commands in this plugin for quality. |
+| `/continuous-learning-v2` | Claude observes its own sessions and gradually builds small learned preferences over time. |
+| `/skill-stocktake` | Audit all skills and commands in this plugin for quality. |
 
 | Agent | Dispatched by | What it does |
 |---|---|---|
-| `guide-writer` | writing-focused skills above | Writes documentation/guide pages in a pedagogical, tutorial voice. |
+| `guide-writer` | writing-focused skills above | Writes documentation and guide pages in a pedagogical, tutorial voice. |
 
 ## Layout
 
@@ -239,107 +200,39 @@ No dedicated agents in this group — these work directly, without dispatching a
 | `agents/` | All the worker/critic agents above. |
 | `hooks/` | Small scripts that fire on session start/stop/compact — nudges (due learning reviews, unpushed wiki knowledge), guardrails. |
 | `rules/` | The governance rules agents follow (permissions, quality gates, wiki conventions). |
-| `templates/` | Every scaffold the plugin installs — vault root docs, `.obsidian` config, `_brain/` folder READMEs + placeholders, wiki-note and brain-note templates, the 8 generic wiki-folder READMEs. Nothing scaffolded is embedded only in a skill's prose — see [Plugin internals](#plugin-internals). |
+| `templates/` | Every scaffold the plugin installs — vault root docs, `.obsidian` config, `_brain/` folder READMEs and placeholders, wiki-note and brain-note templates, the eight generic wiki-folder READMEs. Nothing scaffolded exists only as skill prose — see [Plugin internals](#plugin-internals). |
 | `state/` | Tracks the upstream repos this is built on, so drift can be flagged. |
-| `docs/`, `gold/`, `references/` | Vendored engram pedagogy docs, its grading gold-set, and reference material like the [scheduled-agent specs](references/scheduled-agents.md). |
+| `docs/`, `gold/`, `references/` | Vendored engram pedagogy docs, its grading gold-set, and reference material such as the [scheduled-agent specs](references/scheduled-agents.md). |
 
 **The vault** (lives outside this plugin — see [Privacy](#privacy)):
 
 | Dir | Contents |
 |---|---|
-| `_brain/` | Your space — profile, daily/weekly notes, thoughts, project journals, personal + cross-theme synthesis. |
+| `_brain/` | Your personal space — profile, daily/weekly notes, thoughts, project journals, personal and cross-theme synthesis. |
 | `<theme>/` (e.g. `cognitive-load/`) | One thematic wiki per research area, each with the same numbered layout: `00_inbox` → `90_synthesis`. |
 | `_templates/` | Shared note templates used by every wiki and `_brain/`. |
 | `index.md` | Cross-wiki catalog. |
 
-## Getting started
+## Acknowledgments
 
-Four steps, in order — the first two aren't optional, the rest is up to you.
-
-**1. Install** the plugin (not just source in this repo — a real install):
-```
-claude plugin marketplace add <path-to-this-repo>
-claude plugin install research-os@research-os
-```
-
-**2. Set up the knowledge base — `/wiki-setup`.** Run this before anything
-else; every other capability assumes it exists. It's conversational: it
-asks whether you already have a wiki/vault somewhere (point it there) or
-you're starting fresh (it builds everything — folder structure, Obsidian
-config, the registry — in one pass), then runs a short profile interview.
-You'll come out the other side with a real `_brain/profile.md` and, if you
-gave it one, at least one registered thematic wiki.
-
-**3. Get oriented — `/research-os-help`.** Never used this before? Run
-`/research-os-help eli5` for a plain-language walkthrough of the whole
-system. Already in a project and just not sure what's next? Plain
-`/research-os-help` reads that project's state and tells you exactly where
-you are and what to do next. Come back to this command any time you're
-unsure — it's the front door, not a one-time onboarding step.
-
-**4. Do something.** Pick whichever matches what's actually in front of you:
-- Have a research question? → `/create-project "does X affect Y"`
-- Have a paper or dataset you want preserved? → `/wiki-ingest paper.pdf`
-- Something just confused you (a method, a piece of code, anything)? → `/learn`
-- Just want to see everything that exists? → the tables above, or
-  `/research-os-help list`
-
-## Built on the shoulders of
-
-- [clo-author](https://github.com/hugosantanna/clo-author) — the base
-  research pipeline (skills, agents, hooks, rules), ported in and adapted.
-- [academic-research-skills (ARS)](https://github.com/Imbad0202/academic-research-skills) —
-  the integrity layer merged into the ported pipeline: citation
-  triangulation, anachronism checks, PRISMA systematic-review support,
-  multi-style citations, AI-use disclosure.
-- [engram](https://github.com/nagisanzenin/engram) — the spaced-repetition
-  learning engine, vendored directly (not installed as a separate plugin) —
-  the FSRS-4.5 engine, its curriculum/assessment/artifact agents, and its
-  pedagogy docs are copied in and adapted for this system.
-- [obsidian-second-brain](https://github.com/eugeniughelbur/obsidian-second-brain) —
-  not integrated, just watched for ideas worth porting: the freshness/
-  confidence note conventions, the MOC/index approach, and the four
-  scheduled-agent design (see below) all drew on patterns from here.
+- [clo-author](https://github.com/hugosantanna/clo-author) — the base research pipeline (skills, agents, hooks, rules), ported in and adapted.
+- [academic-research-skills (ARS)](https://github.com/Imbad0202/academic-research-skills) — the integrity layer merged into the ported pipeline: citation triangulation, anachronism checks, PRISMA systematic-review support, multi-style citations, AI-use disclosure.
+- [engram](https://github.com/nagisanzenin/engram) — the spaced-repetition learning engine, vendored directly rather than installed as a separate plugin: the FSRS-4.5 engine, its curriculum/assessment/artifact agents, and its pedagogy docs are copied in and adapted for this system.
+- [obsidian-second-brain](https://github.com/eugeniughelbur/obsidian-second-brain) — not integrated directly, but monitored for design ideas worth adopting: the freshness/confidence note conventions, the MOC/index approach, and the four-routine scheduled-agent design (see below) all draw on patterns from here.
 
 ## Scheduled admin routines
 
-Four routines run unattended, fully **locally** — no cloud, nothing pushed
-anywhere: a read-only morning brief (daily), bounded-mutation nightly
-consolidation (daily, commits locally, never pushes), a read-only weekly
-vault-health audit (Fridays), and a draft-only weekly review + planning pass
-(Fridays). Each is a small PowerShell script (`scripts/scheduled/*.ps1`)
-registered as a Windows Scheduled Task, calling `claude -p` with a
-permission allowlist scoped to exactly what that routine needs — nightly
-consolidation's allowlist simply has no `git push` in it, so it's
-structurally incapable of pushing, not just instructed not to. Two of the
-four call the matching skill directly (`/research-os:daily-summary`,
-`/research-os:weekly-planning`) with an explicit non-interactive override,
-since those skills normally ask conversational questions a scheduled run has
-no one to answer. Every run logs to
-`vault/_brain/.scheduled-logs/<routine>/`.
+Four routines run unattended, entirely **locally** — no cloud, nothing pushed anywhere: a read-only morning brief (daily), a bounded-mutation nightly consolidation (daily; commits locally, never pushes), a read-only weekly vault-health audit (Fridays), and a draft-only weekly review and planning pass (Fridays). Each is a small PowerShell script (`scripts/scheduled/*.ps1`) registered as a Windows Scheduled Task, calling `claude -p` with a permission allowlist scoped to exactly what that routine needs — the nightly consolidation's allowlist simply has no `git push` in it, so it is structurally incapable of pushing, not merely instructed not to. Two of the four call the matching skill directly (`/research-os:daily-summary`, `/research-os:weekly-planning`) with an explicit non-interactive override, since those skills normally ask conversational questions a scheduled run has no one to answer. Every run logs to `vault/_brain/.scheduled-logs/<routine>/`.
 
-See [scheduled-agents.md](references/scheduled-agents.md) for the exact
-schedule, prompts, and design rationale. Dry-run any of them by hand before
-trusting the schedule, and inspect the registered tasks with
-`schtasks /query /tn ResearchOS-<name> /fo LIST /v`.
+See [scheduled-agents.md](references/scheduled-agents.md) for the exact schedule, prompts, and design rationale. Dry-run any of them by hand before trusting the schedule, and inspect the registered tasks with `schtasks /query /tn ResearchOS-<name> /fo LIST /v`.
 
 ## Privacy
 
-`vault/` — your notes, profile, and everything the thematic wikis have
-learned — is **gitignored** in the repo this plugin ships from and lives in
-its own independent local git repo instead (`vault/.git`, no remote). It is
-never part of that repo's history, including past commits, so the repo can
-be shared or made public without exposing any personal research content.
-Nothing about the scheduled routines above changes this — they're local
-processes with the same filesystem access as an interactive session, not a
-reason to push anything anywhere. This plugin folder itself ships **no
-personal data** — vaults, the `_brain/` second brain, and projects all live
-in the user's own data directories, never here.
+`vault/` — your notes, profile, and everything the thematic wikis have learned — is **gitignored** in the repo this plugin ships from and lives in its own independent local git repo instead (`vault/.git`, no remote). It is never part of that repo's history, including past commits, so the repo can be shared or made public without exposing any personal research content. The scheduled routines above do not change this — they are local processes with the same filesystem access as an interactive session, not a reason to push anything anywhere. This plugin folder itself ships **no personal data** — vaults, the `_brain/` second brain, and projects all live in the user's own data directories, never here.
 
 ## Plugin internals
 
-Technical details specific to this plugin folder — not needed to use
-research-os day to day, but useful if you're modifying the plugin itself.
+Technical details specific to this plugin folder — not needed for day-to-day use of research-os, but useful when modifying the plugin itself.
 
 ### Installed as
 
@@ -348,15 +241,13 @@ Registered as a local marketplace and installed as a real Claude Code plugin (no
 claude plugin marketplace add <path-to-this-repo>
 claude plugin install research-os@research-os
 ```
-After editing anything under `plugins/research-os/`, run `claude plugin marketplace update research-os` to pick up the change. `claude plugin details research-os@research-os` shows the live component inventory + token-cost estimate.
+After editing anything under `plugins/research-os/`, run `claude plugin marketplace update research-os` to pick up the change. `claude plugin details research-os@research-os` shows the live component inventory and token-cost estimate.
 
-**Learning-layer state** needs `ENGRAM_HOME` set (in `~/.claude/settings.json`'s `env` block) to `<vault root>/_brain/learning` so learning state lives in the second brain rather than the engine's default `~/.claude/learning/`. On Windows/Anaconda setups without a `python3` on PATH (only `python`), the vendored skills hardcode `python3` in their shell blocks — add a one-line shim (`exec python "$@"`) somewhere ahead on `PATH` rather than editing the vendored files.
+**Learning-layer state** requires `ENGRAM_HOME` to be set (in `~/.claude/settings.json`'s `env` block) to `<vault root>/_brain/learning`, so learning state lives in the second brain rather than the engine's default `~/.claude/learning/`. On Windows/Anaconda setups without a `python3` on PATH (only `python`), the vendored skills hardcode `python3` in their shell blocks — add a one-line shim (`exec python "$@"`) somewhere ahead on `PATH` rather than editing the vendored files.
 
 ### Every scaffold is a reviewable file, not skill prose
 
-Every piece of content the plugin ever writes into a fresh vault or wiki
-ships as its own file under `templates/`, never embedded only in a skill's
-instructions:
+Every piece of content the plugin writes into a fresh vault or wiki ships as its own file under `templates/`, never embedded only in a skill's instructions:
 
 | What | Lives at |
 |---|---|
@@ -369,7 +260,6 @@ instructions:
 | Brain note templates (daily, weekly, thought, learning, project) | `templates/brain-notes/` |
 | Project scaffolds (`CLAUDE.md`, `passport.yaml`, `wiki-links.md`) | `templates/project-CLAUDE.md`, `templates/passport.yaml`, `templates/wiki-links.md` |
 
-`/wiki-setup` and `/add-vault` both copy from this same set — nothing is
-re-derived or duplicated between them.
+`/wiki-setup` and `/add-thematic-wiki` both copy from this same set — nothing is re-derived or duplicated between them.
 
-**Updating the vendored engram files:** never patch `scripts/engram.py` or `agents/engram-*.md`/`skills/_shared/*` directly with local fixes — re-copy from upstream at the new commit, then re-apply the same two adaptations (engine-path + agent-spawn simplification) by hand. `/check-update-upstream-repos` flags when upstream has moved past the recorded `last_seen_sha`.
+**Updating the vendored engram files:** never patch `scripts/engram.py` or `agents/engram-*.md`/`skills/_shared/*` directly with local fixes — re-copy from upstream at the new commit, then re-apply the same two adaptations (engine-path and agent-spawn simplification) by hand. `/check-update-upstream-repos` flags when upstream has moved past the recorded `last_seen_sha`.

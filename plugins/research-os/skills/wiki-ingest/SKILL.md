@@ -252,7 +252,7 @@ Mandatory quality standard for this workflow:
    and picks up the new summary/concept/method/dataset page automatically as
    long as it was created in the right numbered folder under a wiki already
    listed in the index's `FROM` clauses (if this is a brand-new wiki, that's
-   `/add-vault`'s job, not this skill's).
+   `/add-thematic-wiki`'s job, not this skill's).
 
 5. **Append to `$VAULT_ROOT/log.md`**, theme-prefixed:
    ```

@@ -1,11 +1,11 @@
 ---
-name: add-vault
+name: add-thematic-wiki
 description: Register a vault with the two-layer knowledge system — either adopt a vault you already have somewhere on disk, or scaffold a brand-new empty one with the standard numbered layout (00_inbox, 10_sources, 20_summaries, 30_concepts, 40_methods, 50_datasets, 60_people_institutions, 90_synthesis). Both paths add an entry to ~/.claude/vaults.json and a row to _brain/wikis-index.md. Use when the user wants to start tracking a new research theme, add a new wiki, bring in an existing Obsidian vault or notes folder, or split off part of an existing wiki into its own theme.
 argument-hint: "[theme-name or path to an existing vault]"
 allowed-tools: Read, Write, Edit, Glob, Bash
 ---
 
-# Add Vault
+# Add Thematic Wiki
 
 Register a wiki with the two-layer knowledge system. This is the only
 supported way to add one — never hand-create `<theme>/00_inbox` etc. or
@@ -15,13 +15,13 @@ the index/README conventions this skill keeps consistent.
 ## Step 0: Require the registry
 
 Read `~/.claude/vaults.json`. If it does not exist, stop and tell the user to
-run `/wiki-setup` first (it creates the root + registry); re-run `/add-vault`
-afterward. Do not bootstrap a root here — that's `/wiki-setup`'s job.
+run `/wiki-setup` first (it creates the root + registry); re-run
+`/add-thematic-wiki` afterward. Do not bootstrap a root here — that's `/wiki-setup`'s job.
 
 Resolve `<ROOT>` = registry `root`, `<BRAIN>` = registry `brain.path`. Also
 check `<ROOT>/_templates/` exists (Step 5 below wires new pages to it) — if
 it's missing, stop and tell the user to run `/wiki-setup` first to repair the
-structure, then re-run `/add-vault`.
+structure, then re-run `/add-thematic-wiki`.
 
 ## Step 0.5: Ask, then branch — adopt or create?
 

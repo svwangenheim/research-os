@@ -1,7 +1,7 @@
 # Research Wiki Root — Two-Layer Schema
 
 This is the unified Obsidian root for research-os: a **personal brain** (`_brain/`) plus one or
-more **thematic wikis** (registered via `/add-vault`). One `.obsidian`, one graph, cross-links work
+more **thematic wikis** (registered via `/add-thematic-wiki`). One `.obsidian`, one graph, cross-links work
 everywhere. The canonical policy for how these layers relate is the plugin rule
 **`${CLAUDE_PLUGIN_ROOT}/rules/wiki-integration.md`** — read it first; this file only covers what's
 specific to *this* root (folder names, verification command, registry entry).
@@ -29,7 +29,7 @@ Cross-theme or personal synthesis goes in `_brain/synthesis/`, not inside a wiki
 ## Registry
 
 This root and its wikis are registered in `~/.claude/vaults.json`. Each project names its
-**main wiki** in `passport.yaml` (`meta.main_wiki`). To add a new theme, run `/add-vault` — do not
+**main wiki** in `passport.yaml` (`meta.main_wiki`). To add a new theme, run `/add-thematic-wiki` — do not
 create wiki folders by hand.
 
 ## Ingest / query / maintain

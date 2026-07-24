@@ -61,6 +61,19 @@ there, walk through each gap one at a time). Both branches converge on the
 same **Step 3** (profile interview), **Step 4** (Obsidian manual-step
 reminder), and **Step 5** (report).
 
+**Every step in this skill is mandatory, and the full sequence runs
+automatically in one invocation.** Step 1 -> (Step 2A or Step 2B) -> Step 3 ->
+Step 4 -> Step 5 always executes in order, without stopping between steps and
+without waiting for the user to prompt you to continue or to point out that a
+step was skipped. Finishing file creation or repair (Step 2A/2B) is a
+midpoint, not the end of the run — continue directly into Step 3, then Step
+4, then Step 5, in the same response. The only step with a documented,
+conditional skip is Step 3 (when `profile.md` is already initialized) — every
+other step runs unconditionally, every invocation. Treat stopping after Step
+2A/2B — producing a summary, waiting for input, or declaring the run
+finished before Steps 3-5 have run or been explicitly accounted for — as an
+incomplete execution of this skill.
+
 ## Step 1 — Ask, then diagnose
 
 ### 1.0 — Open with a direct question (don't silently assume from files)
@@ -159,7 +172,7 @@ auto-registered).
 10. **Unregistered wiki-looking folders.** Any top-level folder under
     `<root>` with a `10_sources/` subfolder that is *not* a key in the
     registry's `wikis` map. *(informational only — never silently register
-    it; point to `/add-vault`, exactly as before)*
+    it; point to `/add-thematic-wiki`, exactly as before)*
 
 You cannot reliably detect whether the **Obsidian desktop app itself** is
 installed — there's no cross-platform file or command probe worth trusting.
@@ -267,7 +280,7 @@ individually.
      scaffolding a wiki folder are shipped templates, one file each, at
      `${CLAUDE_PLUGIN_ROOT}/templates/wiki-folder-readmes/<folder>.md` — copy
      the matching one verbatim rather than re-deriving or duplicating it
-     here (the same files `/add-vault` copies from).
+     here (the same files `/add-thematic-wiki` copies from).
    - When check 5 needs to recreate `wikis-index.md` from scratch (missing
      entirely, not just missing rows), seed it with the registry's *current*
      wikis rather than leaving it empty — mirror the real table format (see
@@ -394,20 +407,25 @@ Summarize:
   wikis + `_brain`)
 - **Structural findings:** if Step 2B ran with findings, a short table — #,
   what, fix applied / declined / manual-only
-- **Brain:** already initialized | scaffolded | profile interview completed
+- **Brain structure:** already present | scaffolded this run
+- **Profile interview (Step 3):** already initialized, skipped | ran this run,
+  profile written — never report the run as complete if this line is missing
 - **Obsidian config:** created/present; **Dataview:** usable (plugin files
   found) | not yet enabled (see manual steps)
 - **Manual steps still pending:** the Step 4 items, kept visually separate
   from anything that actually failed
 - **Wikis registered:** a small `theme -> path` table
 - **Unregistered folders found:** (if any, from check 10) → point to
-  `/add-vault`
-- **Next steps:** `/add-vault` to register a new theme, `/wiki-pull` to start
+  `/add-thematic-wiki`
+- **Next steps:** `/add-thematic-wiki` to register a new theme, `/wiki-pull` to start
   pulling from what's here
 
 ## Guardrails
 
 Do not:
+- stop the run after Step 2A/2B file creation or repair and call it done —
+  Steps 3, 4, and 5 are mandatory and always continue in the same response;
+  the Step 5 report is the only valid end point for this skill
 - decide fresh-vs-existing from file state alone without asking — Step 1.0's
   question is the decider; a technical peek only informs how you phrase it
 - overwrite or delete existing content — every fix is additive, or (for the
@@ -428,7 +446,7 @@ Do not:
 - fabricate profile content — only write what the user actually confirmed or
   stated
 - silently register a wiki folder found on disk into the registry — flag it
-  (check 10) and point to `/add-vault` instead, so it gets scaffolded and
+  (check 10) and point to `/add-thematic-wiki` instead, so it gets scaffolded and
   described properly
 - create a second, competing vault root if one is already registered
 - claim "all clean" if any auto-fixable finding was declined or any manual

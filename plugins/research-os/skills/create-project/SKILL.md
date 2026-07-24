@@ -24,7 +24,7 @@ For a deeper research-question interview, note that `/discover interview` exists
 ## Step 2 — Assign main wiki
 
 1. Read the vault registry at `~/.claude/vaults.json`.
-2. If it exists, list the thematic wikis and ask the user to pick the **main wiki** for this project (all wikis stay readable; this is the default). Offer "create a new one" → run `/add-vault` then continue.
+2. If it exists, list the thematic wikis and ask the user to pick the **main wiki** for this project (all wikis stay readable; this is the default). Offer "create a new one" → run `/add-thematic-wiki` then continue.
 3. If the registry does **not** exist yet (knowledge layer not built), say so, and ask for a theme name to record in the passport now; suggest running `/wiki-setup` later. Do not block project creation.
 
 ## Step 3 — Confirm the plan

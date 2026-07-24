@@ -1,6 +1,6 @@
 # templates/
 
-Scaffolds used by `create-project`, `add-vault`, and the wiki skills:
+Scaffolds used by `create-project`, `add-thematic-wiki`, and the wiki skills:
 
 - **Project scaffold:** the numbered `00_admin … 05_outreach` tree, `CLAUDE.md`, `passport.yaml` (material-passport state ledger), `wiki-links.md`, `project_dashboard.html` seed.
 - **Vault (thematic wiki) scaffold:** numbered `00_inbox … 90_synthesis` + `60_people_institutions` (from the existing `vault/_templates/` note templates), minus projects/synthesis (those live in `_brain/`).
