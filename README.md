@@ -243,7 +243,7 @@ No dedicated agents in this group — these work directly, without dispatching a
 | `rules/` | The governance rules agents follow (permissions, quality gates, wiki conventions). |
 | `templates/` | Project, vault, and passport scaffolds. |
 | `state/` | Tracks the upstream repos this is built on, so drift can be flagged. |
-| `docs/`, `gold/`, `references/` | Vendored engram pedagogy docs, its grading gold-set, and reference material like the [testing guide](plugins/research-os/references/testing-guide.md) and [scheduled-agent specs](plugins/research-os/references/scheduled-agents.md). |
+| `docs/`, `gold/`, `references/` | Vendored engram pedagogy docs, its grading gold-set, and reference material like the [scheduled-agent specs](plugins/research-os/references/scheduled-agents.md). |
 
 **The vault** (`vault/` — see [Privacy](#privacy)):
 
@@ -286,11 +286,8 @@ unsure — it's the front door, not a one-time onboarding step.
 - Just want to see everything that exists? → the tables further down, or
   `/research-os-help list`
 
-From here, the [testing guide](plugins/research-os/references/testing-guide.md)
-walks through every capability area with a concrete "what should now exist"
-check, and is the fastest way to actually learn the system by doing rather
-than reading. For the plugin's technical internals (directory-by-directory
-component inventory, token-cost notes, vendoring details), see
+For the plugin's technical internals (directory-by-directory component
+inventory, token-cost notes, vendoring details), see
 [plugins/research-os/README.md](plugins/research-os/README.md).
 
 ## Built on the shoulders of
@@ -328,10 +325,9 @@ conversational questions a scheduled run has no one to answer. Every run
 logs to `vault/_brain/.scheduled-logs/<routine>/`.
 
 See [scheduled-agents.md](plugins/research-os/references/scheduled-agents.md)
-for the exact schedule, prompts, and design rationale, and the
-[testing guide](plugins/research-os/references/testing-guide.md) for how to
-dry-run each one by hand and inspect the registered tasks
-(`schtasks /query /tn ResearchOS-<name> /fo LIST /v`).
+for the exact schedule, prompts, and design rationale. Dry-run any of them
+by hand before trusting the schedule, and inspect the registered tasks with
+`schtasks /query /tn ResearchOS-<name> /fo LIST /v`.
 
 ## Privacy
 

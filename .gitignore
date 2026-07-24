@@ -4,3 +4,7 @@ __pycache__/
 # Personal vault/second-brain content — never part of the public plugin repo.
 # vault/ is its own independent local git repo (vault/.git) for version history.
 vault/
+
+# Build/testing artifacts kept locally for whoever's developing the plugin,
+# never part of the published tree a plugin user would install.
+plugins/research-os/references/internal/
