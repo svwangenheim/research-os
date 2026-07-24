@@ -100,14 +100,17 @@ paths:
 
 ## 4. Admin / scheduled tasks
 
-Only two of the four routines run unattended in the cloud; the other two
-are manual/local. See [scheduled-agents.md](scheduled-agents.md) for why.
+All four routines run locally as Windows Scheduled Tasks — see
+[scheduled-agents.md](scheduled-agents.md) for the full design.
 
 - **Manual dry-run first, all four.** Paste each routine's exact prompt text
-  from `scheduled-agents.md` directly into a session, one at a time, and
-  confirm it behaves as labeled:
+  from `scheduled-agents.md` directly into a session (or just run the
+  matching skill it wraps — `/research-os:daily-summary`,
+  `/research-os:weekly-planning`), one at a time, and confirm it behaves as
+  labeled:
   - Morning brief → genuinely makes **no writes** (check `git status` after —
-    should be clean).
+    should be clean), and correctly names *why* it can't check
+    `passport.yaml` if none exist yet rather than silently skipping.
   - Weekly vault-health audit → reports frontmatter/dedup/broken-link/staleness
     findings, makes **no writes**.
   - Nightly consolidation → commits locally in each touched project, never
@@ -115,13 +118,17 @@ are manual/local. See [scheduled-agents.md](scheduled-agents.md) for why.
     it.
   - Weekly review + planning → **drafts** `_brain/weekly/<Monday>.md` and
     proposes calendar blocks but creates nothing without your confirmation.
-- **Then verify the cloud registration for the two cloud-feasible routines**
-  — run `/schedule` (list mode) and confirm morning brief and weekly
-  vault-health audit appear with the correct UTC cron expressions from
-  `scheduled-agents.md`, pointed at the vault's private GitHub repo.
-- **Nightly consolidation and weekly planning have no cloud registration to
-  check** — by design, for now. Run them by hand, or set up `/loop` on a
-  machine that stays on if you want them automatic too.
+- **Then run the actual scripts directly**, the same way the scheduled task
+  will: `powershell.exe -NoProfile -ExecutionPolicy Bypass -File
+  "plugins\research-os\scripts\scheduled\<name>.ps1"`. **Working looks
+  like:** a new log file under `vault/_brain/.scheduled-logs/<routine>/`,
+  and for the two mutating routines, real commits/drafted files.
+- **Verify the 4 Windows Scheduled Tasks are registered** — `schtasks
+  /query /tn ResearchOS-MorningBrief /fo LIST /v` (and the other three:
+  `-NightlyConsolidation`, `-WeeklyVaultHealthAudit`, `-WeeklyPlanning`).
+  **Working looks like:** `Nächste Laufzeit`/`Next Run Time` shows the
+  correct upcoming date and time for each, and `Status der geplanten
+  Aufgabe`/`Scheduled Task State` shows enabled.
 
 ## 5. Learning (engram)
 
@@ -147,5 +154,5 @@ are manual/local. See [scheduled-agents.md](scheduled-agents.md) for why.
 | Add-vault | New wiki folder + `vaults.json` entry + `wikis-index.md` row all appear together |
 | Second brain | `_brain/profile.md`, `_brain/projects/<slug>.md`, `_brain/daily/*.md` exist and read like *your* notes |
 | Project pipeline | `passport.yaml`'s `pipeline.current_stage` advances after each phase |
-| Scheduled tasks | `/schedule` list shows the 2 cloud routines with correct UTC crons; the 2 manual ones behave correctly when dry-run by hand |
+| Scheduled tasks | All 4 `ResearchOS-*` Windows Scheduled Tasks show as enabled with the right next-run time; a manual script run produces a log under `_brain/.scheduled-logs/` |
 | Learning | A due-review queue that behaves like FSRS scheduling, not immediate every time |
