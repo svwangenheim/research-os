@@ -45,7 +45,7 @@ def load_passport(root):
     pf = root / "passport.yaml"
     if not pf.exists():
         return {}
-    text = pf.read_text(errors="replace")
+    text = pf.read_text(encoding="utf-8", errors="replace")
     try:
         import yaml  # type: ignore
         data = yaml.safe_load(text)
@@ -130,7 +130,7 @@ def scan_metadata(root, passport):
 
     claude_md = root / "CLAUDE.md"
     if claude_md.exists():
-        text = claude_md.read_text(errors="replace")
+        text = claude_md.read_text(encoding="utf-8", errors="replace")
         if not meta["title"]:
             mt = re.search(r"\*\*Project:\*\*\s*(.+)", text)
             if mt:
@@ -154,14 +154,14 @@ def scan_sections(root, meta):
         seen = set()
         main_tex = pdir / "main.tex"
         if main_tex.exists():
-            text = main_tex.read_text(errors="replace")
+            text = main_tex.read_text(encoding="utf-8", errors="replace")
             for m in re.finditer(r"\\input\{([^}]+)\}", text):
                 path_str = m.group(1)
                 if not path_str.endswith(".tex"):
                     path_str += ".tex"
                 sec_path = pdir / path_str
                 if sec_path.exists():
-                    wc = len(re.findall(r"\b\w+\b", sec_path.read_text(errors="replace")))
+                    wc = len(re.findall(r"\b\w+\b", sec_path.read_text(encoding="utf-8", errors="replace")))
                     mtime = datetime.fromtimestamp(sec_path.stat().st_mtime).strftime("%Y-%m-%d")
                     sections.append({"name": f"{out}: {sec_path.stem.replace('_', ' ').title()}",
                                      "file": f"04_paper/{out}/{path_str}", "words": wc, "modified": mtime})
@@ -171,7 +171,7 @@ def scan_sections(root, meta):
             for f in sorted(sec_dir.glob("*.tex")):
                 if f.name in seen:
                     continue
-                wc = len(re.findall(r"\b\w+\b", f.read_text(errors="replace")))
+                wc = len(re.findall(r"\b\w+\b", f.read_text(encoding="utf-8", errors="replace")))
                 mtime = datetime.fromtimestamp(f.stat().st_mtime).strftime("%Y-%m-%d")
                 sections.append({"name": f"{out}: {f.stem.replace('_', ' ').title()}",
                                  "file": f"04_paper/{out}/sections/{f.name}", "words": wc, "modified": mtime})
@@ -195,6 +195,80 @@ def scan_data(root):
     return inventory
 
 
+_SEPARATOR_RE = re.compile(r"^[=\-*#~_]{3,}$")
+_TAG_LINE_RE = re.compile(r"^[A-Z][A-Za-z ]{1,20}:\s")
+
+
+def _strip_comment_markers(line):
+    """Strip a leading/trailing docstring or line-comment marker, in any of
+    the languages this project's scripts use (R/Python `#`, Python `\"\"\"`)."""
+    s = line.strip()
+    for q in ('"""', "'''"):
+        if s.startswith(q):
+            s = s[len(q):]
+        if s.endswith(q) and s:
+            s = s[:-len(q)]
+    s = s.strip()
+    if s.startswith("#"):
+        s = s.lstrip("#").strip()
+    elif s.startswith("//"):
+        s = s[2:].strip()
+    return s
+
+
+def _truncate_words(text, limit):
+    if len(text) <= limit:
+        return text
+    cut = text[:limit].rsplit(" ", 1)[0]
+    return (cut or text[:limit]).rstrip(",.;: ") + "..."
+
+
+def _join_continuation(cleaned_lines, start, first_text, budget=220):
+    """Join a header field's wrapped continuation lines until a blank line,
+    a separator rule, or the next `Tag:` field starts."""
+    parts = [first_text] if first_text else []
+    for cont in cleaned_lines[start:]:
+        if not cont or _SEPARATOR_RE.match(cont) or _TAG_LINE_RE.match(cont):
+            break
+        parts.append(cont)
+        if sum(len(p) for p in parts) > budget:
+            break
+    return " ".join(p for p in parts if p).strip()
+
+
+def _extract_purpose(text, stem, name):
+    """Find the documented purpose in a script header.
+
+    Prefers an explicit `Purpose:` tag (the convention used throughout this
+    project's R/Python scripts, with wrapped continuation lines joined).
+    Falls back to the first informative header line otherwise, skipping
+    separator rules, blank docstring delimiters, and the filename echoed
+    back at itself (a common Python docstring opener: `file.py -- ...`).
+    """
+    lines = text.split("\n")[:40]
+    cleaned = [_strip_comment_markers(l) for l in lines]
+
+    for i, cl in enumerate(cleaned):
+        m = re.match(r"purpose:\s*(.*)", cl, re.IGNORECASE)
+        if m:
+            purpose = _join_continuation(cleaned, i + 1, m.group(1).strip())
+            return _truncate_words(purpose, 160)
+
+    stem_echo = re.compile(rf"^{re.escape(stem)}\.\w+\s*(--|-|:)\s*", re.IGNORECASE)
+    for i, cl in enumerate(cleaned):
+        if not cl or _SEPARATOR_RE.match(cl):
+            continue
+        if cl.startswith(("!", "library", "import", "env ", "usr/")):
+            continue
+        if cl.lower() in (stem.lower(), name.lower()):
+            continue
+        cl2 = stem_echo.sub("", cl).strip()
+        if len(cl2) > 5:
+            purpose = _join_continuation(cleaned, i + 1, cl2)
+            return _truncate_words(purpose, 160)
+    return ""
+
+
 def scan_scripts(root):
     """Analysis scripts in 03_analysis/scripts/{R,py,jl}. Excludes generators."""
     scripts = []
@@ -207,18 +281,8 @@ def scan_scripts(root):
         if f.is_file() and f.suffix in exts and f.name not in skip_names:
             lang = exts[f.suffix]
             rel = str(f.relative_to(root)).replace("\\", "/")
-            lines = f.read_text(errors="replace").split("\n")
-            purpose = ""
-            for line in lines[:15]:
-                stripped = line.strip()
-                if stripped.startswith('"""') or stripped.startswith("'''"):
-                    continue
-                cleaned = stripped.lstrip("#").lstrip("//").lstrip("'").lstrip('"').strip()
-                if cleaned and not cleaned.startswith("!") and not cleaned.startswith("library") \
-                   and not cleaned.startswith("import") and not cleaned.startswith("env ") \
-                   and not cleaned.startswith("usr/") and len(cleaned) > 5:
-                    purpose = cleaned[:80]
-                    break
+            text = f.read_text(encoding="utf-8", errors="replace")
+            purpose = _extract_purpose(text, f.stem, f.name)
             scripts.append({"name": f.name, "path": rel, "lang": lang, "purpose": purpose})
     return scripts
 
@@ -232,7 +296,8 @@ def scan_results(root):
             if not f.is_file() or f.name == ".gitkeep":
                 continue
             if f.name.lower() == "results_summary.md":
-                result["summary"] = f.read_text(errors="replace").strip()[:1200]
+                result["summary"] = f.read_text(encoding="utf-8", errors="replace").strip()
+                result["summary_path"] = str(f.relative_to(root)).replace("\\", "/")
                 continue
             mtime = datetime.fromtimestamp(f.stat().st_mtime).strftime("%Y-%m-%d")
             entry = {"name": f.name, "modified": mtime}
@@ -262,7 +327,7 @@ def scan_bibliography(root):
     bib = root / "01_literature" / "bibliography.bib"
     if not bib.exists():
         return 0
-    return len(re.findall(r"@\w+\{", bib.read_text(errors="replace")))
+    return len(re.findall(r"@\w+\{", bib.read_text(encoding="utf-8", errors="replace")))
 
 
 def scan_literature_citation_status(root, passport):
@@ -293,10 +358,16 @@ def scan_literature_citation_status(root, passport):
         add(item.get("bibkey"), item.get("title"), item.get("proximity"),
             item.get("citation_status"), item.get("wiki_path"))
 
-    # wiki-links.md Sources table (supplement / fallback)
+    # wiki-links.md (supplement / fallback) -- two formats in the wild:
+    # (1) the canonical "## Sources" table (bibkey|short|proximity|status|wiki),
+    #     written by /discover, /wiki-pull, /wiki-push per the template; and
+    # (2) an older/free-form "- [[slug]] -- proximity N -- description" bullet
+    #     list some sessions produced instead. Parse both so a project isn't
+    #     stuck with an empty Literature panel just because (1) drifted.
     wl = root / "wiki-links.md"
     if wl.exists():
-        text = wl.read_text(errors="replace")
+        text = wl.read_text(encoding="utf-8", errors="replace")
+
         sec = re.search(r"##\s*Sources.*?\n(.*?)(?=\n##\s|\Z)", text, re.DOTALL)
         if sec:
             for line in sec.group(1).split("\n"):
@@ -318,6 +389,14 @@ def scan_literature_citation_status(root, passport):
                 wiki = len(cols) >= 5 and bool(cols[4]) and not cols[4].startswith("<")
                 add(bibkey, short, prox, status, wiki)
 
+        bullet_re = re.compile(
+            r"^-\s*\[\[([^\]]+)\]\]\s*[—\-]{1,2}\s*proximity\s+(\d+)\s*[—\-]{1,2}\s*(.*)$",
+            re.IGNORECASE)
+        for line in text.split("\n"):
+            bm = bullet_re.match(line.strip())
+            if bm:
+                add(bm.group(1), bm.group(3).strip(), int(bm.group(2)), "relevant", True)
+
     return buckets
 
 
@@ -329,7 +408,7 @@ def scan_reviews(root):
         for f in sorted(rev_dir.rglob("*.md"), key=lambda x: x.stat().st_mtime, reverse=True):
             if f.name == ".gitkeep":
                 continue
-            text = f.read_text(errors="replace")
+            text = f.read_text(encoding="utf-8", errors="replace")
             report_type = "review"
             score = None
             verdict = ""
@@ -360,7 +439,7 @@ def scan_reviews(root):
     journal = root / "00_admin" / "process" / "journal.md"
     if journal.exists():
         for m in re.finditer(r"^###\s+(\d{4}-\d{2}-\d{2}[^\n]*)\n(.*?)(?=^###\s|\Z)",
-                             journal.read_text(errors="replace"), re.MULTILINE | re.DOTALL):
+                             journal.read_text(encoding="utf-8", errors="replace"), re.MULTILINE | re.DOTALL):
             head = m.group(1)
             body = m.group(2)
             verdict = ""
@@ -385,7 +464,7 @@ def scan_plans(root):
     if not plan_dir.is_dir():
         return plans
     for f in sorted(plan_dir.glob("*.md"), reverse=True):
-        text = f.read_text(errors="replace")
+        text = f.read_text(encoding="utf-8", errors="replace")
         status = "DRAFT"
         m = re.search(r"\*\*Status:\*\*\s*(\w+)", text)
         if m:
@@ -594,6 +673,114 @@ def build_literature_panel(buckets):
     </section>"""
 
 
+def _inline_md(s):
+    """Inline markdown -> HTML: escapes first, then applies code/bold/italic/links
+    so the substituted tags themselves are never re-escaped."""
+    s = escape(s)
+    s = re.sub(r"`([^`]+)`", r"<code>\1</code>", s)
+    s = re.sub(r"\*\*([^*]+)\*\*", r"<strong>\1</strong>", s)
+    s = re.sub(r"(?<!\*)\*([^*\n]+)\*(?!\*)", r"<em>\1</em>", s)
+    s = re.sub(r"\[([^\]]+)\]\(([^)]+)\)", r'<a href="\2" style="color:var(--clay)">\1</a>', s)
+    return s
+
+
+def render_markdown(text):
+    """Minimal self-contained markdown -> HTML for the Analysis-Done panel.
+
+    Supports headers, bold/italic/code/links, tables, horizontal rules, and
+    (un)ordered lists -- the subset results_summary.md files actually use.
+    Not a general-purpose CommonMark parser.
+    """
+    lines = text.split("\n")
+    out = []
+    i, n = 0, len(lines)
+    para = []
+
+    def flush_para():
+        if para:
+            out.append(f"<p style='margin:6px 0'>{_inline_md(' '.join(para))}</p>")
+            para.clear()
+
+    while i < n:
+        stripped = lines[i].strip()
+
+        if not stripped:
+            flush_para()
+            i += 1
+            continue
+
+        m = re.match(r"^(#{1,6})\s+(.*)", stripped)
+        if m:
+            flush_para()
+            level = min(len(m.group(1)) + 3, 6)
+            out.append(f"<h{level} style='margin:14px 0 6px;color:var(--slate)'>{_inline_md(m.group(2))}</h{level}>")
+            i += 1
+            continue
+
+        if re.match(r"^-{3,}\s*$", stripped):
+            flush_para()
+            out.append('<hr style="border:none;border-top:1px solid var(--g300);margin:12px 0">')
+            i += 1
+            continue
+
+        if "|" in stripped and i + 1 < n and re.match(r"^\|?[\s:|-]+\|?$", lines[i + 1].strip()) \
+                and "-" in lines[i + 1]:
+            flush_para()
+            header_cells = [c.strip() for c in stripped.strip("|").split("|")]
+            i += 2
+            body_rows = []
+            while i < n and "|" in lines[i]:
+                body_rows.append([c.strip() for c in lines[i].strip().strip("|").split("|")])
+                i += 1
+            thead = "".join(f"<th>{_inline_md(c)}</th>" for c in header_cells)
+            tbody = "".join(
+                "<tr>" + "".join(f"<td>{_inline_md(c)}</td>" for c in row) + "</tr>"
+                for row in body_rows)
+            out.append(f'<table class="report-table" style="margin:8px 0"><thead><tr>{thead}</tr></thead>'
+                       f'<tbody>{tbody}</tbody></table>')
+            continue
+
+        if re.match(r"^[-*]\s+", stripped):
+            flush_para()
+            items = []
+            while i < n and re.match(r"^[-*]\s+", lines[i].strip()):
+                items.append(re.match(r"^[-*]\s+(.*)", lines[i].strip()).group(1))
+                i += 1
+            out.append("<ul style='margin:4px 0 8px;padding-left:20px'>"
+                       + "".join(f"<li>{_inline_md(it)}</li>" for it in items) + "</ul>")
+            continue
+
+        if re.match(r"^\d+\.\s+", stripped):
+            flush_para()
+            items = []
+            while i < n and re.match(r"^\d+\.\s+", lines[i].strip()):
+                items.append(re.match(r"^\d+\.\s+(.*)", lines[i].strip()).group(1))
+                i += 1
+            out.append("<ol style='margin:4px 0 8px;padding-left:20px'>"
+                       + "".join(f"<li>{_inline_md(it)}</li>" for it in items) + "</ol>")
+            continue
+
+        para.append(stripped)
+        i += 1
+
+    flush_para()
+    return "\n".join(out)
+
+
+def _render_markdown_snippet(text, limit=20000):
+    """Render markdown to HTML, cutting at a clean paragraph boundary (never
+    mid-table/mid-sentence) if the source exceeds `limit` characters."""
+    truncated = False
+    if len(text) > limit:
+        cut = text[:limit]
+        last_break = cut.rfind("\n\n")
+        if last_break > limit * 0.5:
+            cut = cut[:last_break]
+        text = cut
+        truncated = True
+    return render_markdown(text), truncated
+
+
 def build_analysis_panel(scripts_list, results):
     has = scripts_list or results["summary"]
     if not has:
@@ -620,9 +807,14 @@ def build_analysis_panel(scripts_list, results):
       <table class="report-table"><thead><tr><th>Script</th><th>Lang</th><th>Purpose</th></tr></thead><tbody>{rows}</tbody></table>"""
     done_html = ""
     if results["summary"]:
+        summary_html, was_truncated = _render_markdown_snippet(results["summary"])
+        more = ""
+        if was_truncated:
+            path = escape(results.get("summary_path", "03_analysis/output/results_summary.md"))
+            more = f'<p style="margin-top:10px"><a href="{path}" style="color:var(--clay)">Full summary &rarr; {path}</a></p>'
         done_html = f"""
       <h3 id="analysis-done">Analysis done</h3>
-      <div class="card" style="font-size:13px;color:var(--g700);white-space:pre-wrap">{escape(results['summary'])}</div>"""
+      <div class="card" style="font-size:13px;color:var(--g700)">{summary_html}{more}</div>"""
     return f"""
     <section id="analysis">
       <h2>Analysis</h2>
@@ -794,8 +986,8 @@ def build_dashboard(root, user_notes=""):
 
     # Base assets from styles/ (embedded inline).
     base_dir = Path(__file__).resolve().parent.parent / "styles"
-    css = (base_dir / "styles.css").read_text() if (base_dir / "styles.css").exists() else ""
-    js = (base_dir / "components.js").read_text() if (base_dir / "components.js").exists() else ""
+    css = (base_dir / "styles.css").read_text(encoding="utf-8") if (base_dir / "styles.css").exists() else ""
+    js = (base_dir / "components.js").read_text(encoding="utf-8") if (base_dir / "components.js").exists() else ""
 
     dashboard_data = {
         "type": "dashboard",

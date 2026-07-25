@@ -124,7 +124,14 @@ Update `wiki-links.md`, if it exists, to record:
 - which wiki notes now matter for the project
 - what still remains to be pushed later
 
-Only rewrite content inside the `<!-- @generated -->` markers (the sources table); preserve any `<!-- @user -->` region verbatim.
+Any paper touched this session gets (or keeps) a row in the `## Sources`
+table (bibkey | short cite | proximity | status | wiki summary path) —
+`project_dashboard.html`'s Literature panel reads only that table, so a
+paper recorded elsewhere in the file (a bullet list, a prose note) will not
+show up there. Only rewrite content inside the
+`<!-- @generated:start wiki-links-sources -->` / `@generated:end` markers
+(the sources table); preserve any `<!-- @user:start -->` / `@user:end`
+region verbatim.
 
 ### Step 6: Append to the wiki log
 Append an entry to the vault root's `log.md` (one level above `<WIKI>`,

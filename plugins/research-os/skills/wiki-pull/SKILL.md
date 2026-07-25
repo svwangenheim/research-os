@@ -120,8 +120,16 @@ Produce a concise synthesis that answers:
 - Which notes — in either layer — matter most for this task?
 
 ### Step 5: Update the project bridge if useful
-If `wiki-links.md` exists in the current project, update it when helpful by
-adding the most relevant wiki notes and noting missing knowledge gaps. Do not
+If `wiki-links.md` exists in the current project, update it when helpful:
+- Add newly relevant papers as rows in the `## Sources` table (bibkey | short
+  cite | proximity | status | wiki summary path), inside the
+  `<!-- @generated:start wiki-links-sources -->` / `@generated:end` markers —
+  never as a free-form bullet list elsewhere in the file. This table is what
+  `project_dashboard.html` reads to populate the Literature panel; a paper
+  added outside it is invisible to the dashboard.
+- Add newly relevant concepts/methods/datasets under their own sections.
+- Note missing knowledge gaps in prose.
+Preserve any `<!-- @user:start -->` / `@user:end` region verbatim. Do not
 write into `_brain/` or the wiki during a pure pull step unless the user
 explicitly asks for that — that is `/wiki-push`'s job.
 
