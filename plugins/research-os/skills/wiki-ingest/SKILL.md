@@ -230,10 +230,13 @@ Mandatory quality standard for this workflow:
 2. **Create a source summary** in `$WIKI/20_summaries/`:
    - Use the template at `$VAULT_ROOT/_templates/source_summary_template.md`
    - Filename: `[author-year]-[short-title].md`
-   - Populate: title, authors, year, doi, journal, proximity,
-     related_concepts (wikilinks to `30_concepts/`), related_methods,
-     related_datasets, summary, research question, method/identification,
-     main findings, limitations, relevance for ongoing work.
+   - Populate: title, authors, year, doi, journal, abstract (1-3 plain-text
+     sentences -- the source's own abstract if published, else a faithful
+     synopsis; this is what project dashboards show in the Literature panel,
+     read live from this frontmatter), proximity, related_concepts
+     (wikilinks to `30_concepts/`), related_methods, related_datasets,
+     summary, research question, method/identification, main findings,
+     limitations, relevance for ongoing work.
 
 3. **Update relevant wiki pages** — check each folder and update rather than
    create when possible:

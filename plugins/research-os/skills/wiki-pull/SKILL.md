@@ -121,12 +121,15 @@ Produce a concise synthesis that answers:
 
 ### Step 5: Update the project bridge if useful
 If `wiki-links.md` exists in the current project, update it when helpful:
-- Add newly relevant papers as rows in the `## Sources` table (bibkey | short
-  cite | proximity | status | wiki summary path), inside the
+- Add newly relevant papers as rows in the `## Sources` table (bibkey |
+  proximity | status | wiki summary path), inside the
   `<!-- @generated:start wiki-links-sources -->` / `@generated:end` markers —
   never as a free-form bullet list elsewhere in the file. This table is what
   `project_dashboard.html` reads to populate the Literature panel; a paper
-  added outside it is invisible to the dashboard.
+  added outside it is invisible to the dashboard. Do not add an authors/title
+  column here — the dashboard reads authors, title, DOI, and abstract live
+  from the `wiki_path` note's own frontmatter, so they're never duplicated
+  in this table (single source of truth in the wiki).
 - Add newly relevant concepts/methods/datasets under their own sections.
 - Note missing knowledge gaps in prose.
 Preserve any `<!-- @user:start -->` / `@user:end` region verbatim. Do not

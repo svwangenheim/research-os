@@ -21,13 +21,16 @@ research:
   open_questions: []
 
 # Every source the project touches. citation_status drives the dashboard + 01_literature digest.
+# Authors/title/DOI/abstract are NOT stored here -- the dashboard reads them live from
+# wiki_path's own frontmatter (single source of truth, see wiki-notes/source_summary_template.md).
+# Only set `title` as a fallback label for a paper not yet summarized in the wiki (no wiki_path).
 literature_corpus: []
   # - bibkey: "callaway2021"
-  #   title: "Difference-in-Differences with Multiple Time Periods"
   #   proximity: 2                 # 1 competes .. 5 tangential
   #   citation_status: "cited"     # relevant | intended | cited
   #   wiki_path: "cognitive-load/40_methods/callaway-santanna-did.md"
   #   claim_used: "staggered adoption ATT aggregation"
+  #   title: "Difference-in-Differences with Multiple Time Periods"  # optional fallback only
 
 # Every non-trivial claim in the draft maps to its evidence origin (integrity gate reads this).
 claim_manifest: []

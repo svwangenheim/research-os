@@ -330,16 +330,106 @@ def scan_bibliography(root):
     return len(re.findall(r"@\w+\{", bib.read_text(encoding="utf-8", errors="replace")))
 
 
+def _load_vault_root():
+    """Resolve the vault root: ~/.claude/vaults.json (`root` key) first, then
+    the legacy single-vault pointer ~/.claude/VAULT_PATH. Returns None if
+    neither is present -- callers must degrade gracefully, this is purely
+    enrichment (authors/title/DOI/abstract), never a required field."""
+    home = Path.home()
+    registry = home / ".claude" / "vaults.json"
+    if registry.exists():
+        try:
+            data = json.loads(registry.read_text(encoding="utf-8", errors="replace"))
+            root = data.get("root")
+            if root:
+                return Path(root)
+        except Exception:
+            pass
+    legacy = home / ".claude" / "VAULT_PATH"
+    if legacy.exists():
+        p = legacy.read_text(encoding="utf-8", errors="replace").strip()
+        if p:
+            return Path(p)
+    return None
+
+
+def _read_frontmatter(path):
+    """Parse a wiki note's YAML frontmatter (between --- delimiters).
+    Prefers PyYAML; falls back to a scalar/list regex parser for the fields
+    the dashboard needs (title, authors, year, doi, abstract)."""
+    try:
+        text = path.read_text(encoding="utf-8", errors="replace")
+    except OSError:
+        return {}, ""
+    m = re.match(r"^---\s*\n(.*?)\n---\s*\n?", text, re.DOTALL)
+    if not m:
+        return {}, text
+    fm_text = m.group(1)
+    body = text[m.end():]
+    try:
+        import yaml  # type: ignore
+        data = yaml.safe_load(fm_text)
+        return (data if isinstance(data, dict) else {}), body
+    except Exception:
+        pass
+    data = {}
+    for key in ("title", "year", "doi", "abstract"):
+        km = re.search(rf'^{key}:\s*"?([^"\n]*)"?\s*$', fm_text, re.MULTILINE)
+        if km and km.group(1).strip() not in ("", "~", "null"):
+            data[key] = km.group(1).strip()
+    am = re.search(r"^authors:\s*\[(.*?)\]", fm_text, re.MULTILINE)
+    if am:
+        data["authors"] = [a.strip().strip('"').strip("'") for a in am.group(1).split(",") if a.strip()]
+    return data, body
+
+
+def _extract_section(body, heading, max_chars=320):
+    """Pull a markdown section's first paragraph as a fallback abstract
+    (e.g. a summary note's own "Core argument or contribution") when the
+    frontmatter has no explicit `abstract:`. Real authored text, never
+    fabricated -- just reused from where it already lives."""
+    m = re.search(rf"^##\s*{re.escape(heading)}\s*\n+(.*?)(?=\n##\s|\Z)", body, re.MULTILINE | re.DOTALL)
+    if not m:
+        return ""
+    para = m.group(1).strip().split("\n\n")[0].strip()
+    para = re.sub(r"\s+", " ", para)
+    return _truncate_words(para, max_chars)
+
+
+def _load_paper_metadata(vault_root, wiki_path):
+    """Resolve a literature_corpus/wiki-links.md wiki_path to its wiki summary
+    note and extract authors/year/title/doi/abstract for display. Returns {}
+    if the vault isn't registered or the note can't be found."""
+    if not vault_root or not wiki_path:
+        return {}
+    note = vault_root / wiki_path
+    if not note.is_file():
+        return {}
+    frontmatter, body = _read_frontmatter(note)
+    return {
+        "title": frontmatter.get("title") or "",
+        "authors": frontmatter.get("authors") or [],
+        "year": frontmatter.get("year"),
+        "doi": frontmatter.get("doi") or "",
+        "abstract": frontmatter.get("abstract") or _extract_section(body, "Core argument or contribution"),
+    }
+
+
 def scan_literature_citation_status(root, passport):
     """Build cited / intended / relevant-not-cited buckets.
 
     Primary source: passport.yaml literature_corpus (structured). Supplemented
-    by the wiki-links.md Sources table when the corpus is sparse. Deduped by bibkey.
+    by the wiki-links.md Sources table when the corpus is sparse. Deduped by
+    bibkey. Authors/title/DOI/abstract are then resolved live from each
+    entry's wiki_path note (the wiki is the single source of truth for
+    paper-inherent metadata; this project-local data only tracks proximity
+    and citation status, which are legitimately project-specific).
     """
     buckets = {"cited": [], "intended": [], "relevant": []}
     seen = set()
+    main_wiki = ((passport.get("meta") or {}) or {}).get("main_wiki") or ""
 
-    def add(bibkey, title, proximity, status, wiki):
+    def add(bibkey, title, proximity, status, wiki_path):
         key = (bibkey or title or "").lower()
         if not key or key in seen:
             return
@@ -349,7 +439,7 @@ def scan_literature_citation_status(root, passport):
         seen.add(key)
         buckets[status].append({
             "bibkey": bibkey or "", "title": title or "",
-            "proximity": proximity, "wiki": bool(wiki),
+            "proximity": proximity, "wiki_path": wiki_path or "",
         })
 
     for item in (passport.get("literature_corpus") or []):
@@ -358,12 +448,16 @@ def scan_literature_citation_status(root, passport):
         add(item.get("bibkey"), item.get("title"), item.get("proximity"),
             item.get("citation_status"), item.get("wiki_path"))
 
-    # wiki-links.md (supplement / fallback) -- two formats in the wild:
-    # (1) the canonical "## Sources" table (bibkey|short|proximity|status|wiki),
-    #     written by /discover, /wiki-pull, /wiki-push per the template; and
-    # (2) an older/free-form "- [[slug]] -- proximity N -- description" bullet
-    #     list some sessions produced instead. Parse both so a project isn't
-    #     stuck with an empty Literature panel just because (1) drifted.
+    # wiki-links.md (supplement / fallback) -- formats in the wild:
+    # (1) the canonical "## Sources" table, current shape:
+    #     bibkey | proximity | status | wiki path (4 cols); and an older
+    #     shape with an extra "short cite" column (5 cols) from projects
+    #     built before this schema was tightened -- detect by whether the
+    #     2nd column is numeric (proximity) or text (old short-cite column).
+    # (2) an older/free-form "- [[slug]] -- proximity N -- description"
+    #     bullet list some sessions produced instead of the table.
+    # Parse all of them so a project isn't stuck with an empty Literature
+    # panel just because the table drifted or predates a schema change.
     wl = root / "wiki-links.md"
     if wl.exists():
         text = wl.read_text(encoding="utf-8", errors="replace")
@@ -375,19 +469,26 @@ def scan_literature_citation_status(root, passport):
                     continue
                 cols = [c.strip() for c in line.split("|")]
                 cols = [c for c in cols if c != ""]
-                if len(cols) < 4:
+                if len(cols) < 3:
                     continue
                 if cols[0].lower().startswith("bibkey") or cols[0].startswith("<"):
                     continue
                 bibkey = cols[0].strip("`")
-                short = cols[1]
+                rest = cols[1:]
+                is_new_shape = bool(rest) and re.match(r"^\d+$", rest[0].strip())
+                prox_i, status_i, wiki_i = (0, 1, 2) if is_new_shape else (1, 2, 3)
                 prox = None
-                pm = re.search(r"\d", cols[2])
-                if pm:
-                    prox = int(pm.group(0))
-                status = cols[3]
-                wiki = len(cols) >= 5 and bool(cols[4]) and not cols[4].startswith("<")
-                add(bibkey, short, prox, status, wiki)
+                if prox_i < len(rest):
+                    pm = re.search(r"\d+", rest[prox_i])
+                    if pm:
+                        prox = int(pm.group(0))
+                status = rest[status_i] if status_i < len(rest) else "relevant"
+                wiki_path = ""
+                if wiki_i < len(rest):
+                    wp = rest[wiki_i].strip("`")
+                    if wp and not wp.startswith("<"):
+                        wiki_path = wp
+                add(bibkey, None, prox, status, wiki_path)
 
         bullet_re = re.compile(
             r"^-\s*\[\[([^\]]+)\]\]\s*[—\-]{1,2}\s*proximity\s+(\d+)\s*[—\-]{1,2}\s*(.*)$",
@@ -395,7 +496,27 @@ def scan_literature_citation_status(root, passport):
         for line in text.split("\n"):
             bm = bullet_re.match(line.strip())
             if bm:
-                add(bm.group(1), bm.group(3).strip(), int(bm.group(2)), "relevant", True)
+                bibkey = bm.group(1)
+                guessed_path = f"{main_wiki}/20_summaries/{bibkey}.md" if main_wiki else ""
+                add(bibkey, bm.group(3).strip(), int(bm.group(2)), "relevant", guessed_path)
+
+    # Enrich every entry with authors/year/title/doi/abstract resolved live
+    # from its wiki note. Cached per wiki_path since several buckets can
+    # reference the same note (harmless, just avoids re-reading it).
+    vault_root = _load_vault_root()
+    resolved_cache = {}
+    for bucket in buckets.values():
+        for entry in bucket:
+            wp = entry["wiki_path"]
+            if wp not in resolved_cache:
+                resolved_cache[wp] = _load_paper_metadata(vault_root, wp)
+            meta = resolved_cache[wp]
+            entry["authors"] = meta.get("authors") or []
+            entry["year"] = meta.get("year")
+            entry["doi"] = meta.get("doi") or ""
+            entry["abstract"] = meta.get("abstract") or ""
+            entry["resolved_title"] = meta.get("title") or entry["title"]
+            entry["wiki"] = bool(wp)
 
     return buckets
 
@@ -625,15 +746,62 @@ def build_data_panel(data):
     </section>"""
 
 
-def _paper_row(p):
+def _format_authors_year(p):
+    """'Authors (Year)' display label, e.g. 'Kaur et al. (2025)' or
+    'Bartoš & Bauer (2021)'. Falls back to the bibkey (still a readable
+    slug, e.g. 'kaur-2025-financial-concerns...') when the wiki note
+    couldn't be resolved, so the card never shows nothing."""
+    authors = p.get("authors") or []
+    year = p.get("year")
+    if authors:
+        if len(authors) > 3:
+            label = f"{authors[0]} et al."
+        elif len(authors) > 1:
+            label = ", ".join(authors[:-1]) + " & " + authors[-1]
+        else:
+            label = authors[0]
+        return f"{label} ({year})" if year else label
+    return p["bibkey"] or p["resolved_title"] or "Untitled"
+
+
+def _paper_card(p):
     prox = p.get("proximity")
     prox_s = f"Prox {prox}" if prox is not None else "Prox —"
-    wiki = ' <span class="pill pill-pass" style="font-size:9px">in wiki</span>' if p.get("wiki") else ""
-    label = escape(p["bibkey"] or p["title"])
-    title = escape(p["title"]) if p["title"] and p["title"] != p["bibkey"] else ""
-    return (f'<tr><td style="font-weight:500;color:var(--slate)">{label}</td>'
-            f'<td style="color:var(--g700);font-size:12.5px">{title}</td>'
-            f'<td><span class="pill pill-neutral" style="font-size:10px">{prox_s}</span>{wiki}</td></tr>')
+    wiki_pill = ' <span class="pill pill-pass" style="font-size:9px">in wiki</span>' if p.get("wiki") else ""
+    doi = p.get("doi")
+    doi_pill = ""
+    if doi:
+        doi_url = doi if doi.startswith("http") else f"https://doi.org/{doi}"
+        doi_pill = (f' <a href="{escape(doi_url)}" class="pill pill-neutral" '
+                    f'style="font-size:9px;text-decoration:none">DOI</a>')
+
+    authors_html = escape(_format_authors_year(p))
+    bibkey_html = (f"<div class=\"mono\" style=\"color:var(--g500);margin-top:1px\">{escape(p['bibkey'])}</div>"
+                   if p.get("bibkey") and p.get("authors") else "")
+    title = p.get("resolved_title") or ""
+    title_html = ""
+    if title and title != p["bibkey"]:
+        title_html = (f"<div style=\"font-family:var(--serif);font-style:italic;color:var(--g700);"
+                       f"font-size:13.5px;margin-top:4px\">{escape(title)}</div>")
+
+    abstract = p.get("abstract")
+    abstract_html = ""
+    if abstract:
+        abstract_html = (f"<details style=\"margin-top:8px\">"
+                          f"<summary style=\"cursor:pointer;font-size:12px;color:var(--g500)\">Abstract</summary>"
+                          f"<p style=\"margin:6px 0 0;font-size:13px;color:var(--g700)\">{escape(abstract)}</p>"
+                          f"</details>")
+
+    return f"""
+      <div class="card" style="margin-bottom:10px;padding:14px 18px">
+        <div class="flex-between" style="align-items:flex-start;gap:10px">
+          <div style="font-weight:600;color:var(--slate);font-size:14px">{authors_html}</div>
+          <div style="white-space:nowrap"><span class="pill pill-neutral" style="font-size:10px">{prox_s}</span>{wiki_pill}{doi_pill}</div>
+        </div>
+        {bibkey_html}
+        {title_html}
+        {abstract_html}
+      </div>"""
 
 
 def build_literature_panel(buckets):
@@ -653,9 +821,8 @@ def build_literature_panel(buckets):
         if not items:
             body = '<p style="color:var(--g500);font-size:13px;font-style:italic">None.</p>'
         else:
-            rows = "".join(_paper_row(p) for p in sorted(
+            body = "".join(_paper_card(p) for p in sorted(
                 items, key=lambda x: (x.get("proximity") or 9)))
-            body = f'<table class="report-table"><thead><tr><th>Cite</th><th>Title</th><th>Proximity</th></tr></thead><tbody>{rows}</tbody></table>'
         return f"""
       <h3 id="lit-{cls}">{title} &nbsp;<span class="pill {status_pill_class('PASS' if cls=='cited' else 'WARN' if cls=='intended' else 'NEUTRAL')}">{len(items)}</span></h3>
       <p style="color:var(--g500);font-size:12.5px;margin:0 0 8px">{note}</p>

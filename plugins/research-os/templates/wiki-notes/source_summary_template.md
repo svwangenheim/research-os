@@ -9,6 +9,7 @@ volume:
 issue:
 pages:
 institution:
+abstract: ""    # 1-3 plain-text sentences; shown in project dashboards' Literature panel
 proximity:
 source_files: []
 source_urls: []

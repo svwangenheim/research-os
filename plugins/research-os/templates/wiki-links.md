@@ -6,12 +6,12 @@ Bridge between this project and the thematic wiki(s). Refreshed by `/wiki-pull`,
 
 ## Sources (citation status)
 
-Full summaries live in `<theme>/20_summaries/`. This table is the project's view; `01_literature/` holds the extracted digest of `cited` + `intended` sources.
+Full summaries live in `<theme>/20_summaries/`; `01_literature/` holds the extracted digest of `cited` + `intended` sources. This table only tracks what's project-specific (proximity, citation status) — author, title, DOI, and abstract are **not** duplicated here; `project_dashboard.html` reads them live from each `wiki_path` note's own frontmatter (single source of truth). If a paper has no `wiki_path` yet (not summarized), the dashboard falls back to showing the bare bibkey.
 
 <!-- @generated:start wiki-links-sources — refreshed by /wiki-pull, /wiki-push, /checkpoint; do not hand-edit inside these markers -->
-| Bibkey | Short cite | Proximity | Status | Wiki summary |
-|--------|-----------|-----------|--------|--------------|
-| <e.g. callaway2021> | Callaway & Sant'Anna (2021) | 2 | intended | `<theme>/20_summaries/callaway-santanna-2021.md` |
+| Bibkey | Proximity | Status | Wiki summary |
+|--------|-----------|--------|---------------|
+| <e.g. callaway2021> | 2 | intended | `<theme>/20_summaries/callaway-santanna-2021.md` |
 <!-- @generated:end -->
 
 <!-- Status: relevant (in wiki, not used) · intended (plan to cite) · cited (in the draft) -->
