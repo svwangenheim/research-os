@@ -1,6 +1,6 @@
 ---
 name: add-thematic-wiki
-description: Register a vault with the two-layer knowledge system — either adopt a vault you already have somewhere on disk, or scaffold a brand-new empty one with the standard numbered layout (00_inbox, 10_sources, 20_summaries, 30_concepts, 40_methods, 50_datasets, 60_people_institutions, 90_synthesis). Both paths add an entry to ~/.claude/vaults.json and a row to _brain/wikis-index.md. Use when the user wants to start tracking a new research theme, add a new wiki, bring in an existing Obsidian vault or notes folder, or split off part of an existing wiki into its own theme.
+description: Register a new thematic research wiki - adopt an existing vault on disk or scaffold a new one with the standard numbered layout. Use to start tracking a research theme, or add or split a wiki.
 argument-hint: "[theme-name or path to an existing vault]"
 allowed-tools: Read, Write, Edit, Glob, Bash
 ---

@@ -1,6 +1,6 @@
 ---
 name: write
-description: Draft sections for an academic paper (IMRaD, literature review, theory, case study, conference) using paragraph-level argument moves. Cleanup pass strips AI patterns; style-guide mode extracts the author's voice. Writing phase of the pipeline.
+description: Draft academic paper sections (IMRaD, literature review, theory, case study, conference) using paragraph-level argument moves. Cleanup pass strips AI patterns. Writing phase.
 argument-hint: "[section or mode: intro | strategy | results | conclusion | abstract | full | humanize | style-guide] [file path (optional)]"
 allowed-tools: Read,Grep,Glob,Write,Edit,Task
 ---

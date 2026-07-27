@@ -1,6 +1,6 @@
 ---
 name: create-project
-description: Scaffold a new research-os academic-paper project — a light Socratic intro, assign a main thematic wiki, then create the numbered folder tree, passport.yaml, CLAUDE.md, wiki-links.md, and a dashboard seed. Replaces clo-author's fork-and-clone. Use when starting a new project.
+description: Scaffold a new research-os paper project - folder tree, passport.yaml, CLAUDE.md, wiki-links.md, dashboard seed, and a main thematic wiki. Use when starting a new project.
 argument-hint: "[topic, or path to create the project in]"
 allowed-tools: Read,Glob,Grep,Write,Edit,Bash,AskUserQuestion,Task
 ---

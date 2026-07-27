@@ -1,13 +1,6 @@
 ---
 name: wiki-pull
-description: >
-  Retrieve and synthesize relevant prior knowledge from the personal brain
-  (`_brain/`) and the relevant thematic research wiki before starting
-  substantial project work. Use whenever beginning literature reviews,
-  empirical design, data work, model building, writing, slides, synthesis, or
-  project planning — even if the user does not explicitly mention the wiki.
-  Also use when entering an existing project and needing to understand what
-  is already known.
+description: Retrieve prior knowledge from the personal brain and the relevant thematic wiki before substantial work. Use when starting literature review, design, data work, writing, or planning.
 argument-hint: "[--wiki <theme>] [research topic or question]"
 allowed-tools: Read, Glob, Grep
 ---

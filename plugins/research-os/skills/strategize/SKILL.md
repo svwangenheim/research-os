@@ -1,6 +1,6 @@
 ---
 name: strategize
-description: Design identification strategy, pre-analysis plan, or formal theory section. Dispatches Strategist / Theorist (proposer) and the paired critic (validator). Strategy phase of the research-os pipeline; writes the strategy into 03_analysis/strategy/ and updates passport.yaml.
+description: Design identification strategy, pre-analysis plan, or formal theory section. Dispatches Strategist or Theorist plus the paired critic. Strategy phase; writes to 03_analysis/strategy/.
 argument-hint: "[mode: strategy | pap | pap interactive | theory] [research question or spec path]"
 allowed-tools: Read,Grep,Glob,Write,Edit,Task
 ---

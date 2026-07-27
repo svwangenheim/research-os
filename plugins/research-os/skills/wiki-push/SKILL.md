@@ -1,14 +1,6 @@
 ---
 name: wiki-push
-description: >
-  Write durable knowledge from the current session back into the two-layer
-  knowledge model — personal/cross-theme synthesis UP into `_brain/`, and new
-  objective concept/method/dataset knowledge DOWN into the relevant thematic
-  wiki — after meaningful work blocks. Use whenever new reusable knowledge has
-  been produced, such as paper summaries, method insights, dataset lessons,
-  conceptual clarifications, project synthesis, or reusable research
-  reasoning, even if the user does not explicitly mention updating the wiki
-  or the brain.
+description: Write durable knowledge from this session back - personal synthesis UP into _brain/, objective concept, method, and dataset knowledge DOWN into the thematic wiki. Use after work blocks.
 argument-hint: "[--wiki <theme>] [optional: specific notes or topic to push]"
 allowed-tools: Read, Write, Edit, Glob, Grep
 ---

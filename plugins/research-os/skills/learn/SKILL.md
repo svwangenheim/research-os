@@ -1,6 +1,6 @@
 ---
 name: learn
-description: Learn a concept properly -- first-principles curriculum, generation-first Socratic tutoring, verified free recall, FSRS-scheduled reviews. Point it at whatever just confused you (a method, a piece of code, a concept Claude introduced) and it finds the words for you; no need to name a topic yourself. Also accepts a named topic directly, or "continue". Checks _brain/learning/pending-topics.md for things flagged earlier. Use when the user says "I don't get this", "explain this properly", "wait, how does that work", "I want to actually learn this, not just have it work", or when Claude itself notices real confusion and offers this (see Proactive Offer).
+description: Learn a concept properly - first-principles curriculum, Socratic tutoring, verified free recall, FSRS-scheduled reviews. Use on "I don't get this", "explain this properly", or a named topic.
 argument-hint: "[topic, a pointer to what confused you -- a file, a term, 'that last thing' -- or 'continue'. Omit to infer from the session or check the pending queue.]"
 allowed-tools: Read, Grep, Glob, Write, Edit, Bash, Task, AskUserQuestion
 ---

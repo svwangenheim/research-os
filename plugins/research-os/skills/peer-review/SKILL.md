@@ -1,6 +1,6 @@
 ---
 name: peer-review
-description: All quality reviews for the paper (any type) or code -- routes to the appropriate critics based on target and flags. Owns the BLOCKING ARS integrity gate (claim tracing, citation triangulation, temporal/anachronism audit, figure-caption fidelity) that must pass before a peer-review or submission pass. Supports every paper type -- imrad, literature_review, theory, case_study, conference. Review phase of the research-os pipeline; writes referee/editorial reports to 04_paper/reviews/ and scores into passport.yaml.
+description: Review phase - routes the paper or code to the right critics and owns the blocking ARS integrity gate (claim tracing, citation triangulation, anachronism audit). All paper types.
 argument-hint: "[file path or --flag] Options: --peer [journal], --peer --r2/--r3 [journal], --stress [journal], --methods, --theory [target], --proofread, --code [file], --replicate [lang], --all"
 allowed-tools: Read,Grep,Glob,Write,Edit,Bash,WebSearch,Task
 ---

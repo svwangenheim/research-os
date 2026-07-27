@@ -1,6 +1,6 @@
 ---
 name: coach
-description: Learning telemetry, strategy, and schedule for what you've been building with /learn -- retention stats, calibration, grader audit, n-of-1 experiments, HTML dashboard, the Commons data-sharing export. Use for "how am I doing", weekly check-ins, strategy questions, auditing the grader, or adjusting how the tutor teaches.
+description: Learning telemetry and strategy for what you built with /learn - retention stats, calibration, grader audit, dashboard. Use for "how am I doing", weekly check-ins, or tuning the tutor.
 argument-hint: "[dashboard | audit | experiment | refit | schedule | contribute]"
 allowed-tools: Read, Write, Bash, Task, AskUserQuestion
 ---

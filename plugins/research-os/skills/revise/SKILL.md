@@ -1,6 +1,6 @@
 ---
 name: revise
-description: R&R cycle -- classify referee comments and route to the appropriate agents; draft the response letter; audit the response letter itself before it goes back to the journal. Revision phase of the research-os pipeline; writes the tracker and response letter to 04_paper/revisions/ and updates passport.yaml.
+description: R&R cycle - classify referee comments, route to agents, draft the response letter, and audit it before it goes back. Revision phase; writes to 04_paper/revisions/.
 argument-hint: "[referee-report file path(s)] [paper path (optional)] Options: rebuttal-audit [response-letter path]"
 allowed-tools: Read,Grep,Glob,Write,Edit,Task
 ---

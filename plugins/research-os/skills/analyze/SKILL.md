@@ -1,6 +1,6 @@
 ---
 name: analyze
-description: End-to-end data analysis dispatching Coder and Data-engineer for implementation, coder-critic for review. Supports R, Python, Julia. Analysis phase of the research-os pipeline; writes scripts to 03_analysis/ and output to 04_paper/academic_paper/, and updates passport.yaml.
+description: Analysis phase of the research-os pipeline. Dispatches Coder and Data-engineer with coder-critic review; R, Python, Julia. Use to write or run data analysis for a paper.
 argument-hint: "[dataset path or goal] Options: --dual [lang1,lang2]"
 allowed-tools: Read,Grep,Glob,Write,Edit,Bash,Task
 ---

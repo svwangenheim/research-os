@@ -1,13 +1,6 @@
 ---
 name: wiki-maintain
-description: >
-  Audit and remediate one or all registered thematic research wikis until
-  they meet the established A-tier standards for source summaries, canonical
-  concepts, methods, datasets, synthesis pages, links, and verification. Also
-  detects and re-converts poorly-extracted PDF-to-markdown source twins. Use
-  when the user asks to improve the wiki(s), check wiki quality, canonicalize
-  concepts/methods/datasets, update synthesis, fix a garbled source
-  conversion, or make wiki-pull retrieval reliable.
+description: Audit and remediate registered thematic wikis to A-tier standards - summaries, canonical concepts, methods, datasets, synthesis, links. Also re-converts garbled PDF twins.
 argument-hint: "[--wiki <theme>] [optional scope: all | summaries | concepts | methods | datasets | synthesis | reconvert | path]"
 allowed-tools: Read, Write, Edit, Bash, Glob, Grep
 ---

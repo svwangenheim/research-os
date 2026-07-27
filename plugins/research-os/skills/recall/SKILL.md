@@ -1,6 +1,6 @@
 ---
 name: recall
-description: Clear due spaced-repetition reviews with free recall -- the two-minute habit that makes learning from /learn permanent. This is engram's own review loop, vendored directly and renamed here purely for clarity next to /peer-review (manuscript review) -- the two would otherwise both read as "/review". Use when reviews are due, or the user wants to review, practice, or "do my engram reviews".
+description: Clear due spaced-repetition reviews with free recall - the habit that makes /learn permanent. Use when reviews are due, or on "review", "practice", "do my engram reviews".
 argument-hint: "[quick | <topic>]"
 allowed-tools: Read, Write, Bash, Task, AskUserQuestion
 ---

@@ -1,6 +1,6 @@
 ---
 name: weekly-planning
-description: End-of-week routine — reviews what was planned last week against what actually happened (from _brain/daily/), checks in on new projects, sets this week's goals and open work timeslots, and creates non-conflicting color-coded Microsoft 365 calendar blockers (if authorized; degrades gracefully otherwise). Use at the end of a work week, or when the user says "weekly planning", "plan my week", "weekly review", or similar.
+description: End-of-week routine - reviews last week against _brain/daily/, sets goals and work timeslots, and creates M365 calendar blockers if authorized. Use on "plan my week".
 argument-hint: "[none — fully conversational]"
 allowed-tools: Read, Write, Edit, Glob, Grep, Bash, ToolSearch
 ---

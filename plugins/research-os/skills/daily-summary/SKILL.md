@@ -1,6 +1,6 @@
 ---
 name: daily-summary
-description: End-of-day routine — commits today's work in each project touched, writes a short summary per project, scans Slack and Microsoft 365 mail for anything relevant to that work (if authorized; degrades gracefully otherwise), and logs a consolidated daily entry to _brain/daily/. Use at the end of a work session, or when the user says "daily summary", "wrap up today", "log today's work", or similar.
+description: End-of-day routine - commits today's work per project, summarizes it, scans mail and Slack if authorized, and logs to _brain/daily/. Use on "daily summary" or "wrap up today".
 argument-hint: "[project paths, optional — asked conversationally if omitted]"
 allowed-tools: Read, Write, Edit, Glob, Grep, Bash, ToolSearch, Skill
 ---

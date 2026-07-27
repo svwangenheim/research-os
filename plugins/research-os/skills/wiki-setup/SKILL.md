@@ -1,31 +1,6 @@
 ---
 name: wiki-setup
-description: |
-  Structural setup and health-check for the two-layer knowledge model (personal
-  brain + Claude-maintained thematic wikis) and the Obsidian vault it lives in.
-  Conversational, interview-first — opens by asking whether you already have a
-  wiki set up (letting you point to it) rather than silently guessing from
-  files, mirroring how the dz-core onboarding skill detects-then-guides. On a
-  brand-new machine, creates everything scriptable in one pass — folder
-  structure, `_templates/`, root docs (CLAUDE.md/README.md/index.md/log.md),
-  `.obsidian` config, the `~/.claude/vaults.json` registry, and
-  `~/.claude/settings.json` / `VAULT_PATH` wiring — then runs the profile
-  interview (which first summarizes what's already known about you for
-  confirmation, then asks only about gaps), and prints the two manual steps a
-  skill genuinely cannot do for you (installing the Obsidian app, enabling the
-  Dataview plugin). On an existing setup, diagnoses structural drift from the
-  standard (missing root docs, missing templates, folder-name typos like
-  `60_people_instructions`, stale registry, missing Obsidian config) and walks
-  through each fix one at a time before applying it — additive-only, never a
-  silent batch fix, never a delete/overwrite. This is a distinct, complementary
-  tool from `wiki_quality_check.py` / `/wiki-maintain`, which check content
-  quality (summaries, dedup, broken links) inside an already-structurally-sound
-  wiki. Idempotent — safe to re-run any time. Use when the user wants to set up
-  the personal wiki / second-brain system for the first time, set it up on a
-  new computer, "set up my wiki", "initialize the knowledge base", "set up the
-  second brain", "check my wiki setup", "is my wiki structured correctly",
-  "fix my wiki structure", "set up Obsidian for my wiki", or "why isn't
-  Dataview working".
+description: Structural setup and health-check for the two-layer knowledge model and its Obsidian vault. Interview-first, idempotent, additive-only. Use on "set up my wiki" or "fix my wiki structure".
 argument-hint: "[path to vault root, only needed if nothing is registered yet]"
 allowed-tools: Read, Write, Edit, Glob, Bash
 ---

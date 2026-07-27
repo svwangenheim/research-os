@@ -1,13 +1,6 @@
 ---
 name: checkpoint
-description: >
-  Session handoff — persists what happened in the current session to the passport,
-  the research journal, and the personal brain. Use when wrapping up a work session,
-  before `/compact`, or when the user says "checkpoint", "save progress", "sync",
-  "wrap up", "log this", or "handoff". Writes the project note to `_brain/projects/<slug>.md`
-  (two-layer model), appends `passport.yaml sessions:`, updates `pipeline.current_stage`,
-  and refreshes the dashboard. Optionally pushes to Obsidian if the MCP is configured.
-  Does NOT run briefings, calendar, or mail. Just gather, confirm, save.
+description: Session handoff - persists the session to passport.yaml, the research journal, and the personal brain, and refreshes the dashboard. Use before /compact, or on "checkpoint", "save progress", "wrap up".
 argument-hint: "[--auto | --memory-only | --scaffold-only | --dry-run]"
 allowed-tools: Read,Grep,Glob,Write,Edit,Bash
 ---

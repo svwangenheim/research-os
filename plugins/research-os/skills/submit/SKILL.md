@@ -1,6 +1,6 @@
 ---
 name: submit
-description: Submission pipeline -- journal targeting, replication package, audit, citation format-convert, AI-use disclosure, and the final gate. Submission phase of the research-os pipeline (terminal); writes replication artifacts to 03_analysis/replication/ and submission materials to 04_paper/submission/, and requires the ARS integrity gate to have passed.
+description: Submission phase (terminal) - journal targeting, replication package, audit, citation conversion, AI-use disclosure, final gate. Requires the ARS integrity gate to have passed.
 argument-hint: "[mode: target | package | audit | format-convert | ai-disclosure | final] [journal name / citation style / venue (optional)]"
 allowed-tools: Read,Grep,Glob,Write,Edit,Bash,Task
 ---

@@ -1,6 +1,6 @@
 ---
 name: research-os-help
-description: Your research-os front door and complete guide — useful whether or not you're inside a project folder. Inside a project, reads passport.yaml and tells you exactly where you are in the pipeline and the next step (required vs optional). Outside a project, routes you straight to whichever skill fits whatever you're actually doing — the knowledge base, the learning layer, the admin routines, general-purpose skills, or a pipeline skill invoked directly on a target (a file, a topic) — with `/create-project` offered as the way to formalize the work into a tracked paper once that's what's wanted, not a precondition. Knows every skill and agent in the plugin and what each is for, and — if you confirm — runs the next step for you. Has an ELI5 mode (`/research-os-help eli5`) that explains everything in plain language for a newcomer. Use anytime you're unsure what to do next, want the full capability list, or ask e.g. "what's next", "what can this do", "explain the whole workflow".
+description: research-os front door. Inside a project, reports the pipeline stage and exact next step; outside one, routes you to the right skill. Use for "what's next" or "what can this do". Has an ELI5 mode.
 argument-hint: "[nothing | explain | list | eli5]"
 allowed-tools: Read,Glob,Grep,Bash,AskUserQuestion,Skill,Task
 ---

@@ -1,14 +1,6 @@
 ---
 name: connect
-description: >
-  Cross-theme bridge-finder. Surfaces non-obvious connections between two
-  research themes (or across all registered wikis and the personal `_brain/`
-  layer) — structural analogies, transfer opportunities, and collision ideas
-  that the existing wikilinks do not already make. Read-only and advisory:
-  proposes links and a possible synthesis note, never writes. Use when the
-  user asks "what connects X and Y", "any cross-over between these themes",
-  "find non-obvious links", or wants to spot latent connections across their
-  knowledge base.
+description: Cross-theme bridge-finder. Surfaces non-obvious connections between research themes and the personal brain. Read-only. Use for "what connects X and Y" or "find non-obvious links".
 argument-hint: "[themeA] [themeB]  — or no args to scan across all registered wikis"
 allowed-tools: Read, Glob, Grep
 ---

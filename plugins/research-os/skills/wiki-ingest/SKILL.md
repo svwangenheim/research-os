@@ -1,14 +1,6 @@
 ---
 name: wiki-ingest
-description: >
-  Ingest a source into a thematic research wiki (never into `_brain/`).
-  Accepts a PDF (mechanically extracted with pymupdf4llm, then a mandatory
-  Claude normalization pass), a markdown file, an Office document (docx/pptx/
-  xlsx via markitdown), or a citation string. Runs the full wiki ingest
-  workflow: source placement, summary creation, concept/method/dataset page
-  updates, and log update. Use whenever new literature is identified as worth
-  preserving. The librarian offers this automatically after each literature
-  search.
+description: Ingest a source into a thematic research wiki - PDF, markdown, Office doc, or citation string. Runs source placement, summary, concept/method/dataset updates, and log update.
 argument-hint: "[--wiki <theme>] [path/to/file.pdf | path/to/file.md | 'Author Year Title']"
 allowed-tools: Read, Write, Edit, Bash, Glob, Grep
 ---

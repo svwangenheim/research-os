@@ -1,6 +1,6 @@
 ---
 name: discover
-description: Discovery phase combining research interviews, literature search (narrative or PRISMA systematic), data discovery, and ideation. Routes to the appropriate agents based on arguments. First step of the research-os pipeline; writes the research spec into passport.yaml and the literature into the corpus.
+description: Discovery phase of the research-os pipeline - research interview, literature search (narrative or PRISMA), data discovery, and ideation. Writes the research spec into passport.yaml.
 argument-hint: "[mode: interview | lit | lit systematic | data | ideate] [topic or query]"
 allowed-tools: Read,Grep,Glob,Write,Edit,Bash,WebSearch,WebFetch,Task
 ---

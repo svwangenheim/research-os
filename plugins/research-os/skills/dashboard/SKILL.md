@@ -1,6 +1,6 @@
 ---
 name: dashboard
-description: Generate or refresh the living project dashboard HTML. Scans the passport, literature corpus + wiki-links, data, analysis scripts/outputs, results, reviews, plans, and git history to build a single-page project overview. Invoke with /dashboard to create from scratch or update an existing dashboard.
+description: Generate or refresh the living project dashboard HTML from the passport, literature, data, analysis, results, reviews, and git history. Use to create or update the dashboard.
 argument-hint: "[refresh | create | add-changelog TITLE]"
 allowed-tools: Read,Grep,Glob,Write,Edit,Bash
 ---

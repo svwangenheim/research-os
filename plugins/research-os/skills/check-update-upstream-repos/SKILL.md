@@ -1,6 +1,6 @@
 ---
 name: check-update-upstream-repos
-description: Diff research-os's tracked upstream repositories (clo-author, ARS/academic-research-skills, engram, and obsidian-second-brain) against their live current state, summarize what changed since we last looked, and recommend what's worth adopting. Manual, ~bimonthly cadence — not automated. Use when the user asks "check for upstream updates", "is clo-author/ARS ahead of us", "any new engram or obsidian-second-brain changes", or runs this on a schedule they set up themselves.
+description: Diff research-os's tracked upstream repos (clo-author, ARS, engram, obsidian-second-brain) against their current state and recommend what to adopt. Manual, roughly bimonthly.
 argument-hint: "[repo name, optional — checks all tracked repos by default]"
 allowed-tools: Read, Write, Edit, Bash, WebFetch
 ---
