@@ -3,6 +3,7 @@ name: freeze
 description: Block edits outside specified directories for this session. Protects files from accidental changes during focused work. Activate with /freeze [dirs], deactivate with /freeze off.
 argument-hint: "[dir1 dir2 ... (activate) | off (deactivate)]"
 user-invocable: true
+allowed-tools: Read, Write, Edit
 ---
 
 # Freeze -- Session-Scoped Edit Guard

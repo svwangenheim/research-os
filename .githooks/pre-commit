@@ -1,0 +1,82 @@
+#!/usr/bin/env bash
+#
+# research-os pre-commit gate.
+#
+# Runs the two deterministic checkers and refuses the commit if either fails.
+# Both are stdlib-only Python, so this needs no toolchain beyond an interpreter.
+#
+# Install:   bash scripts/install-hooks.sh
+# Bypass:    SKIP_INTEGRITY_GATE=1 git commit ...
+#
+# If you bypass, say why in the commit body. A gate that is routinely skipped
+# without a recorded reason is a gate nobody trusts.
+
+set -u
+
+if [ "${SKIP_INTEGRITY_GATE:-0}" = "1" ]; then
+  echo "pre-commit: integrity gate skipped (SKIP_INTEGRITY_GATE=1)"
+  exit 0
+fi
+
+ROOT=$(git rev-parse --show-toplevel 2>/dev/null) || {
+  echo "pre-commit: not inside a git repository - skipping" >&2
+  exit 0
+}
+
+SCRIPTS="$ROOT/plugins/research-os/scripts"
+
+# Windows Git Bash usually has `python`; Linux and macOS usually `python3`.
+PYTHON=""
+for candidate in python3 python py; do
+  if command -v "$candidate" >/dev/null 2>&1; then
+    if [ "$candidate" = "py" ]; then
+      PYTHON="py -3"
+    else
+      PYTHON="$candidate"
+    fi
+    break
+  fi
+done
+
+if [ -z "$PYTHON" ]; then
+  echo "pre-commit: no Python interpreter found - skipping the integrity gate" >&2
+  exit 0
+fi
+
+status=0
+
+run_check() {
+  name=$1
+  script=$2
+  if [ ! -f "$script" ]; then
+    echo "pre-commit: $name not found at $script - skipping" >&2
+    return 0
+  fi
+  echo "pre-commit: $name"
+  # shellcheck disable=SC2086
+  if ! $PYTHON "$script"; then
+    code=$?
+    if [ "$code" -eq 2 ]; then
+      echo "pre-commit: $name errored (exit 2) - treating as a failure" >&2
+    fi
+    status=1
+  fi
+}
+
+run_check "check_plugin_integrity.py" "$SCRIPTS/check_plugin_integrity.py"
+run_check "check_surface_sync.py" "$SCRIPTS/check_surface_sync.py"
+
+if [ "$status" -ne 0 ]; then
+  cat >&2 <<'MSG'
+
+pre-commit: commit aborted.
+
+Fix the findings above, or commit with an explicit bypass and a reason:
+
+    SKIP_INTEGRITY_GATE=1 git commit
+MSG
+  exit 1
+fi
+
+echo "pre-commit: integrity gate passed"
+exit 0

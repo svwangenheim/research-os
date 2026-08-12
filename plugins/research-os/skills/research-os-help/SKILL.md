@@ -38,7 +38,7 @@ been added or renamed since this file was written.
    - **Knowledge layer:** `/wiki-pull`, `/wiki-ingest`, `/wiki-push`, `/wiki-maintain`, `/connect`, `/wiki-setup`, `/add-thematic-wiki`.
    - **Learning layer:** `/learn`, `/recall`, `/coach`.
    - **Admin routines:** `/daily-summary`, `/weekly-planning`.
-   - **General-purpose:** `/article-writing`, `/content-engine`, `/frontend-slides`, `/exa-search`, `/prompt-optimizer`, `/python-patterns`, `/python-testing`, `/documentation-lookup`, `/git-workflow`, `/data-scraper-agent`, `/continuous-learning-v2`.
+   - **General-purpose:** `/article-writing`, `/content-engine`, `/frontend-slides`, `/exa-search`, `/prompt-optimizer`, `/python-patterns`, `/python-testing`, `/documentation-lookup`, `/git-workflow`, `/data-scraper-agent`.
    - **Pipeline skills too, when invoked on a specific target:** most route by explicit input (a file path, a topic, a flag) rather than by pipeline stage, so a project isn't a precondition for using them one-off — e.g. `/peer-review --code path/to/script.py` or `/discover lit "some topic"`, but this pattern isn't limited to those two; check the skill's own argument-hint for what it accepts directly.
 
    Ask what they're actually trying to do and route straight to the matching skill — don't default to pointing at `/create-project` just because no project was found. Offer `/create-project` as the option to formalize the work into a fully tracked paper (discover → strategize → analyze → write → review → revise → submit) once that's what the user actually wants, not a gate they have to pass through first. If their intent isn't clear from the question, ask a short clarifying question before routing rather than dumping the whole catalog unprompted.
@@ -54,18 +54,28 @@ From `pipeline`: find `current_stage` and the first stage whose `status` isn't `
 
 | Stage | Skill (mode) | Gate | Notes |
 |-------|-------------|------|-------|
-| discovery | `/discover` (interview → spec; `lit` → literature; `data` → data; PRISMA for systematic reviews) | 80 | run `/wiki-pull` first to reuse prior knowledge |
-| strategy | `/strategize` (+ `theory` for econometric-methods/theory/structural) | 80 | |
-| analysis | `/analyze` | 80 | |
-| writing | `/write` (detects paper type: imrad · review · theory · case_study · conference) | 80 | |
-| review | `/peer-review` (`--all` comprehensive; `--peer` referees) — **integrity gate blocks here** | 90 | claims traced, citations triangulated, temporal + figure audit |
+| discovery | `/discover` (interview → spec; `lit` → literature; `data` → data; PRISMA for systematic reviews) | 80 | reads the wiki corpus before the web; claims post-flight verified |
+| strategy | `/strategize` (+ `theory` for econometric-methods/theory/structural) | 80 | reads `<main_wiki>/40_methods/` for the chosen design |
+| analysis | `/analyze` | 80 | reads `<main_wiki>/50_datasets/` before writing loading code |
+| writing | `/write` (detects paper type: imrad · review · theory · case_study · conference) | 80 | reads `20_summaries/` + `30_concepts/` for content, never for voice |
+| review | `/peer-review` (`--all` comprehensive; `--peer` referees) — **integrity gate blocks here** | 90 | claims traced, citations triangulated, temporal + figure audit; the editor's verdict passes a hallucination gate |
 | revision | `/revise` (+ `rebuttal-audit` to QA your response letter) | 90 | |
-| submission | `/submit` (`target` · `package` · `ai-disclosure` · `final`; multi-style citations) | 95 | |
+| submission | `/submit` (`target` · `package` · `environment` · `ai-disclosure` · `final`) | 95 | `environment` pins lockfiles, seeds and RNG kind |
+
+#### Blocking conditions to check before recommending anything
+
+Three things can stop a stage regardless of its score. Name whichever applies instead of recommending the next stage:
+
+1. **`integrity.unresolved` is non-empty** — the ARS gate failed. `/peer-review` will not dispatch the editor and `/submit` will not run. Say which check failed.
+2. **A claim is STALE.** The `claim-reconcile` hook flags this in-session when an analysis script changes under a recorded claim. `/peer-review --replicate` re-verifies; `/diagnose` localizes which step drifted.
+3. **A post-flight FAIL was surfaced but not resolved** — a citation or number the forked verifier contradicted.
 
 #### Cross-cutting (recommend when relevant, not stage-bound)
-- **Start of any work session:** `/wiki-pull` — reuse prior knowledge from the main wiki (its `_map.md` first) + `_brain/`.
+- **Start of any work session:** the SessionStart hook already injects a short wiki digest — stage-relevant concepts, methods or datasets, plus any unpushed items. Run `/wiki-pull` for the full read when the digest is not enough.
 - **New source found:** `/wiki-ingest <pdf>` — into the thematic wiki.
-- **After a work block:** `/wiki-push` (objective knowledge down to a wiki, personal/cross-theme up into `_brain/synthesis/`) and `/checkpoint` (Orientation + journal → `_brain/projects/<slug>.md`). A Stop-hook nudges `/wiki-push` if the project bridge still lists unpushed items.
+- **A wrong or failing number:** `/diagnose` — reproduce, minimise, hypothesise, instrument, fix. Never edits before it can reproduce, never fixes before it can explain.
+- **Handing work to someone else:** `/coauthor-brief` (what a collaborator needs to take over) — distinct from `/checkpoint` (what *you* need to resume).
+- **After a work block:** `/wiki-push` (objective knowledge down to a wiki, personal/cross-theme up into `_brain/synthesis/`) and `/checkpoint` (Orientation + journal → `_brain/projects/<slug>.md`). Claude also writes council-approved durable knowledge into the wiki on its own — `/wiki-maintain --review-auto` shows what it wrote, and `RESEARCH_OS_WIKI_AUTOWRITE=0` turns it off.
 - **Spot latent cross-theme links:** `/connect [themeA] [themeB]` — read-only bridge-finder.
 - **Overview anytime:** `/dashboard` (living `project_dashboard.html`).
 - **Confused by a method/code Claude introduced:** `/learn`; clear due reviews with `/recall`; check retention/strategy with `/coach`.
@@ -113,12 +123,14 @@ also enumerate live from `${CLAUDE_PLUGIN_ROOT}/skills/*/SKILL.md` +
 - `/strategize` — identification strategy / pre-analysis plan / formal theory section.
 - `/analyze` — end-to-end data analysis (R/Python/Julia); scripts + outputs.
 - `/write` — draft/revise sections by paragraph-level argument moves; strips AI patterns.
-- `/peer-review` — all quality reviews; owns the **blocking ARS integrity gate**.
+- `/peer-review` — all quality reviews; owns the **blocking ARS integrity gate**. The editor's verdict passes a hallucination gate before it is saved.
+- `/diagnose` — root-cause a wrong or failing number: reproduce → minimise → hypothesise → instrument → fix. Single-symptom; `--no-fix` to localize without editing.
 - `/revise` — R&R cycle: classify referee comments, draft + audit the response letter.
 - `/talk` — build + audit presentations (Beamer or Quarto RevealJS).
-- `/submit` — journal targeting, replication package, AI-disclosure, final gate.
-- `/tools` — utility subcommands (commit, compile, validate-bib, lint, journal, context, dashboard, deploy, learn, upgrade).
-- `/checkpoint` — session handoff: passport + journal + `_brain/projects/<slug>.md` (Orientation + Journal).
+- `/submit` — journal targeting, replication package, environment capture, AI-disclosure, final gate.
+- `/tools` — utility subcommands (commit, compile, validate-bib, lint, journal, context, dashboard, deploy, learn, upgrade, permission-check).
+- `/checkpoint` — session handoff for *you* resuming: passport + journal + `_brain/projects/<slug>.md`, plus a "discarded as noise" section so dead ends are not quoted back later.
+- `/coauthor-brief` — handoff for *someone else* starting: what changed, where each artifact stands, how to reproduce, how to get data access.
 - `/dashboard` — generate/refresh the living project dashboard HTML.
 - `/freeze` · `/careful` — session guards (freeze edits outside dirs; block destructive bash).
 
@@ -146,12 +158,11 @@ also enumerate live from `${CLAUDE_PLUGIN_ROOT}/skills/*/SKILL.md` +
 
 **Maintenance:**
 - `/check-update-upstream-repos` — diff tracked upstreams (clo-author, ARS, engram, obsidian-second-brain) against live HEAD.
-- `/skill-stocktake` — audit skills/commands for quality.
 
 **General-purpose:**
 - `/article-writing` · `/content-engine` · `/frontend-slides` — long-form, social, and slide content.
 - `/git-workflow` · `/python-patterns` · `/python-testing` · `/documentation-lookup` — engineering helpers.
-- `/exa-search` · `/prompt-optimizer` · `/data-scraper-agent` · `/continuous-learning-v2` — search, prompt-tuning, scraping, instinct learning.
+- `/exa-search` · `/prompt-optimizer` · `/data-scraper-agent` — search, prompt-tuning, scraping.
 
 ### Scheduled agents (opt-in, set up via `/schedule`)
 Specs live in `${CLAUDE_PLUGIN_ROOT}/references/scheduled-agents.md`:
@@ -185,6 +196,34 @@ start from scratch.
   Claude writes these; you read them. Facts about the world go here.
 - **`_brain/`** — your own notebook: daily notes, weekly plans, project journals,
   stray thoughts, lessons learned. This is yours; Claude only helps you keep it.
+
+**The shelves now come to you.** You used to have to ask ("`/wiki-pull`") before
+Claude would look at what you already knew. Now every session starts by showing a
+short summary of the relevant shelf — the methods when you're planning, the
+datasets when you're coding, the synthesis when you're writing. You can still ask
+for the full read; you just don't have to remember to.
+
+**Claude files things away by itself now.** When something worth keeping comes out
+of a session, Claude adds it to the right shelf without asking. Before anything is
+filed, five separate checkers look at it independently — does this belong on a
+shelf or in your notebook? does a page for it already exist? does it contradict
+what's there? is it actually sourced? is it formatted right? Four of five have to
+say yes.
+
+There are hard limits on this. Claude never edits your notebook, never touches the
+original PDFs, and never deletes or rewrites something that's already there — if a
+new finding disagrees with an old one, both stay and the disagreement is written
+down. Everything filed automatically is logged and saved as a separate checkpoint,
+so `/wiki-maintain --review-auto` shows you exactly what it did, and one command
+undoes a whole week of it. If you'd rather it went back to asking first, set
+`RESEARCH_OS_WIKI_AUTOWRITE=0`.
+
+**Claude checks its own facts before showing you.** When it writes something with
+citations or numbers in it, a second Claude — one that has never seen the draft —
+checks each claim against the actual sources. It can't just agree with itself,
+because it doesn't know what the first one wrote. Fabricated citations are the
+most common way this kind of work goes wrong, and they're much cheaper to catch
+the moment they appear than three days later.
 
 **The pipeline, in one line.** Have an idea → `/create-project`, then walk the
 steps: **discover** (what's known + what data exists) → **strategize** (the plan)

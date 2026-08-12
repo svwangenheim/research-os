@@ -23,6 +23,28 @@ curation flows through `/wiki-ingest` and `/wiki-maintain`. Each wiki uses:
   90_synthesis/           # theme-internal synthesis (comparisons WITHIN this theme only)
 ```
 
+### Claude writes here without being asked
+
+As of the auto-write change, Claude files durable knowledge into these wikis on its own
+rather than waiting for `/wiki-push`. It is bounded, gated, and reversible:
+
+- **Gate.** Every candidate is judged by five independent critics (layer-routing, canonicity,
+  staleness, evidence, format) before it lands. Four of five must agree; three proposes to you;
+  two or fewer is discarded.
+- **Blast radius.** Append or create in `30_concepts/`, `40_methods/`, `50_datasets/`,
+  `60_people_institutions/` only. Never `10_sources/` (immutable), never `_brain/` (yours),
+  never `90_synthesis/` (interpretation stays proposal-only).
+- **Never destructive.** An existing claim is never deleted or rewritten. A contradicting
+  finding is appended *as* a contradiction and both stand — that audit trail is what the
+  integrity gate reads.
+- **Reviewable.** Each batch is a separate `wiki(auto):` commit with a `## Changelog` line
+  carrying the vote tally. `/wiki-maintain --review-auto` lists them; `git revert` undoes one.
+- **Off switch.** `RESEARCH_OS_WIKI_AUTOWRITE=0`, or `autowrite: false` in
+  `~/.claude/vaults.json`, returns to propose-only.
+
+The full contract is `rules/wiki-integration.md` in the plugin; this is the summary.
+
+
 **`_brain/`** is the personal, human-owned layer — see `_brain/wikis-index.md` for what's there.
 Cross-theme or personal synthesis goes in `_brain/synthesis/`, not inside a wiki's `90_synthesis/`.
 

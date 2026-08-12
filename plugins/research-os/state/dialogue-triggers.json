@@ -1,0 +1,87 @@
+{
+  "version": 1,
+  "enabled": true,
+  "budget": {
+    "max_prompts_per_session": 2,
+    "snooze_hours_after_dismiss": 24,
+    "comment": "Auto-prompting's real failure mode is becoming nagware and getting switched off wholesale. The budget is what keeps the feature alive: at most two ambient offers per session, and a dismissed trigger goes quiet for a day."
+  },
+  "triggers": [
+    {
+      "id": "session-anchor",
+      "event": "SessionStart",
+      "condition": "cwd_has:passport.yaml",
+      "fires": "Load prior context for this project (/wiki-pull) and state the current stage plus the single next step.",
+      "mode": "ambient",
+      "enabled": true,
+      "why": "rules/skill-router.md says every research session should start with /wiki-pull. That was a hope; a hook makes it real."
+    },
+    {
+      "id": "stage-transition",
+      "event": "PostToolUse",
+      "matcher": "Edit|Write",
+      "condition": "file_is:passport.yaml AND stage_changed",
+      "fires": "Open the NEXT stage's interview instead of waiting to be asked (discovery -> /strategize, strategy -> /analyze, analysis -> /write, writing -> /peer-review).",
+      "mode": "ambient",
+      "enabled": true,
+      "why": "The pipeline knows what comes next. Making the user remember the command is the friction."
+    },
+    {
+      "id": "undocumented-decision",
+      "event": "Stop",
+      "condition": "stage_changed_this_session AND no_new_file_in:00_admin/process/decisions",
+      "fires": "Socratic decision-record beat: what did you decide, what did you reject, what would invalidate it.",
+      "mode": "ambient",
+      "enabled": true,
+      "why": "A stage passes and the reasoning evaporates. Decision records are cheap now and irreplaceable at revision time."
+    },
+    {
+      "id": "learn-alongside",
+      "event": "PostToolUse",
+      "matcher": "Edit|Write",
+      "condition": "path_under:03_analysis/scripts AND (new_file OR changed_lines>30)",
+      "fires": "Explain what this code does at the level of an economics student - define jargon, no assumed familiarity - before moving on.",
+      "mode": "ambient",
+      "enabled": true,
+      "why": "_brain/profile.md mandates that all code Claude writes be explained so the user learns alongside. That currently depends on Claude remembering."
+    },
+    {
+      "id": "critic-finding",
+      "event": "Stop",
+      "condition": "critic_returned_severity:CRITICAL|HIGH",
+      "fires": "Before patching: ask what the user thinks the fix is. Semi-autonomous means plan together, then execute.",
+      "mode": "ambient",
+      "enabled": true,
+      "why": "profile.md asks for Socratic planning then execution. Silently patching a critic finding skips the half the user asked for."
+    },
+    {
+      "id": "encode-worthy-confusion",
+      "event": "Stop",
+      "condition": "clarifying_exchanges_on_one_concept>=2",
+      "fires": "Offer /learn on that concept - a curriculum beats re-explaining it next month.",
+      "mode": "ambient",
+      "enabled": true,
+      "why": "Repeated clarification is the signal Engram exists to catch, and it is currently invisible."
+    },
+    {
+      "id": "due-reviews",
+      "event": "SessionStart",
+      "condition": "engram_due_count>0",
+      "fires": "Surface the due count and offer /recall.",
+      "mode": "ambient",
+      "enabled": true,
+      "implemented_by": "hooks/engram-session-start.sh",
+      "why": "Already shipped. Listed here so the registry is the complete picture, not a partial one."
+    },
+    {
+      "id": "unpushed-knowledge",
+      "event": "Stop",
+      "condition": "unchecked_items_in:wiki-links.md",
+      "fires": "Remind once per session to run /wiki-push.",
+      "mode": "ambient",
+      "enabled": true,
+      "implemented_by": "hooks/stop-push-nudge.py",
+      "why": "Already shipped. Listed for completeness."
+    }
+  ]
+}

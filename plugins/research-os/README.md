@@ -188,8 +188,6 @@ No dedicated agents in this group — these skills operate directly, without dis
 | `/prompt-optimizer` | Feed it a rough prompt and get back a sharper one — never runs the task itself. |
 | `/frontend-slides` | Build an animated HTML presentation, or convert a PowerPoint into one. |
 | `/data-scraper-agent` | Stand up a free, scheduled scraper for any public data source. |
-| `/continuous-learning-v2` | Claude observes its own sessions and gradually builds small learned preferences over time. |
-| `/skill-stocktake` | Audit all skills and commands in this plugin for quality. |
 
 | Agent | Dispatched by | What it does |
 |---|---|---|

@@ -3,6 +3,7 @@ name: documentation-lookup
 description: Fetch up-to-date library and framework docs via Context7 MCP instead of training data. Use for setup questions, API references, or when the user names a framework.
 argument-hint: "[library/framework name] [question]"
 origin: ECC
+allowed-tools: Read, Write, Grep, Glob, WebFetch, WebSearch
 ---
 
 # Documentation Lookup (Context7)

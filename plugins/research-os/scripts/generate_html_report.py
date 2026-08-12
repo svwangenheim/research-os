@@ -1780,7 +1780,7 @@ def cmd_literature(args):
 
 
 def main():
-    parser = argparse.ArgumentParser(description="Generate clo-author HTML detail reports")
+    parser = argparse.ArgumentParser(description="Generate research-os HTML detail reports")
     sub = parser.add_subparsers(dest="command")
 
     pr = sub.add_parser("peer-review", help="Combined peer review report")

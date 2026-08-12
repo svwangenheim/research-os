@@ -3,6 +3,7 @@ name: article-writing
 description: Write articles, guides, blog posts, tutorials, and newsletters in a distinctive voice derived from supplied examples or brand guidance. Use for polished long-form content.
 argument-hint: "[topic, outline, or notes to turn into an article]"
 origin: ECC
+allowed-tools: Read, Write, Edit, Grep, Glob, WebSearch, WebFetch
 ---
 
 # Article Writing

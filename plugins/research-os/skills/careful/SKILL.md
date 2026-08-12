@@ -3,6 +3,7 @@ name: careful
 description: Block destructive bash commands for this session. Prevents rm -rf, git reset --hard, git push --force, and similar dangerous operations. Activate with /careful, deactivate with /careful off.
 argument-hint: "[nothing (activate) | off (deactivate)]"
 user-invocable: true
+allowed-tools: Read, Write, Bash
 ---
 
 # Careful -- Session-Scoped Destructive Command Guard

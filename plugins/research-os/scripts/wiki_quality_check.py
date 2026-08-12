@@ -87,10 +87,11 @@ CORE_LINK_FOLDERS = (
 )
 
 # _brain/ (personal layer) checks
-BRAIN_FOLDERS = ("projects", "thoughts", "learning", "synthesis", "daily", "weekly")
+BRAIN_FOLDERS = ("projects", "procedures", "thoughts", "learning", "synthesis", "daily", "weekly")
 
 BRAIN_FOLDER_NOTE_TYPES: dict[str, tuple[str, ...]] = {
     "projects": ("project",),
+    "procedures": ("procedure",),
     "thoughts": ("thought",),
     "learning": ("learning",),
     "synthesis": ("synthesis",),
@@ -101,6 +102,7 @@ BRAIN_FOLDER_NOTE_TYPES: dict[str, tuple[str, ...]] = {
 # folder -> required frontmatter keys (presence + non-empty)
 BRAIN_REQUIRED_FIELDS: dict[str, tuple[str, ...]] = {
     "projects": ("title", "status", "updated"),
+    "procedures": ("title", "role", "trigger", "automation", "updated"),
     "thoughts": ("title", "updated"),
     "learning": ("title", "confidence", "updated"),
     "synthesis": ("title", "updated"),
@@ -109,6 +111,13 @@ BRAIN_REQUIRED_FIELDS: dict[str, tuple[str, ...]] = {
 }
 
 BRAIN_STALE_DAYS = 120  # an 'active' project note untouched this long is flagged
+
+# Closed enums for procedure notes. A typo here silently breaks the Dataview
+# catalog and the promotion check, so it is caught at audit time instead.
+PROCEDURE_ROLES = ("phd", "dz-modelling", "dz-outreach", "admin")
+PROCEDURE_AUTOMATION = ("manual", "assisted", "scheduled", "vetoed")
+PROCEDURE_PROMOTION = ("draft", "maturing", "ready", "promoted")
+STEP_ACTOR_TAGS = ("[ai]", "[human]", "[external]", "[veto]")
 
 MIN_SUMMARY_WORDS = 120  # below this, a summary body is "thin"
 DUPLICATE_TITLE_RATIO = 0.80  # difflib ratio threshold for "possible duplicate"
@@ -627,6 +636,75 @@ def check_brain_staleness(notes: list[Note], today: Any = None) -> list[Finding]
     return findings
 
 
+def check_procedure_note(note: Note) -> list[Finding]:
+    """Procedure-specific integrity checks.
+
+    Three things break a procedure silently, so all three are caught here:
+    a value outside a closed enum (invisible to the Dataview catalog), a step
+    with no actor tag (unclear who runs it, so it can never be promoted), and a
+    veto without a reason (an unexplained veto decays into an ignored one).
+    """
+    if note.frontmatter.get("note_type") != "procedure":
+        return []
+
+    findings: list[Finding] = []
+    rel = note.rel
+    fm = note.frontmatter
+
+    enum_checks = (
+        ("role", PROCEDURE_ROLES),
+        ("automation", PROCEDURE_AUTOMATION),
+        ("promotion", PROCEDURE_PROMOTION),
+    )
+    for key, allowed in enum_checks:
+        value = fm.get(key)
+        if not is_empty(value) and value not in allowed:
+            findings.append(
+                Finding("procedure", rel, f"{key}: {value!r} is not one of {allowed}")
+            )
+
+    if fm.get("automation") == "vetoed" and is_empty(fm.get("veto_reason")):
+        findings.append(
+            Finding("procedure", rel, "automation: vetoed but no veto_reason - a veto must say why")
+        )
+
+    untagged = untagged_steps(note.body)
+    if untagged:
+        preview = "; ".join(untagged[:3])
+        findings.append(
+            Finding(
+                "procedure",
+                rel,
+                f"{len(untagged)} step(s) with no actor tag {STEP_ACTOR_TAGS}: {preview}",
+            )
+        )
+
+    return findings
+
+
+def untagged_steps(body: str) -> list[str]:
+    """Numbered steps under `## Steps` that carry no actor tag.
+
+    Only the Steps section is scanned -- numbered lists elsewhere in the note
+    (failure modes, notes to self) are prose, not executable steps.
+    """
+    lines = body.split("\n")
+    in_steps = False
+    untagged: list[str] = []
+    for line in lines:
+        stripped = line.strip()
+        if stripped.startswith("## "):
+            in_steps = stripped.lower().startswith("## steps")
+            continue
+        if not in_steps or not stripped:
+            continue
+        if not re.match(r"^\d+\.\s+\S", stripped):
+            continue
+        if not any(tag in stripped for tag in STEP_ACTOR_TAGS):
+            untagged.append(stripped[:60])
+    return untagged
+
+
 @dataclass
 class BrainReport:
     path: Path
@@ -640,6 +718,7 @@ def check_brain(brain_path: Path) -> BrainReport:
     findings: list[Finding] = []
     for note in notes:
         findings.extend(check_brain_note(note))
+        findings.extend(check_procedure_note(note))
     findings.extend(check_brain_orphans(notes))
     findings.extend(check_brain_staleness(notes))
     return BrainReport(path=brain_path, counts=counts, findings=findings)
@@ -658,6 +737,7 @@ def render_brain_report(report: BrainReport) -> str:
         ("gap", "Frontmatter gaps"),
         ("orphan", "Catalog-invisible project notes"),
         ("stale", "Stale active project notes"),
+        ("procedure", "Procedure defects"),
     ]
     total = 0
     for kind, title in sections:
@@ -735,16 +815,24 @@ def build_arg_parser() -> argparse.ArgumentParser:
     return parser
 
 
-def main(argv: list[str] | None = None) -> int:
-    # Windows consoles (PowerShell/cmd) often default to a legacy codepage that
-    # cannot encode note titles/tags containing non-ASCII characters (e.g. German
-    # umlauts). Reconfigure defensively so a printable-character issue never
-    # crashes an advisory, always-exit-0 tool.
+def force_utf8_console() -> None:
+    """Make stdout/stderr safe for non-ASCII content.
+
+    Windows consoles (PowerShell/cmd) often default to a legacy codepage that
+    cannot encode note titles, German umlauts, or an arrow in a wiki-links
+    item. Reconfigure defensively so a printable-character issue never crashes
+    an advisory tool. Shared by every script in this directory -- see the
+    sibling modules that import it.
+    """
     for stream in (sys.stdout, sys.stderr):
         try:
             stream.reconfigure(encoding="utf-8", errors="replace")
         except (AttributeError, ValueError):
             pass
+
+
+def main(argv: list[str] | None = None) -> int:
+    force_utf8_console()
 
     parser = build_arg_parser()
     args = parser.parse_args(argv)

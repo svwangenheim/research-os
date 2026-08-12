@@ -19,103 +19,19 @@ import json
 import os
 import re
 import subprocess
+import sys
 from datetime import datetime
 from html import escape
 from pathlib import Path
 
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+
+# Passport reading lives in one place so the dashboard and the graph router
+# never drift apart on how state is parsed. See scripts/passport.py.
+from passport import find_project_root, load_passport  # noqa: E402
+
 # The single output folder lives under 04_paper/academic_paper/ (see folder-map.md).
 OUTPUT_TYPES = ["academic_paper"]
-
-
-def find_project_root(start=None):
-    p = Path(start or os.getcwd()).resolve()
-    while p != p.parent:
-        if (p / "passport.yaml").exists() or (p / "CLAUDE.md").exists():
-            return p
-        p = p.parent
-    return Path(start or os.getcwd()).resolve()
-
-
-# ---------- Passport loader ----------
-
-def load_passport(root):
-    """Load passport.yaml. Prefers PyYAML; falls back to a targeted line parser
-    for the fields the dashboard needs (meta, pipeline, literature_corpus,
-    sessions, integrity, research)."""
-    pf = root / "passport.yaml"
-    if not pf.exists():
-        return {}
-    text = pf.read_text(encoding="utf-8", errors="replace")
-    try:
-        import yaml  # type: ignore
-        data = yaml.safe_load(text)
-        return data if isinstance(data, dict) else {}
-    except Exception:
-        return _fallback_passport(text)
-
-
-def _fallback_passport(text):
-    """Minimal, defensive parser for the passport's regular structure.
-    Handles top-level scalars/sections, inline flow maps under pipeline.stages,
-    and simple block lists of mappings (literature_corpus, sessions)."""
-    data = {"meta": {}, "research": {}, "pipeline": {"stages": {}},
-            "literature_corpus": [], "sessions": [], "integrity": {}}
-
-    def scalar(v):
-        v = v.strip()
-        if v in ("null", "~", ""):
-            return None
-        if v in ("[]", "{}"):
-            return []
-        if (v.startswith('"') and v.endswith('"')) or (v.startswith("'") and v.endswith("'")):
-            return v[1:-1]
-        if re.fullmatch(r"-?\d+", v):
-            return int(v)
-        return v
-
-    # Top-level scalars under meta:
-    m = re.search(r"^meta:\s*$(.*?)(?=^\S|\Z)", text, re.MULTILINE | re.DOTALL)
-    if m:
-        for line in m.group(1).split("\n"):
-            km = re.match(r"\s{2}(\w+):\s*(.*)", line)
-            if km:
-                data["meta"][km.group(1)] = scalar(km.group(2).split("#")[0])
-
-    # pipeline.current_stage
-    cs = re.search(r"^\s{2}current_stage:\s*(.*)", text, re.MULTILINE)
-    if cs:
-        data["pipeline"]["current_stage"] = scalar(cs.group(1).split("#")[0])
-
-    # pipeline.stages.<name>: { status: "...", score: ..., gate: ... }
-    for sm in re.finditer(r"^\s{4}(\w+):\s*\{([^}]*)\}", text, re.MULTILINE):
-        name = sm.group(1)
-        body = sm.group(2)
-        stage = {}
-        for kv in re.finditer(r"(\w+):\s*([^,]+)", body):
-            stage[kv.group(1)] = scalar(kv.group(2))
-        data["pipeline"]["stages"][name] = stage
-
-    # Block lists of mappings: literature_corpus, sessions
-    for key in ("literature_corpus", "sessions"):
-        lm = re.search(rf"^{key}:\s*(\[\])?\s*$(.*?)(?=^\S|\Z)", text, re.MULTILINE | re.DOTALL)
-        if not lm or lm.group(1) == "[]":
-            continue
-        items = []
-        current = None
-        for line in lm.group(2).split("\n"):
-            im = re.match(r"\s+-\s+(\w+):\s*(.*)", line)
-            km = re.match(r"\s+(\w+):\s*(.*)", line)
-            if im:
-                if current:
-                    items.append(current)
-                current = {im.group(1): scalar(im.group(2).split(" #")[0])}
-            elif km and current is not None:
-                current[km.group(1)] = scalar(km.group(2).split(" #")[0])
-        if current:
-            items.append(current)
-        data[key] = items
-
-    return data
 
 
 # ---------- Scanners (numbered scheme) ----------

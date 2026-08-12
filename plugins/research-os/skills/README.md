@@ -32,7 +32,9 @@ Run `claude plugin details research-os@research-os` for the live roster and toke
 | `frontend-slides` | General | Animated HTML presentations, from scratch or converted from PowerPoint. |
 | `git-workflow` | General | Branching strategies, commit conventions, merge-vs-rebase, conflict resolution. |
 | `learn` | Learning | Teaches a concept properly — first-principles curriculum, Socratic tutoring, verified free recall, FSRS-scheduled reviews. |
+| `pending` | Routine | Clears the backlog across every project — uncommitted work, unpushed commits, unpushed wiki knowledge. Asks once per project, then remembers. |
 | `peer-review` | Pipeline | Review phase. Routes to referees and the editor, owns the blocking integrity gate, and runs the post-judge hallucination gate over anything the editor added that no referee raised. |
+| `pending` | Routine | Clear the backlog across every project — uncommitted work, unpushed commits, unpushed wiki knowledge. Grouped by project, consent asked once per project. |
 | `procedure` | Routine | Authors, inspects, and promotes the step-by-step processes in `_brain/procedures/`. Promotion to a skill is computed, not remembered. |
 | `prompt-optimizer` | General | Advisory prompt rewrite. Never runs the task itself. |
 | `python-patterns` | General | Pythonic idioms, PEP 8, type hints. |
