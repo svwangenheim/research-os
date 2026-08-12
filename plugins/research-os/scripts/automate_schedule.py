@@ -151,7 +151,12 @@ def registered_tasks() -> set[str]:
 def register(plugin_root: Path, procedure_name: str, spec: ScheduleSpec) -> subprocess.CompletedProcess:
     wrapper = plugin_root / WRAPPER_REL
     action = (
-        f'powershell.exe -NonInteractive -ExecutionPolicy Bypass -File "{wrapper}" '
+        # -NoProfile -NonInteractive matches the convention every existing
+        # ResearchOS-* task already uses (verified live via schtasks /query
+        # /v against ResearchOS-MorningBrief) -- NoProfile skips loading
+        # profile scripts (faster, deterministic); NonInteractive is the
+        # extra belt-and-suspenders against anything that might try to prompt.
+        f'powershell.exe -NoProfile -NonInteractive -ExecutionPolicy Bypass -File "{wrapper}" '
         f'-Name "{procedure_name}"'
     )
     args = ["/create", "/tn", task_name(procedure_name), "/tr", action, "/f"]

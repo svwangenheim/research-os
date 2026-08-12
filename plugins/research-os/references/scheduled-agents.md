@@ -1,22 +1,41 @@
 # Scheduled agents
 
-Six routines keep the second brain, the wikis, and the projects' numeric claims
+Seven hand-authored routines, plus any number of procedure-driven schedules
+(§ below), keep the second brain, the wikis, and the projects' numeric claims
 current without manual prompting. They follow the plan's automation principle:
 **detection is autonomous; mutation is bounded and supervised.** A scheduled run
 never canonicalizes a wiki, never creates calendar events, and never writes into
 `_brain/` beyond what the named skill already does deterministically —
 anything needing judgment is drafted or flagged for a human confirm.
 
+## Two findings from 2026-08-11, still load-bearing
+
+**Reach.** Every routine grants every tracked project via `--add-dir`, derived
+from `working_directory:` in `vault/_brain/projects/*.md` by
+`scripts/resolve_project_paths.py`. Before this the tasks only ever saw the
+vault, so unattended runs reported "no indication of work" while project
+repos sat busy and uncommitted. Never hardcode a project path in a routine —
+add `working_directory:` to the project note instead.
+
+**Scan, don't explore.** Project state is gathered by
+`scripts/project_state_scan.py` *before* `claude` is invoked. The project
+repos are on OneDrive with Files-On-Demand, where directory traversal runs
+~20x slower than local (measured: `git status` 0.7s vs. a depth-2 `find` 3.8s
+for 68 files) — letting a routine's prompt explore project directories
+itself is slow enough to look hung. A routine prompt must say not to explore
+and must supply the scan instead. (Both findings, and the incident that
+surfaced them, are in `docs/13-the-automation-layer.md`.)
+
 ## How this is actually wired up
 
-All six run **locally**, as Windows Scheduled Tasks that invoke the
-`claude` CLI in non-interactive (`-p`/print) mode — not cloud routines.
-Cloud routines (`/schedule`) were tried first, but a cloud run only sees a
-single cloned GitHub repo, not this machine, so it can't see local project
-folders, can't commit to local project repos, and would have required
+All hand-authored routines run **locally**, as Windows Scheduled Tasks that
+invoke the `claude` CLI in non-interactive (`-p`/print) mode — not cloud
+routines. Cloud routines (`/schedule`) were tried first, but a cloud run only
+sees a single cloned GitHub repo, not this machine, so it can't see local
+project folders, can't commit to local project repos, and would have required
 pushing every project (and the vault) to GitHub just to make that work. A
 local Scheduled Task has the same access this machine's interactive Claude
-Code sessions have — full filesystem, full git — so all six routines run
+Code sessions have — full filesystem, full git — so every routine runs
 at full fidelity, and nothing has to leave this machine.
 
 **The pieces:**
@@ -60,7 +79,7 @@ at full fidelity, and nothing has to leave this machine.
   `/discover lit`, since those skills mutate project state and a detection run
   must not — so those four stay as directly-specified prompts.
 
-## The six routines
+## The seven hand-authored routines
 
 ### 1. Morning brief — daily 09:00 — READ-ONLY
 
@@ -161,6 +180,50 @@ scoped to that single path rather than granting `Write` outright. Every hit it
 evaluated goes on the list, kept and dropped alike, so the same paper is not
 re-surfaced next week. Nothing enters `bibliography.bib` or a wiki without
 `/wiki-ingest`, which stays command-invoked.
+
+### 7. Pending sweep — daily 18:00 — READ-ONLY, no `claude` invocation at all
+
+`ResearchOS-PendingSweep` / `scripts/scheduled/pending-sweep.ps1`
+
+Sweeps every project for uncommitted work, unpushed commits, and unchecked
+`wiki-links.md` items into `vault/_brain/.pending-actions.yaml`, then
+refreshes the weekly plan's generated block, the week dashboard, and the
+procedure promotion status. **Contains no `claude` invocation** — detection is
+pure computation, so it costs nothing and cannot go wrong in an interesting
+way. Acting on the queue happens only through `/pending`, which asks once per
+project and records the answer in `automation-consent.yaml`. This is the
+shape to copy for a future routine: if the job is deterministic, run the
+script, not a model.
+
+## Procedure-driven scheduling (2026-08-12) — a different mechanism, same safety shape
+
+The seven routines above are hand-authored: one `.ps1` file each, registered
+by hand. As of the executable-procedure layer (`docs/13-the-automation-layer.md`),
+a personal procedure in `_brain/procedures/` can declare its own `schedule:`
+frontmatter and register **itself** — the whole deploy step (guide step 5) is
+that one declaration:
+
+```bash
+python scripts/automate_schedule.py --root <vault> --name <procedure>          # register
+python scripts/automate_schedule.py --root <vault> --name <procedure> --off    # unregister
+python scripts/automate_schedule.py --root <vault> --list                      # declared-vs-registered drift
+```
+
+One shared wrapper, `scripts/scheduled/automate-procedure.ps1 -Name <procedure>`,
+handles every scheduled procedure — no new `.ps1` file per procedure. Same
+runner semantics as an interactive `/automate run`: `[ai]` executes, `[human]`
+stops and leaves a note (a scheduled run never guesses past a human step),
+`[veto]` refuses. Currently registered:
+
+| Task | Procedure | Schedule |
+|---|---|---|
+| `ResearchOS-Automate-admin-deadline-sweep` | `admin-deadline-sweep` | weekly Monday 08:00 |
+| `ResearchOS-Automate-wiki-hygiene` | `wiki-hygiene` | weekly Friday 14:00 |
+| `ResearchOS-Automate-dz-dashboard-health` | `dz-dashboard-health` | weekly Friday 15:00 |
+| `ResearchOS-Automate-admin-supervisor-brief` | `admin-supervisor-brief` | weekly Friday 16:00 |
+
+`automate_schedule.py --list` is the source of truth for this table, not this
+file — re-run it rather than trusting these rows if they might have drifted.
 
 ## Notification discipline: push on failure, silence on success
 
