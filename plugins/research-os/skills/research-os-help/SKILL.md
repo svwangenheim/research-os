@@ -182,6 +182,12 @@ also enumerate live from `${CLAUDE_PLUGIN_ROOT}/skills/*/SKILL.md` +
 **Routines:**
 - `/daily-summary` — end-of-day: commit per project, log to `_brain/daily/`.
 - `/weekly-planning` — end-of-week: check off last week, set this week's goals + calendar + "questions for next week".
+- `/week` — refresh the living week dashboard: pull the calendar, reconcile drift, regenerate `_brain/week.html`.
+- `/pending` — surface uncommitted/unpushed work across projects, gated by `automation-consent.yaml`.
+
+**Personal automation (your own recurring tasks — never ships as a general skill):**
+- `/workflow-audit` — one-time (then occasional `--refresh`): evidence-harvested, Socratically-corrected inventory of your recurring work, scored by how automatable it is → `_brain/workflow-audit.md`.
+- `/automate` — author (`new <name>`) and run (`run <name>`) the executable procedures the audit surfaces, in `_brain/procedures/`. Runnable the moment a procedure validates — no promotion gate. `schedule <name>` registers a Windows scheduled task from the procedure's own `schedule:` frontmatter; `map` regenerates `_brain/automation-map.html`. See `docs/13-the-automation-layer.md` for the full model (procedures may call skills; skills never call procedures).
 
 **Learning (vendored engram):**
 - `/learn` — first-principles curriculum + Socratic tutoring + verified recall (FSRS-scheduled); context-sourced intake.

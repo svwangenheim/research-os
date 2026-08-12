@@ -33,7 +33,7 @@ _brain/
   weekly/                 # weekly reviews
   thoughts/               # freeform notes and ideas
   projects/               # per-project notes (moved from the old wiki 70_projects/)
-  procedures/             # how the researcher actually works, step by step (the workflow layer)
+  procedures/             # the researcher's own executable specs (the automation layer)
   synthesis/              # personal synthesis + cross-theme insight (spans multiple wikis)
   learning/               # durable learnings (what used to accumulate in MEMORY.md)
   wikis-index.md          # index of the registered thematic wikis
@@ -49,7 +49,7 @@ Key distinction from the theme wikis: `90_synthesis/` inside a wiki is **theme-i
 | `procedures/` | how the researcher does a recurring thing, step by step | *how* |
 | `synthesis/` + the wikis | what is known | *what is true* |
 
-`procedures/` is the workflow layer (`docs/13-the-workflow-layer.md`). A procedure is a note describing how *this* researcher does something, judgment calls included; it is promoted into a shipped skill only when it passes five mechanical gates (see `lifecycle.md`). Objective knowledge discovered while running a procedure still goes *down* into a wiki — the procedure records the process, never the findings.
+`procedures/` is the automation layer (`docs/13-the-automation-layer.md`). A procedure is *this* researcher's own recurring task, judgment calls included — and, unlike a wiki note, it is **executable**: `/automate run <name>` walks it directly, no promotion gate, no waiting period. It never ships (it is personal, not generalizable research machinery), but it may *compose* a shipped skill or a project-local workflow (e.g. a BMAD `mmm-*` step) as one of its own steps, recorded in the note's `calls:` field — composition, not promotion, is how a procedure leverages generalizable machinery without becoming it. Objective knowledge discovered while running a procedure still goes *down* into a wiki — the procedure records the process, never the findings.
 
 ### Layer 0 — The project's working slice
 
