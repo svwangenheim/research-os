@@ -6,7 +6,7 @@
 
 ## Every script in this directory
 
-Eleven are registered in `hooks.json`; the last two are not Claude Code hooks at all and are listed here because they live in this directory.
+Twelve are registered in `hooks.json`; the last two are not Claude Code hooks at all and are listed here because they live in this directory.
 
 <!-- surface-sync-table: hooks -->
 
@@ -22,6 +22,7 @@ Eleven are registered in `hooks.json`; the last two are not Claude Code hooks at
 | `session-journal.py` | Stop | — | Writes a structured change-set entry to `00_admin/process/sessions/YYYY-MM-DD_auto.md` (files touched, pipeline stage, integrity state, active plan, unpushed wiki items). Throttled on the `git status` hash. |
 | `post-edit-lint.py` | PostToolUse | `Write\|Edit\|MultiEdit` | Mechanical lint of R/Python/Julia under `03_analysis/scripts/` against INV-14 .. INV-19. Throttled per file per 2 min. |
 | `claim-reconcile.py` | PostToolUse | `Write\|Edit\|MultiEdit` | On a write to a tracked analysis input, reports how many `passport.yaml` `claim_manifest` claims now depend on stale evidence, and points at `/peer-review --replicate`. Notifier only — never writes the passport. |
+| `dialogue-triggers.py` | PostToolUse | `Write\|Edit\|MultiEdit` | Ambient offers at natural moments (stage transitions, new analysis code) — never a block, never a research judgment. Stage transitions ask `graph/pipeline.json` what is actually ready rather than carrying a hardcoded next-step map, and fall back to one only if the graph itself is unreachable. Budgeted at 2 offers/session with a 24h snooze after dismissal. Registry: `../state/dialogue-triggers.json` (see `../rules/dialogue-triggers.md`). |
 | `context-monitor.py` | PostToolUse | `Bash\|Task` | Progressive context nudges (40/55/65% → `/checkpoint` or `/wiki-push`; 80% info; 90% finish-at-quality). Persists `context-pct.txt` for the status line. |
 | `lint-scripts.sh` | not a hook | — | The grep-based linter library `post-edit-lint.py` calls. Also runnable standalone (`/tools lint`). |
 | `post-merge.sh` | not a hook | — | A **git** hook, not a Claude Code hook: prints a `/checkpoint` reminder after a merge. |
