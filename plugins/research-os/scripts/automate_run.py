@@ -116,7 +116,16 @@ def section(body: str, heading: str) -> str:
     return match.group(1) if match else ""
 
 
-def parse_steps(body: str) -> list[PlanStep]:
+def parse_steps(body: str, known_calls: list[str]) -> list[PlanStep]:
+    """`known_calls` is the procedure's own declared `calls:` frontmatter list.
+
+    A step's backtick-wrapped spans are cross-referenced against it, rather
+    than treated as calls on their own -- prose routinely backtick-wraps
+    config values and command names being described (or explicitly warned
+    against, e.g. "never `Bash run_in_background`"), and matching every
+    backtick span unconditionally displayed those as if the step were
+    invoking them.
+    """
     text = re.sub(r"<!--.*?-->", "", section(body, "Steps"), flags=re.DOTALL)
     steps: list[PlanStep] = []
     for line in text.split("\n"):
@@ -130,14 +139,18 @@ def parse_steps(body: str) -> list[PlanStep]:
                 actor = tag.strip("[]")
                 raw = raw.replace(tag, "").strip()
                 break
-        calls = CALL_RE.findall(raw)
+        backticked = set(CALL_RE.findall(raw))
+        calls = [c for c in known_calls if c in backticked or c in raw]
         steps.append(PlanStep(int(match.group(1)), raw, actor, calls))
     return steps
 
 
 def build_plan(path: Path) -> Plan:
     fm, body = parse_frontmatter(path.read_text(encoding="utf-8", errors="replace"))
-    steps = parse_steps(body)
+    known_calls = fm.get("calls") or []
+    if not isinstance(known_calls, list):
+        known_calls = [str(known_calls)]
+    steps = parse_steps(body, known_calls)
 
     stop_at: int | None = None
     refused = False
@@ -206,7 +219,10 @@ def render_plan(plan: Plan) -> str:
                 f"and will not guess. Tag it [ai]/[human]/[external]/[veto] and re-run."
             )
         else:
-            lines.append(f"Runner executes steps 1-{plan.stop_at - 1}, then stops at step {plan.stop_at}.")
+            if plan.stop_at == 1:
+                lines.append("Runner stops immediately at step 1 -- no steps execute first.")
+            else:
+                lines.append(f"Runner executes steps 1-{plan.stop_at - 1}, then stops at step {plan.stop_at}.")
     else:
         lines.append(f"All {len(plan.steps)} step(s) execute without stopping.")
     return "\n".join(lines)
