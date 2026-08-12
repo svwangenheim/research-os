@@ -140,3 +140,9 @@ The Storyteller agent reads these resources before building slides. The narrativ
 - **Audience calibration.** Job market = demonstrate rigor and command of the literature. Seminar = sell the interesting result. Short = method and key finding. Lightning = sell the idea in one breath.
 - **Advisory scoring.** Talk scores don't block commits.
 - **Worker-critic pairing.** Storyteller creates, storyteller-critic critiques. Never skip the review.
+
+## Node contract
+
+This skill executes graph node `storyteller` in `${CLAUDE_PLUGIN_ROOT}/graph/pipeline.json`
+(optional, advisory-weight — can run parallel with Review). On completion:
+`python3 "${CLAUDE_PLUGIN_ROOT}/scripts/graph.py" record storyteller --score <N>`.

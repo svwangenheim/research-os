@@ -44,13 +44,37 @@ been added or renamed since this file was written.
    Ask what they're actually trying to do and route straight to the matching skill — don't default to pointing at `/create-project` just because no project was found. Offer `/create-project` as the option to formalize the work into a fully tracked paper (discover → strategize → analyze → write → review → revise → submit) once that's what the user actually wants, not a gate they have to pass through first. If their intent isn't clear from the question, ask a short clarifying question before routing rather than dumping the whole catalog unprompted.
 
 ### Step 2 — Determine the next step
-From `pipeline`: find `current_stage` and the first stage whose `status` isn't `passed`.
-- `blocked` (gate below threshold) → **fix and re-run** that stage's critic/gate; say what failed (from `integrity.unresolved` or the stage score) and which skill fixes it.
-- `in_progress` → recommend continuing it.
-- `pending` with dependencies `passed` → recommend starting it.
-- Mark each recommendation **required** or **optional**.
+
+Run the graph router instead of scanning `pipeline.current_stage` by hand — the pipeline is a
+dependency graph (`${CLAUDE_PLUGIN_ROOT}/graph/pipeline.json`), not a waterfall, and only the
+router computes the *ready frontier* correctly (multiple nodes at once, mid-pipeline entry,
+parallel groups):
+
+```bash
+python3 "${CLAUDE_PLUGIN_ROOT}/scripts/graph.py" next
+```
+
+Read its output directly:
+- **AWAITING REVIEW** — artifacts exist, the critic hasn't scored them → recommend re-running the
+  critic, not the worker.
+- **READY, required** → these are the recommendations. More than one means real fan-out — say so
+  explicitly ("`/discover lit` and `/discover data` can both start now") rather than picking one.
+- **READY, optional** → offer, don't push (this is where `wiki-pull` and the other ambient
+  knowledge-layer nodes surface).
+- **STALE** (printed by `graph.py stale`, advisory) → a downstream node ran against an input that
+  has since changed. Surface it as a flag, never as a blocker — the user decides whether the
+  change actually invalidates the prior work.
+- **Nothing ready** → every remaining node is blocked; run `graph.py why <node>` on the
+  stage the user asked about and quote its missing predicate verbatim.
+
+If `graph.py` errors (no Python, corrupt passport) fall back to reading `pipeline.stages` from
+`passport.yaml` directly and reason about `REQUIRES` from `rules/permissions.md` by hand — the
+degraded path, not the default one.
 
 #### Canonical pipeline (stage → skill + mode)
+
+Human-readable narrative of the same graph the router evaluates — useful for explaining *why*,
+not for computing *what's next* (that's Step 2's job now).
 
 | Stage | Skill (mode) | Gate | Notes |
 |-------|-------------|------|-------|
@@ -66,7 +90,7 @@ From `pipeline`: find `current_stage` and the first stage whose `status` isn't `
 
 Three things can stop a stage regardless of its score. Name whichever applies instead of recommending the next stage:
 
-1. **`integrity.unresolved` is non-empty** — the ARS gate failed. `/peer-review` will not dispatch the editor and `/submit` will not run. Say which check failed.
+1. **`integrity.unresolved` is non-empty** — the ARS gate failed. `/peer-review` will not dispatch the editor and `/submit` will not run. Say which check failed (`graph.py why integrity` names it directly; the graph's `editor` node also blocks on this).
 2. **A claim is STALE.** The `claim-reconcile` hook flags this in-session when an analysis script changes under a recorded claim. `/peer-review --replicate` re-verifies; `/diagnose` localizes which step drifted.
 3. **A post-flight FAIL was surfaced but not resolved** — a citation or number the forked verifier contradicted.
 
@@ -85,11 +109,14 @@ Three things can stop a stage regardless of its score. Name whichever applies in
 
 ### Step 3 — Present + optionally advance
 
-**If a project was found (Step 1.2),** report concisely:
-1. **You are here:** current stage + one-line status of each stage (✓ passed / ▶ in progress / ○ pending / ✗ blocked).
-2. **Next step (required):** the exact command + mode, and why.
-3. **Optional next steps:** e.g. `/wiki-pull`, `/learn`, `/dashboard`, `/connect`.
-4. **Integrity flags:** anything in `integrity.unresolved`.
+**If a project was found (Step 1.2),** report concisely from `graph.py next` (Step 2):
+1. **You are here:** current stage, plus which pipeline nodes are already `done`/`stale` (one line).
+2. **Next step(s) (required):** every node in the READY-required list — name all of them
+   together when there's more than one, and say they can run in parallel rather than presenting
+   a single artificial "next" step.
+3. **Optional next steps:** the READY-optional list (`wiki-pull`, `wiki-push`, `/learn`,
+   `/dashboard`, `/connect`).
+4. **Flags:** anything AWAITING REVIEW, anything STALE, and `integrity.unresolved`.
 
 **If no project was found (Step 1.3),** skip the stage report entirely — there's no pipeline state to summarize. Instead name the one skill (or short sequence) that matches what the user asked for, and why it's the right fit standalone.
 
@@ -107,6 +134,11 @@ Give the full pipeline map (the Step 2 table + cross-cutting list) and, if a
 passport exists, where they currently sit — without auto-advancing. Explain the
 two-layer knowledge model (below) and how the pipeline, wikis, `_brain/`, and
 learning layer fit together.
+
+Explain the pipeline as a **graph, not a waterfall**: nodes have declared requirements
+(`rules/permissions.md`, executable as `${CLAUDE_PLUGIN_ROOT}/graph/pipeline.json`), several can
+be ready at once, and entry doesn't have to start at discovery — a project that already has data
+can go straight to `/strategize`. Offer `graph.py dot --mermaid` for a visual render when useful.
 
 ---
 

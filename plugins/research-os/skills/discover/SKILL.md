@@ -234,3 +234,10 @@ Generate:
 - **Two-layer aware:** Read the wiki corpus (`<main_wiki>/10_sources`, `/20_summaries`) before searching the web; always run the WIKI-PENDING sync so nothing is lost to future projects; refresh `wiki-links.md`.
 - **Domain-profile aware:** Always read `00_admin/domain-profile.md` first for field calibration.
 - **Worker-critic pairing:** Librarian + librarian-critic, Explorer + explorer-critic. Never skip the critic.
+
+## Node contract
+
+This skill executes graph nodes `librarian` (`lit` / `lit systematic`) and `explorer` (`data`) in
+`${CLAUDE_PLUGIN_ROOT}/graph/pipeline.json`. On completion, record the critic score so the graph
+and dashboard see it: `python3 "${CLAUDE_PLUGIN_ROOT}/scripts/graph.py" record librarian --score <N>`
+(or `explorer`). `interview` and `ideate` modes don't correspond to a graph node — nothing to record.

@@ -319,3 +319,19 @@ Verifier score maps to 0 (FAIL) or 100 (PASS) for weighted aggregation.
 - **Sequential phases in causal/theory audits.** Never skip to polish before verifying the core design or proof holds.
 - **Worker-critic separation.** The reviewer never fixes code or rewrites text -- it only critiques.
 - **Update over create.** One report per target, updated in place with a Changelog -- R&R rounds update, never duplicate.
+
+## Node contract
+
+This skill executes four graph nodes that share the `review` phase: `domain-referee`,
+`methods-referee`, `editor`, and the `integrity` gate. Record each referee separately —
+`passport.pipeline.stages.review.score` is one flat number per phase, so without a per-node
+record the graph can't tell the domain-referee's score from the methods-referee's:
+
+```bash
+python3 "${CLAUDE_PLUGIN_ROOT}/scripts/graph.py" record domain-referee --score <N>
+python3 "${CLAUDE_PLUGIN_ROOT}/scripts/graph.py" record methods-referee --score <N>
+python3 "${CLAUDE_PLUGIN_ROOT}/scripts/graph.py" record editor --score <N>
+```
+
+`integrity` is a gate, not a scored node — it advances via `passport.yaml` `integrity.unresolved`
+(empty = passed), which the graph reads directly. Nothing to `record` for it.

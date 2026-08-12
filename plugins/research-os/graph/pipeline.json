@@ -1,0 +1,324 @@
+{
+  "$schema": "./schema.md",
+  "version": 1,
+  "description": "The research-os pipeline as a declared graph. Machine-readable twin of rules/permissions.md: every node transcribes one agent entry there (PHASE, PARALLEL_GROUP, REQUIRES, PRODUCES, CRITIC, ESCALATION_TARGET, QUALITY_WEIGHT). scripts/graph.py selftest asserts the two never drift. Edges are DERIVED from requires/produces -- never hand-listed.",
+
+  "phases": ["discovery", "strategy", "analysis", "writing", "review", "revision", "submission", "presentation"],
+
+  "nodes": [
+    {
+      "id": "librarian",
+      "kind": "work",
+      "phase": "discovery",
+      "skill": "/discover lit",
+      "agents": ["librarian"],
+      "critic": "librarian-critic",
+      "parallel_group": "discovery",
+      "requires": [
+        {"passport": "research.question"}
+      ],
+      "produces": [
+        {"file": "01_literature/reviews/*.md"},
+        {"file": "01_literature/bibliography.bib"},
+        {"passport": "literature_corpus"}
+      ],
+      "gate": {"critic": "librarian-critic", "min": 80},
+      "escalates_to": "user",
+      "weight": 10,
+      "summary": "Literature coverage: annotated bibliography, frontier map, positioning."
+    },
+    {
+      "id": "explorer",
+      "kind": "work",
+      "phase": "discovery",
+      "skill": "/discover data",
+      "agents": ["explorer"],
+      "critic": "explorer-critic",
+      "parallel_group": "discovery",
+      "requires": [
+        {"passport": "research.question"}
+      ],
+      "produces": [
+        {"file": "02_data/data-sources.md"},
+        {"file": "02_data/codebooks/*"}
+      ],
+      "gate": {"critic": "explorer-critic", "min": 80},
+      "escalates_to": "user",
+      "weight": 10,
+      "summary": "Ranked data sources with A/B/C/D feasibility grades."
+    },
+    {
+      "id": "strategist",
+      "kind": "work",
+      "phase": "strategy",
+      "skill": "/strategize",
+      "agents": ["strategist"],
+      "critic": "strategist-critic",
+      "parallel_group": "strategy",
+      "requires": [
+        {"any_of": [
+          {"file": "01_literature/reviews/*.md"},
+          {"file": "02_data/data-sources.md"}
+        ]}
+      ],
+      "produces": [
+        {"file": "03_analysis/strategy/strategy_memo.md",
+         "sections": ["Estimand", "Specification", "Assumptions", "Robustness Plan", "Threats"]}
+      ],
+      "gate": {"critic": "strategist-critic", "min": 80},
+      "escalates_to": "user",
+      "weight": 25,
+      "summary": "Identification strategy / pre-analysis plan."
+    },
+    {
+      "id": "theorist",
+      "kind": "work",
+      "phase": "strategy",
+      "skill": "/strategize theory",
+      "agents": ["theorist"],
+      "critic": "theorist-critic",
+      "parallel_group": "strategy",
+      "when": {"passport": "research.paper_type",
+               "not_in": ["imrad", "literature_review", "case_study", "conference"]},
+      "when_note": "permissions.md CONDITIONAL: formal-theory paper types only (econometric methods, theory+empirics, structural identification, methodological reduced-form). Excluded and weight renormalized for applied papers using off-the-shelf estimators. paper_type unset -> offered as optional, never assumed.",
+      "requires": [
+        {"file": "03_analysis/strategy/strategy_memo.md"}
+      ],
+      "produces": [
+        {"file": "03_analysis/strategy/theory_memo.md"},
+        {"file": "03_analysis/strategy/notation_glossary.md"}
+      ],
+      "gate": {"critic": "theorist-critic", "min": 80},
+      "escalates_to": "user",
+      "weight": 20,
+      "summary": "Assumptions, lemmas, theorems, proofs; theory .tex fragments."
+    },
+    {
+      "id": "data-engineer",
+      "kind": "work",
+      "phase": "analysis",
+      "skill": "/analyze",
+      "agents": ["data-engineer"],
+      "critic": "coder-critic",
+      "parallel_group": "analysis-data",
+      "requires": [
+        {"file": "03_analysis/strategy/strategy_memo.md"},
+        {"score": {"node": "strategist", "min": 80}}
+      ],
+      "produces": [
+        {"file": "02_data/cleaned/*"},
+        {"file": "02_data/codebooks/*"}
+      ],
+      "gate": {"critic": "coder-critic", "min": 80},
+      "escalates_to": "strategist",
+      "weight": null,
+      "weight_note": "Included in the code-quality weight (coder); not scored separately.",
+      "summary": "Cleaning, wrangling, descriptive figures."
+    },
+    {
+      "id": "coder",
+      "kind": "work",
+      "phase": "analysis",
+      "skill": "/analyze",
+      "agents": ["coder"],
+      "critic": "coder-critic",
+      "parallel_group": "analysis-code",
+      "requires": [
+        {"file": "03_analysis/strategy/strategy_memo.md"},
+        {"score": {"node": "strategist", "min": 80}}
+      ],
+      "produces": [
+        {"file": "03_analysis/scripts/*/*"},
+        {"file": "04_paper/academic_paper/tables/*.tex"},
+        {"file": "04_paper/academic_paper/figures/*"},
+        {"file": "03_analysis/output/results_summary.md"}
+      ],
+      "gate": {"critic": "coder-critic", "min": 80},
+      "escalates_to": "strategist",
+      "weight": 15,
+      "summary": "Estimation code, tables, figures, results summary."
+    },
+    {
+      "id": "writer",
+      "kind": "work",
+      "phase": "writing",
+      "skill": "/write",
+      "agents": ["writer"],
+      "critic": "writer-critic",
+      "parallel_group": "writing",
+      "requires": [
+        {"score": {"node": "coder", "min": 80}},
+        {"file": "04_paper/academic_paper/tables/*.tex"}
+      ],
+      "produces": [
+        {"file": "04_paper/academic_paper/main.tex"},
+        {"file": "04_paper/academic_paper/sections/*.tex"},
+        {"passport": "claim_manifest"}
+      ],
+      "gate": {"critic": "writer-critic", "min": 80},
+      "escalates_to": "orchestrator",
+      "weight": 10,
+      "summary": "Manuscript sections by paragraph-level argument moves; claim manifest."
+    },
+    {
+      "id": "integrity",
+      "kind": "gate",
+      "phase": "review",
+      "skill": "/peer-review",
+      "agents": ["verifier", "writer-critic", "methods-referee"],
+      "critic": null,
+      "requires": [
+        {"score": {"node": "writer", "min": 80}},
+        {"score": {"node": "coder", "min": 80}}
+      ],
+      "produces": [
+        {"passport": "integrity.last_gate"}
+      ],
+      "gate": {"passport_empty": "integrity.unresolved"},
+      "blocking": true,
+      "escalates_to": "user",
+      "weight": null,
+      "summary": "The blocking ARS integrity gate: claim tracing, citation triangulation, temporal/anachronism audit, figure-caption fidelity (quality.md section 3). A FAIL blocks Review and Submission regardless of the weighted total."
+    },
+    {
+      "id": "domain-referee",
+      "kind": "work",
+      "phase": "review",
+      "skill": "/peer-review --peer",
+      "agents": ["domain-referee"],
+      "critic": null,
+      "parallel_group": "peer-review",
+      "requires": [
+        {"score": {"node": "writer", "min": 80}},
+        {"score": {"node": "coder", "min": 80}}
+      ],
+      "produces": [
+        {"file": "04_paper/reviews/referee_domain.md"}
+      ],
+      "escalates_to": "editor",
+      "weight": 12.5,
+      "summary": "Blind referee report on contribution, positioning, external validity."
+    },
+    {
+      "id": "methods-referee",
+      "kind": "work",
+      "phase": "review",
+      "skill": "/peer-review --peer",
+      "agents": ["methods-referee"],
+      "critic": null,
+      "parallel_group": "peer-review",
+      "requires": [
+        {"score": {"node": "writer", "min": 80}},
+        {"score": {"node": "coder", "min": 80}}
+      ],
+      "produces": [
+        {"file": "04_paper/reviews/referee_methods.md"}
+      ],
+      "escalates_to": "editor",
+      "weight": 12.5,
+      "summary": "Blind referee report on identification and empirical methods. Co-owns the integrity gate."
+    },
+    {
+      "id": "editor",
+      "kind": "router",
+      "phase": "review",
+      "skill": "/peer-review",
+      "agents": ["editor"],
+      "critic": null,
+      "parallel_group": "peer-review",
+      "requires": [
+        {"file": "04_paper/reviews/referee_domain.md"},
+        {"file": "04_paper/reviews/referee_methods.md"},
+        {"gate": "integrity"}
+      ],
+      "produces": [
+        {"file": "04_paper/reviews/editorial_decision.md"}
+      ],
+      "routes": [
+        {"on": "accept", "to": "verifier"},
+        {"on": "minor", "to": "verifier"},
+        {"on": "major", "to": "writer"},
+        {"on": "reject", "to": "strategist"}
+      ],
+      "escalates_to": "user",
+      "weight": null,
+      "summary": "Synthesizes referee reports into an editorial decision, then routes forward or loops back."
+    },
+    {
+      "id": "storyteller",
+      "kind": "work",
+      "phase": "presentation",
+      "skill": "/talk",
+      "agents": ["storyteller"],
+      "critic": "storyteller-critic",
+      "parallel_group": "presentation",
+      "optional": true,
+      "requires": [
+        {"score": {"node": "writer", "min": 80}}
+      ],
+      "produces": [
+        {"file": "05_outreach/talks/*"}
+      ],
+      "gate": {"critic": "storyteller-critic", "min": 80},
+      "escalates_to": "writer",
+      "weight": null,
+      "weight_note": "Advisory: reported, non-blocking.",
+      "summary": "Beamer / Quarto RevealJS talk. Runs parallel with Review."
+    },
+    {
+      "id": "verifier",
+      "kind": "work",
+      "phase": "submission",
+      "skill": "/submit",
+      "agents": ["verifier"],
+      "critic": null,
+      "parallel_group": "submission",
+      "terminal": true,
+      "requires": [
+        {"overall": {"min": 95}},
+        {"all_components": {"min": 80}},
+        {"gate": "integrity"}
+      ],
+      "produces": [
+        {"file": "04_paper/reviews/verification_report.md"}
+      ],
+      "escalates_to": "user",
+      "weight": 5,
+      "summary": "Replication-package audit and final submission gate. Terminal: no re-entry."
+    },
+
+    {
+      "id": "wiki-pull",
+      "kind": "ambient",
+      "skill": "/wiki-pull",
+      "agents": ["wiki-librarian"],
+      "scope": "session",
+      "advises": ["librarian", "explorer", "strategist", "writer"],
+      "summary": "Retrieve prior knowledge from the main thematic wiki and _brain/ before substantial work. Satisfied per session, never a gate."
+    },
+    {
+      "id": "wiki-ingest",
+      "kind": "ambient",
+      "skill": "/wiki-ingest",
+      "agents": ["wiki-librarian"],
+      "scope": "session",
+      "advises": ["librarian"],
+      "ready_when": [
+        {"file_contains": {"file": "01_literature/reviews/*.md", "pattern": "WIKI-PENDING"}}
+      ],
+      "summary": "Ingest a source into the thematic wiki. Becomes recommended when a review lists WIKI-PENDING papers."
+    },
+    {
+      "id": "wiki-push",
+      "kind": "ambient",
+      "skill": "/wiki-push",
+      "agents": ["wiki-librarian"],
+      "scope": "session",
+      "advises": ["librarian", "explorer", "strategist", "coder", "writer"],
+      "ready_when": [
+        {"wiki_pending_push": {"file": "wiki-links.md"}}
+      ],
+      "summary": "Write durable knowledge back down to a wiki and up into _brain/synthesis/. Ready when wiki-links.md has a real unchecked item under 'To push back' (same check as the Stop hook's nudge)."
+    }
+  ]
+}

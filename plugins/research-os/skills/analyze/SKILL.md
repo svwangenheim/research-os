@@ -232,3 +232,10 @@ Inspired by Scott Cunningham's replication methodology: **if two independent imp
 - **Publication-ready output.** Tables and figures directly includable in the paper.
 - **Overwrite, don't proliferate.** Re-running a script replaces its output in place; provenance lives in git + `passport.yaml`, not date-stamped filenames.
 - **Cross-language convergence.** When `--dual` is used, divergence is a bug until proven otherwise.
+
+## Node contract
+
+This skill executes graph nodes `coder` and `data-engineer` in
+`${CLAUDE_PLUGIN_ROOT}/graph/pipeline.json` (both gated by `coder-critic`; both can run in
+parallel per `PARALLEL_GROUP`). On completion:
+`python3 "${CLAUDE_PLUGIN_ROOT}/scripts/graph.py" record coder --score <N>` (or `data-engineer`).

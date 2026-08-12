@@ -217,3 +217,8 @@ Loaded on demand by the writer agent:
 - **Trace every claim.** Each non-trivial claim enters `passport.yaml` `claim_manifest` with a real `evidence_origin` (INV-22).
 - **Update over create.** Edit section files in place; never proliferate versioned drafts.
 - **Argument moves first, cleanup second.** Draft with structure, then strip AI patterns.
+
+## Node contract
+
+This skill executes graph node `writer` in `${CLAUDE_PLUGIN_ROOT}/graph/pipeline.json`. On
+completion: `python3 "${CLAUDE_PLUGIN_ROOT}/scripts/graph.py" record writer --score <N>`.

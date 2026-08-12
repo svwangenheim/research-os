@@ -192,3 +192,9 @@ Workflow:
 - **Style conversion previews by default.** `format-convert` only edits the manuscript with an explicit `--apply`.
 - **Pin, don't re-tool.** `environment` records the dependency manager the project already uses. Switching tooling at submission time invalidates the instructions already written.
 - **An unseeded randomized pipeline is a blocking finding.** Not an advisory. Numbers that cannot be regenerated fail the reproducibility standard whatever the rest of the package looks like.
+
+## Node contract
+
+This skill executes graph node `verifier` in `${CLAUDE_PLUGIN_ROOT}/graph/pipeline.json` —
+**terminal**: `graph.py` marks it `terminal: true`, no re-entry after this node is `done`. On
+completion: `python3 "${CLAUDE_PLUGIN_ROOT}/scripts/graph.py" record verifier --score <N>`.

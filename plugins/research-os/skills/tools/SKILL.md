@@ -1,7 +1,7 @@
 ---
 name: tools
-description: Utility commands — commit, compile, validate-bib, lint, journal, context, dashboard, deploy, learn, upgrade, permission-check. Lightweight project-maintenance subcommands with no multi-agent orchestration.
-argument-hint: "[subcommand: commit | compile | validate-bib | lint | journal | context | dashboard | deploy | learn | upgrade | permission-check] [args] [--open]"
+description: Utility commands — graph, commit, compile, validate-bib, lint, journal, context, dashboard, deploy, learn, upgrade, permission-check. Lightweight project-maintenance subcommands with no multi-agent orchestration.
+argument-hint: "[subcommand: graph | commit | compile | validate-bib | lint | journal | context | dashboard | deploy | learn | upgrade | permission-check] [args] [--open]"
 allowed-tools: Read,Grep,Glob,Write,Edit,Bash,Task
 ---
 
@@ -30,6 +30,43 @@ open project_dashboard.html
 ```
 
 The generator scans the numbered project layout — `passport.yaml`, `01_literature/`, `02_data/`, `03_analysis/`, `04_paper/`, `00_admin/process/` — plus `wiki-links.md`, and renders `project_dashboard.html` at the project root. This is a thin wrapper around the `/dashboard` skill; prefer `/dashboard refresh` when you also want to preserve authored research sections. See `${CLAUDE_PLUGIN_ROOT}/rules/html-dashboard.md`.
+
+### `/tools graph [status | next | why <node> | stale | dot]` — Pipeline Graph
+
+Ask the pipeline graph what is runnable right now. `rules/permissions.md` declares every agent's
+REQUIRES / PRODUCES / PARALLEL_GROUP; `${CLAUDE_PLUGIN_ROOT}/graph/pipeline.json` is the
+machine-readable twin of that, and this router evaluates it against the project's actual state.
+
+```bash
+python3 "${CLAUDE_PLUGIN_ROOT}/scripts/graph.py" next          # the ready frontier
+python3 "${CLAUDE_PLUGIN_ROOT}/scripts/graph.py" status        # every node's state
+python3 "${CLAUDE_PLUGIN_ROOT}/scripts/graph.py" why coder     # which requirement is missing
+python3 "${CLAUDE_PLUGIN_ROOT}/scripts/graph.py" stale         # inputs changed since a recorded run
+python3 "${CLAUDE_PLUGIN_ROOT}/scripts/graph.py" dot --mermaid # render the graph
+```
+
+| Subcommand | Answers |
+|---|---|
+| `next` | "What can I work on?" — required vs optional, and which nodes run **in parallel** |
+| `status` | every node as `done` / `stale` / `ungated` / `ready` / `blocked` / `n/a` |
+| `why <node>` | the exact failing predicate, plus that node's upstream and downstream |
+| `stale` | nodes whose declared inputs changed since their recorded run — **advisory, always exits 0** |
+| `record <node> --score N` | append a run to `00_admin/process/runs.jsonl` — the orchestrator calls this after every critic score |
+| `adopt [--dry-run]` | backfill the ledger for a project that predates the graph — one-time, explicit, idempotent |
+| `dot` | Graphviz (or `--mermaid`) render for the dashboard or a quick look |
+
+**It recommends; it never dispatches.** The frontier is a suggestion — you still choose and run
+the skill. Pass `--json` to `status` / `next` / `stale` for structured output.
+
+Node state is *computed* on every call from the graph + the filesystem + `passport.yaml` +
+`00_admin/process/runs.jsonl`, never stored, so it cannot desync from the project.
+`record` is the only thing that writes — an **append-only** ledger, never rewritten.
+
+`selftest` asserts the graph and `rules/permissions.md` still agree — run it after editing either:
+
+```bash
+python3 "${CLAUDE_PLUGIN_ROOT}/scripts/graph.py" selftest
+```
 
 ### `/tools commit [message]` — Git Commit
 Stage changes, create commit, optionally create PR and merge.

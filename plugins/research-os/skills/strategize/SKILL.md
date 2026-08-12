@@ -306,3 +306,10 @@ If strategy memo or paper type is missing, the Theorist flags it and asks before
 - **Be honest about what's exploratory.** Label subgroups and secondary outcomes clearly.
 - **Power calculations require assumptions.** State every assumption. Show sensitivity.
 - **A PAP is a commitment device.** Make sure the researcher understands what they're committing to.
+
+## Node contract
+
+This skill executes graph node `strategist` (default mode) and, when dispatched, `theorist`
+(`theory` mode — conditional per `graph/pipeline.json`'s `when`, formal-theory paper types only)
+in `${CLAUDE_PLUGIN_ROOT}/graph/pipeline.json`. On completion:
+`python3 "${CLAUDE_PLUGIN_ROOT}/scripts/graph.py" record strategist --score <N>` (or `theorist`).

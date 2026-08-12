@@ -16,7 +16,6 @@ Usage:
 
 import argparse
 import json
-import os
 import re
 import subprocess
 import sys
@@ -991,6 +990,84 @@ def build_quality_panel(passport):
     </section>"""
 
 
+# ---------- Graph panel (falls back to the stage scorecard above) ----------
+
+GRAPH_STATE_PILL = {
+    "done": "pill-pass",
+    "stale": "pill-warn",
+    "ungated": "pill-warn",
+    "ready": "pill-accent",
+    "blocked": "pill-fail",
+    "n/a": "pill-neutral",
+}
+GRAPH_STATE_LABEL = {
+    "done": "done", "stale": "stale", "ungated": "awaiting review",
+    "ready": "ready", "blocked": "blocked", "n/a": "n/a",
+}
+GRAPH_STATE_ORDER = ["done", "stale", "ungated", "ready", "blocked", "n/a"]
+
+
+def load_graph_states(root):
+    """Compute pipeline-graph node states for the dashboard. Returns [] on any
+    failure -- missing module, corrupt graph/passport, unreadable project -- so
+    the dashboard degrades to the stage scorecard rather than failing to build."""
+    try:
+        from graph_eval import all_states, build_context
+        from graph_spec import load_graph
+
+        graph = load_graph()
+        ctx = build_context(root, graph)
+        return all_states(ctx)
+    except Exception:
+        return []
+
+
+def build_graph_panel(root, passport):
+    """Per-node view of the pipeline graph (graph/pipeline.json), replacing the
+    coarser per-stage scorecard when the graph layer is available. Falls back to
+    build_quality_panel on any failure -- see rules/permissions.md and
+    graph/schema.md for what each state means."""
+    states = [s for s in load_graph_states(root) if not s.node.is_ambient]
+    if not states:
+        return build_quality_panel(passport)
+
+    by_state = {}
+    for st in states:
+        by_state.setdefault(st.state.value, []).append(st)
+
+    cards = '<div class="grid-2">'
+    for state_key in GRAPH_STATE_ORDER:
+        for st in by_state.get(state_key, []):
+            score = st.score
+            scls = GRAPH_STATE_PILL.get(state_key, "pill-neutral")
+            badge = f"{score}" if score is not None else GRAPH_STATE_LABEL.get(state_key, state_key)
+            color = score_color(score) if score is not None else "var(--g500)"
+            pct = score if isinstance(score, (int, float)) else (100 if state_key == "done" else 0)
+            if st.failures:
+                note = st.failures[0]
+            elif st.stale_inputs:
+                note = f"changed: {', '.join(st.stale_inputs[:2])}"
+            else:
+                note = GRAPH_STATE_LABEL.get(state_key, state_key)
+            cards += f"""
+      <div class="card" style="margin-bottom:0">
+        <div class="flex-between" style="margin-bottom:8px">
+          <span style="font-family:var(--serif);font-weight:500;color:var(--slate);font-size:14px">{escape(st.node.id)}</span>
+          <span class="pill {scls}">{escape(str(badge))}</span>
+        </div>
+        <div class="score-bar-track"><div class="score-bar-fill" style="width:{pct}%;background:{color}"></div></div>
+        <div style="font-family:var(--mono);font-size:11px;color:var(--g500);margin-top:6px">{escape(note)}</div>
+      </div>"""
+    cards += "</div>"
+
+    counts = " &middot; ".join(f"{len(by_state[k])} {k}" for k in GRAPH_STATE_ORDER if by_state.get(k))
+    return f"""
+    <section id="quality">
+      <h2>Pipeline Graph &nbsp;<span style="font-family:var(--mono);font-size:13px;color:var(--g500);font-weight:400">{counts}</span></h2>
+      {cards}
+    </section>"""
+
+
 def build_history_panel(reviews):
     if not reviews:
         return """
@@ -1094,7 +1171,7 @@ def build_dashboard(root, user_notes=""):
         build_analysis_panel(scripts_list, results),
         build_results_panel(results),
         build_paper_panel(sections, n_figs, n_tabs),
-        build_quality_panel(passport),
+        build_graph_panel(root, passport),
         build_history_panel(reviews),
         build_plans_panel(plans),
     ]

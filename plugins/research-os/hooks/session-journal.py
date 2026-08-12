@@ -16,6 +16,7 @@ appends a structured entry to `00_admin/process/sessions/YYYY-MM-DD_auto.md`:
   - current pipeline stage and integrity state from `passport.yaml`
   - active plan and status from `00_admin/process/plans/`
   - unchecked "to push back" items from `wiki-links.md`
+  - stale graph nodes from `${CLAUDE_PLUGIN_ROOT}/scripts/graph.py stale` (advisory, best-effort)
 
 It writes to `00_admin/process/sessions/`, NOT to `journal.md`. Per
 rules/logging.md the journal carries one entry per agent invocation with a
@@ -134,6 +135,28 @@ def active_plan(project_dir: Path) -> str | None:
     return None
 
 
+def stale_nodes(project_dir: Path) -> list[str]:
+    """Node ids flagged stale by the graph router, or [] on any failure.
+    Best-effort and silent: this hook must never block or slow down Stop on a
+    corrupt passport, a missing graph module, or an unreadable project."""
+    passport = find_up(project_dir, "passport.yaml")
+    if passport is None:
+        return []
+    try:
+        plugin_root = Path(os.environ.get("CLAUDE_PLUGIN_ROOT") or Path(__file__).resolve().parent.parent)
+        scripts_dir = str(plugin_root / "scripts")
+        if scripts_dir not in sys.path:
+            sys.path.insert(0, scripts_dir)
+        from graph_eval import State, all_states, build_context  # noqa: PLC0415
+        from graph_spec import load_graph  # noqa: PLC0415
+
+        graph = load_graph(plugin_root / "graph" / "pipeline.json")
+        ctx = build_context(passport.parent, graph)
+        return [s.node.id for s in all_states(ctx) if s.state is State.STALE]
+    except Exception:
+        return []
+
+
 def unpushed_items(project_dir: Path) -> list[str]:
     """Unchecked `- [ ]` items under the 'To push back' heading of wiki-links.md."""
     wiki_links = find_up(project_dir, "wiki-links.md")
@@ -200,6 +223,7 @@ def main() -> int:
     stage, integrity = passport_state(root)
     plan = active_plan(root)
     pending = unpushed_items(root)
+    stale = stale_nodes(root)
 
     lines: list[str] = []
     if is_new:
@@ -223,6 +247,10 @@ def main() -> int:
         lines.append(f"\n**Unpushed durable knowledge ({len(pending)}):**")
         lines.extend(f"- {item[:100]}" for item in pending[:5])
         lines.append("\nRun `/wiki-push` to route them.")
+    if stale:
+        lines.append(f"\n**Stale pipeline nodes ({len(stale)}):** {', '.join(stale)}")
+        lines.append("\nAdvisory only — an upstream input changed since these last ran. Run "
+                     "`graph.py why <node>` to see what, and re-run if the change actually matters.")
     lines.append("")
 
     try:
@@ -239,6 +267,8 @@ def main() -> int:
     note = f"[session-journal] {len(changed)} change(s) -> {log_file.name}"
     if pending:
         note += f"; {len(pending)} item(s) awaiting /wiki-push"
+    if stale:
+        note += f"; {len(stale)} pipeline node(s) stale"
     sys.stderr.write(note + "\n")
     return 0
 

@@ -1,10 +1,16 @@
 # Permission Registry: Agent Capabilities and Dependencies
 
-Every agent's capabilities, dependencies, and routing are declared here. The Orchestrator reads this file to determine dispatch rules, dependency graph, escalation routing, and quality weights. No other file hardcodes these relationships.
+Every agent's capabilities, dependencies, and routing are declared here — this is the
+**human-readable** narrative. `${CLAUDE_PLUGIN_ROOT}/graph/pipeline.json` is its **machine-readable
+twin**: the same PHASE / PARALLEL_GROUP / REQUIRES / PRODUCES / CRITIC / QUALITY_WEIGHT per node,
+evaluable by `${CLAUDE_PLUGIN_ROOT}/scripts/graph.py`. Dispatch decisions ("is this node ready?",
+"what can run in parallel?") should be computed by the graph, not re-derived from this prose —
+`graph.py selftest` fails the build if the two disagree. Read this file to understand *why* a
+dependency exists; read the graph (`graph.py why <node>`) to know whether it currently holds.
 
-Paths follow `folder-map.md` (the single source of truth for project paths). State — scores, phase, corpus, claims — lives in `passport.yaml` (schema: `${CLAUDE_PLUGIN_ROOT}/templates/passport.yaml`). Narrative context lives in `00_admin/process/journal.md`.
+Paths follow `folder-map.md` (the single source of truth for project paths). State — scores, phase, corpus, claims — lives in `passport.yaml` (schema: `${CLAUDE_PLUGIN_ROOT}/templates/passport.yaml`). Run provenance lives in `00_admin/process/runs.jsonl` (append-only, written by `graph.py record`). Narrative context lives in `00_admin/process/journal.md`.
 
-Adding a new agent: create the agent file in `${CLAUDE_PLUGIN_ROOT}/agents/`, add an entry here. No other file needs to change.
+Adding a new agent: create the agent file in `${CLAUDE_PLUGIN_ROOT}/agents/`, add an entry here, **and** add the matching node to `${CLAUDE_PLUGIN_ROOT}/graph/pipeline.json` (see `graph/schema.md`). Run `graph.py selftest` before committing — it is the check that keeps these two files from drifting apart.
 
 ---
 
@@ -149,4 +155,11 @@ Discovery → Strategy → Analysis → Writing → Review → Revision → Subm
                                 Presentation (parallel)
 ```
 
-Phase names match `passport.yaml` `pipeline.stages`. Re-entry is allowed for all phases except Submission (terminal). A referee comment can trigger re-entry at any prior phase.
+This diagram is the common case, not a waterfall — it names the typical order, not a required
+one. **The graph, not this diagram, is authoritative for what can run next.** A project that
+already has data can enter at Strategy; a project with an approved strategy memo can run
+data-engineer and coder concurrently; a rejected editorial decision loops back to Strategist, not
+back to the top. Run `graph.py next` (or `graph.py why <node>`) rather than reading this order as
+a strict sequence.
+
+Phase names match `passport.yaml` `pipeline.stages`. Re-entry is allowed for all phases except Submission (terminal). A referee comment can trigger re-entry at any prior phase — the graph's `editor` node encodes exactly this: `major` routes back to `writer`, `reject` routes back to `strategist`.
