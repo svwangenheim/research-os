@@ -2,7 +2,7 @@
 name: wiki-ingest
 description: Ingest a source into a thematic research wiki - PDF, markdown, Office doc, or citation string. Runs source placement, summary, concept/method/dataset updates, and log update.
 argument-hint: "[--wiki <theme>] [path/to/file.pdf | path/to/file.md | 'Author Year Title']"
-allowed-tools: Read, Write, Edit, Bash, Glob, Grep
+allowed-tools: Read, Write, Edit, Bash, Glob, Grep, Task
 ---
 
 # Wiki Ingest
@@ -261,7 +261,32 @@ Mandatory quality standard for this workflow:
 
 6. **Check `$WIKI/90_synthesis/`** — if the source materially changes the
    picture in its topic area **within this theme**, flag or update the
-   relevant synthesis page.
+   relevant synthesis page. Synthesis stays proposal-only: flag it, do not
+   auto-write it (`rules/wiki-integration.md`).
+
+7. **Council-gate the canonical pages.** The `20_summaries/` note is the
+   direct product of the ingest and lands as it always has. But any
+   *canonical* page this ingest would create or extend — in `30_concepts/`,
+   `40_methods/`, `50_datasets/`, `60_people_institutions/` — goes through
+   the five-critic council first, exactly as in `/wiki-push` Step 3b: five
+   parallel `Task` calls with `subagent_type=wiki-promotion-council` and
+   `context: fork`, one per role, then 5/5 or 4/5 writes, 3/5 proposes, and
+   2-or-fewer discards with the reason logged.
+
+   The canonicity critic earns its place here: a new source is the most
+   common moment for a second page on a concept that already has one.
+
+8. **Refresh the catalogue and commit.** `_map.md` is what `/wiki-pull` and
+   the SessionStart hook read first, so an ingest that skips it leaves the
+   fast path stale:
+   ```bash
+   python "${CLAUDE_PLUGIN_ROOT}/scripts/generate_wiki_moc.py" --vault "$WIKI"
+   git -C "$VAULT_ROOT" add <touched pages> log.md _map.md
+   git -C "$VAULT_ROOT" commit -m "wiki: ingest <source title> (<theme>)"
+   ```
+   Use the `wiki(auto):` prefix instead for any page the council auto-wrote,
+   so `--review-auto` can find it. Stage specific files — blanket staging is
+   blocked by the git guardrails hook.
 
 ## Step 5: Update Project Bridge
 

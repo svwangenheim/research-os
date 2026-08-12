@@ -32,6 +32,7 @@ Workflow:
 **Literature review:** [`01_literature/reviews/<question-slug>.md` or "not found"]
 **Data assessment:** [`02_data/data-sources.md` or "not found"]
 **Domain profile:** [`00_admin/domain-profile.md` loaded / not found]
+**Wiki method notes:** [`<main_wiki>/40_methods/<design>.md` per candidate design, or "no wiki resolvable"]
 
 **Research question:** [one sentence from spec]
 **Key findings from literature:**
@@ -46,6 +47,8 @@ Proceeding to strategy design.
 ```
 
 If research spec, literature review, or data assessment are missing, the Strategist proceeds with ASSUMED placeholders — but flags each clearly.
+
+**Method notes from the wiki.** Resolve the thematic wiki via the standard ladder in `${CLAUDE_PLUGIN_ROOT}/rules/wiki-integration.md` (`--wiki` > `passport.yaml` `meta.main_wiki` > `.research-os-wiki` > the registry's only wiki), reading `~/.claude/vaults.json` for the path. For each candidate design, read the canonical page in `<main_wiki>/40_methods/` — its assumptions, strengths, limitations, and the per-paper "use in this literature" notes recording how the design has been applied in this theme's corpus. Name the page in the Pre-Strategy Report and cite it in the memo where the design choice and its assumptions are defended, so the memo argues against what the theme already knows rather than restating it. If no wiki is resolvable, skip this step silently.
 
 2. Read `00_admin/domain-profile.md` for common identification strategies in the field.
 3. Dispatch Strategist to produce:
@@ -209,6 +212,7 @@ Workflow:
 **Domain profile:** [`00_admin/domain-profile.md` loaded / not found]
 **Notation conventions:** [`04_paper/academic_paper/preambles/` / domain-profile notation table / "not found"]
 **Bibliography base:** [`01_literature/bibliography.bib` / "not found"]
+**Wiki method notes:** [`<main_wiki>/40_methods/<estimator>.md` per object to be proved, or "no wiki resolvable"]
 
 **Paper type:** [econometric methods / theory+empirics / structural / methodological reduced-form]
 **Theoretical object(s) to produce:** [identification / consistency / asymp. normality / influence function / DML / bootstrap / test / proposition]
@@ -221,6 +225,8 @@ Proceeding to theory drafting.
 ```
 
 If strategy memo or paper type is missing, the Theorist flags it and asks before proceeding.
+
+**Method notes from the wiki.** Same resolution ladder as the strategy mode above. Read `<main_wiki>/40_methods/` for the canonical page on the estimator or design the theory is about — the stated regularity conditions, what the page records as the method's known limitations, and which papers in the corpus established each result. Cite that page where the theory memo positions its assumptions against the existing ones. If no wiki is resolvable, skip this step silently.
 
 2. Read `00_admin/domain-profile.md` for the Theoretical Foundational References table and Author Team table.
 3. Dispatch **Theorist** to produce:

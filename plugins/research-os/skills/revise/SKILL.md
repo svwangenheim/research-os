@@ -22,6 +22,7 @@ State lives in **`passport.yaml`** (schema: `${CLAUDE_PLUGIN_ROOT}/templates/pas
 2. Read the paper (`04_paper/academic_paper/main.tex` or specified path)
 3. Read the revision protocol: `${CLAUDE_PLUGIN_ROOT}/rules/revision.md`
 4. Read existing scripts in `03_analysis/scripts/` to know what analyses already exist
+5. For comments about the literature -- a missing citation, a mispositioning, a referee's "see X (2019)" -- resolve each affected bibkey to its `wiki_path` in `passport.yaml` `literature_corpus` and read that `<main_wiki>/20_summaries/` note before drafting the response. The summary carries what the paper actually found and how, so the reply answers the referee from the source rather than from the draft's paraphrase of it. Resolve the thematic wiki via the standard ladder in `${CLAUDE_PLUGIN_ROOT}/rules/wiki-integration.md` (`--wiki` > `passport.yaml` `meta.main_wiki` > `.research-os-wiki` > the registry's only wiki), reading `~/.claude/vaults.json` for the path. **Read only** -- `/revise` never writes to the wiki. If no wiki is resolvable, skip this step silently.
 
 ### Step 2: Classify Every Comment
 

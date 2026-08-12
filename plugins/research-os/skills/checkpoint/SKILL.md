@@ -92,10 +92,31 @@ Present a compact summary:
 ### Memory updates
 - [new learnings to save — or "None"]
 
+### Discarded as noise
+- [failed hypothesis / abandoned approach / debugging dead-end] — [why it didn't work]
+- [or "None — nothing explored and rejected this session"]
+
 ### Obsidian MCP updates
 - [if configured: project note journal entry, dashboard row, daily journal]
 - [if not configured: "Skipped — no .claude/state/obsidian-config.md"]
 ```
+
+**On "Discarded as noise".** List what was explored and rejected — dead-end
+hypotheses, approaches abandoned, numbers that turned out wrong — and say why.
+This is the section people skip, and it is the one that pays.
+
+A checkpoint's job is to survive compaction. Compaction is lossy in a specific
+way: it keeps what was said and drops the reasoning, so a discarded hypothesis
+that was discussed at length survives as text while the fact that it was
+*rejected* does not. The next session then finds a plausible-looking idea in
+its context with nothing marking it as dead, and re-runs it — or worse, cites
+it. Naming the rejects explicitly is what stops a failed idea from being
+quoted back as a finding.
+
+Keep it to what was genuinely considered and ruled out. If the same dead-end
+shows up in three consecutive checkpoints, the confusion is structural: fix the
+document or the workflow that keeps regenerating it rather than discarding it
+again.
 
 **Ask the user:** "Look right? I'll save all of this." Wait for confirmation or edits.
 

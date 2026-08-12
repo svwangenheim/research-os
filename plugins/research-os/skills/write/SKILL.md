@@ -35,6 +35,14 @@ Before drafting, read all available context:
 5. Check `01_literature/bibliography.bib` for available citations
 6. Scan `04_paper/academic_paper/tables/` and `04_paper/academic_paper/figures/` for generated output
 7. Read `03_analysis/output/results_summary.md` if it exists (from the Coder)
+8. Read the wiki corpus for the theme (below)
+
+**The wiki corpus, for content.** When drafting motivation, literature, or mechanism paragraphs, resolve the thematic wiki via the standard ladder in `${CLAUDE_PLUGIN_ROOT}/rules/wiki-integration.md` (`--wiki` > `passport.yaml` `meta.main_wiki` > `.research-os-wiki` > the registry's only wiki), reading `~/.claude/vaults.json` for the path. Then read:
+
+- `<main_wiki>/20_summaries/` — what each cited paper actually found, with effect sizes and identification strategy. Draft the literature paragraph from the summary, not from the title. Start from the papers `passport.yaml` `literature_corpus` records a `wiki_path` for.
+- `<main_wiki>/30_concepts/` — the canonical statement of each concept the argument leans on, including its `(confidence: ...)` tags and any contradictions the page preserves. A mechanism paragraph that ignores a recorded contradiction is one a referee will find.
+
+This read is about **content**: what the literature says. It is not a voice input, and it never feeds the style guide: the corpus is other authors' writing, and the exclusion in `/write style-guide` below is deliberate and stays. If no wiki is resolvable, skip this step silently.
 
 #### 2. Paper Type Detection (the planner step)
 
@@ -120,7 +128,7 @@ One-shot extraction of the user's writing voice from their published or drafted 
 **Output:** `00_admin/personal-style-guide.md`
 
 Workflow:
-1. **Discover corpus.** List .tex and .pdf files in the target directory only. **Do NOT scan the thematic wiki (`<main_wiki>/10_sources/`)** — style extraction must use the user's own papers exclusively, not other authors' work from the corpus (the explicit style-guide exception in `${CLAUDE_PLUGIN_ROOT}/rules/wiki-integration.md`). If fewer than 2 papers found, flag and ask before proceeding (style extraction on a single paper overfits).
+1. **Discover corpus.** List .tex and .pdf files in the target directory only. **Do NOT scan the thematic wiki (`<main_wiki>/10_sources/`, `/20_summaries/`)** — style extraction must use the user's own papers exclusively, not other authors' work from the corpus (the explicit style-guide exception in `${CLAUDE_PLUGIN_ROOT}/rules/wiki-integration.md`). This exclusion holds even though drafting mode reads the corpus: the corpus tells the writer *what the literature says*, never *how this author writes*. If fewer than 2 papers found, flag and ask before proceeding (style extraction on a single paper overfits).
 2. **Sample strategically.** For each paper, extract:
    - The full introduction
    - The first two paragraphs of each major section

@@ -17,7 +17,8 @@ Every research-os agent, hook, and skill references **this file** for where thin
     process/
       plans/                    # phase plans
       decisions/                # decision records
-      sessions/                 # session handoffs
+      sessions/                 # session handoffs (self-resume, /checkpoint)
+      handoffs/                 # co-author briefs (other-person handoff, /coauthor-brief)
       traces/                   # trace analysis / debugging artifacts (logging.md)
       journal.md                # research journal (newest-first)
     logistics/

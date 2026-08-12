@@ -1,8 +1,8 @@
 ---
 name: wiki-push
 description: Write durable knowledge from this session back - personal synthesis UP into _brain/, objective concept, method, and dataset knowledge DOWN into the thematic wiki. Use after work blocks.
-argument-hint: "[--wiki <theme>] [optional: specific notes or topic to push]"
-allowed-tools: Read, Write, Edit, Glob, Grep
+argument-hint: "[--wiki <theme>] [--no-autowrite] [optional: specific notes or topic to push]"
+allowed-tools: Read, Write, Edit, Glob, Grep, Bash, Task
 ---
 
 # Wiki Push
@@ -99,6 +99,27 @@ concepts, methods, and datasets, search aliases and near-duplicates before
 writing — there must be only one substantive canonical page per concept,
 method, or dataset per wiki.
 
+### Step 3b: Convene the council (the gate that licenses auto-write)
+
+Before anything lands in `<WIKI>`, put each candidate through the five-critic council. This is what makes writing without asking safe, so it is not optional and nothing bypasses it.
+
+Spawn **five `Task` invocations in parallel**, one per critic, each with `subagent_type=wiki-promotion-council` and `context: fork`. Name the critic's role in the prompt (**Layer-routing**, **Canonicity**, **Staleness**, **Evidence**, **Format**) and hand it the candidate plus the wiki path. They must not see each other's verdicts — the isolation is the point.
+
+Then act on the tally:
+
+| Vote | Action |
+|---|---|
+| 5 of 5 YES | Write it. Record the tally in the note's `## Changelog`. |
+| 4 of 5 YES | Write it. Record the tally **and the dissenting critic's one-line rationale** in the `## Changelog`. |
+| 3 of 5 YES | Do not write. Present the candidate and the five verdicts to the user and let them decide. |
+| 2 or fewer YES | Discard. Log the reason in `log.md`; do not re-submit the same candidate hoping for a different roll. |
+
+Candidates for `_brain/` (Step 2) do **not** go through the council — the human layer stays human-written, and anything routed up is proposed, never written unasked.
+
+Respect the kill switch: with `RESEARCH_OS_WIKI_AUTOWRITE=0`, `autowrite: false` in `~/.claude/vaults.json`, or `--no-autowrite`, still run the council but **propose every result instead of writing it**.
+
+Stay inside the blast radius defined in `${CLAUDE_PLUGIN_ROOT}/rules/wiki-integration.md`: append or create in `30_concepts/`, `40_methods/`, `50_datasets/`, `60_people_institutions/`; never touch `10_sources/`; never delete or rewrite an existing claim (append a contradiction instead); `90_synthesis/` stays proposal-only.
+
 ### Step 4: Write or update cleanly (both layers)
 - write concise, reusable prose; structure clearly; remove redundancy
 - preserve or add useful links; link project findings back to relevant
@@ -138,6 +159,31 @@ which layer.]
 ```
 Do not hand-edit `index.md` — it is Dataview-driven and stays current
 automatically as long as new pages sit in the right numbered folder.
+
+For anything the council auto-wrote, use the `auto-write` form instead, so a
+week of them can be reviewed as one list:
+```
+## [YYYY-MM-DD] auto-write | <theme> | [short title]  (council 5/5)
+```
+
+### Step 6b: Refresh `_map.md` and commit the batch
+
+`_map.md` is the flat catalogue `/wiki-pull` and the SessionStart hook read
+*first*, so a push that does not refresh it leaves the fast path pointing at a
+stale index:
+```bash
+python "${CLAUDE_PLUGIN_ROOT}/scripts/generate_wiki_moc.py" --root "<VAULT_ROOT>"
+```
+
+Then commit — the vault is its own git repo, and a separate commit per batch is
+what makes an auto-write reversible in one command:
+```bash
+git -C "<VAULT_ROOT>" add <the pages you touched> log.md _map.md
+git -C "<VAULT_ROOT>" commit -m "wiki(auto): <short title> (<theme>, council 5/5)"
+```
+Use `wiki(auto):` only for council-approved auto-writes and `wiki:` for anything
+the user explicitly asked for — the prefix is what `--review-auto` filters on.
+Stage the specific files; blanket staging is blocked by the git guardrails hook.
 
 ### Step 7: Verify
 Run the quality checker when available:
@@ -187,6 +233,15 @@ Do not:
   the project bridge where relevant
 - write personal/project-specific content into the Claude-maintained
   thematic wiki — that belongs in `_brain/`
+- **auto-write anything the council has not passed**, or auto-write into
+  `10_sources/`, `_brain/`, or `90_synthesis/` — those stay outside the blast
+  radius no matter how confident the verdict
+- **resolve a contradiction by rewriting the older claim.** Append the new
+  finding as an explicit contradiction and leave both standing; the audit
+  trail is what the integrity gate reads
+- re-run the council on a rejected candidate hoping for a different tally. If
+  three or more critics say no, the candidate is wrong for the wiki — fix what
+  they named, or route it to `_brain/`
 
 ## Standard
 

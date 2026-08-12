@@ -1,8 +1,8 @@
 ---
 name: wiki-maintain
 description: Audit and remediate registered thematic wikis to A-tier standards - summaries, canonical concepts, methods, datasets, synthesis, links. Also re-converts garbled PDF twins.
-argument-hint: "[--wiki <theme>] [optional scope: all | summaries | concepts | methods | datasets | synthesis | reconvert | path]"
-allowed-tools: Read, Write, Edit, Bash, Glob, Grep
+argument-hint: "[--wiki <theme>] [--review-auto [--since <date>]] [--synthesize] [optional scope: all | summaries | concepts | methods | datasets | synthesis | reconvert | path]"
+allowed-tools: Read, Write, Edit, Bash, Glob, Grep, Task
 ---
 
 # Wiki Maintain
@@ -193,6 +193,42 @@ canonical pages; include a retrieval map where useful.
 
 Also refresh the calling project's `wiki-links.md`, if one exists and this
 maintenance pass changed what it should retrieve.
+
+### `--synthesize`: propose pages for the thinnest layer
+
+`90_synthesis/` sits fifth in the `/wiki-pull` reading order — above the
+summaries and just under the canonical pages — and it is reliably the emptiest
+folder in the vault. That inverts the retrieval design: the tier meant to be
+read first has the least in it.
+
+With `--synthesize`, find clusters worth a page: **five or more summaries
+sharing two or more concepts, methods, or datasets**, or a set of papers whose
+findings disagree. For each cluster, propose (do not write) a synthesis page
+with a working title, the member summaries, and the specific tension or
+convergence that justifies it.
+
+**Propose only.** Synthesis is interpretation, and interpretation stays outside
+the auto-write blast radius no matter how strong the clustering signal
+(`rules/wiki-integration.md`). The user picks which proposals become pages.
+
+While here, `60_people_institutions/` is usually empty too and is cheaper to
+fill: the authors and affiliations already sit in `20_summaries/` frontmatter,
+so offer to generate entity pages from what is on disk.
+
+## Step 7b: `--review-auto` — audit what was written without asking
+
+Auto-write is only safe because it is reviewable. This mode is the review.
+
+1. Find every auto-written change: `git -C "<VAULT_ROOT>" log --oneline --grep="^wiki(auto):"` (add `--since` when given), and every `## Changelog` line tagged `auto`.
+2. Present them grouped by note, each with its council tally, the triggering session, and a one-line diff summary.
+3. Flag for closer attention: anything that passed **4 of 5** (a critic objected and was outvoted), anything appended to a page that has taken three or more auto-writes in the window (a page accreting without a human ever reading it), and any contradiction appended without a matching source.
+4. Offer to revert a batch: `git -C "<VAULT_ROOT>" revert <sha>`.
+
+**Read the tallies as calibration data, not just as a log.** If the 4-of-5
+writes are consistently the ones you would have rejected, the threshold is too
+loose — raise it to 5-of-5 only. If almost nothing clears the council, the
+candidates are under-evidenced and the fix is upstream in `/wiki-ingest`, not a
+lower bar here.
 
 ## Step 8: Log and Backlinks
 

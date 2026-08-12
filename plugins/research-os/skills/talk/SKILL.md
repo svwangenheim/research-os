@@ -54,6 +54,8 @@ The Storyteller follows these design principles:
 - **Transition slides between major sections** — signal where the talk is going
 - **All claims must appear in the paper** — the paper is the single source of truth; never add results or claims not in the manuscript
 
+**Trace cited claims to the source.** Where a slide cites a paper, resolve that bibkey to its `wiki_path` in `passport.yaml` `literature_corpus` and read the `<main_wiki>/20_summaries/` note, so the slide's one-line version of a finding traces to the same source the paper cites rather than to a paraphrase of a paraphrase. Compression is where a claim quietly drifts, and the summary is the cheapest place to check it. Resolve the thematic wiki via the standard ladder in `${CLAUDE_PLUGIN_ROOT}/rules/wiki-integration.md` (`--wiki` > `passport.yaml` `meta.main_wiki` > `.research-os-wiki` > the registry's only wiki), reading `~/.claude/vaults.json` for the path. **Read only** — `/talk` never writes to the wiki. If no wiki is resolvable, skip this step silently.
+
 Compile with `quarto render` (Quarto) or XeLaTeX (Beamer).
 
 Save to `05_outreach/talks/[format]_talk.qmd` (Quarto, default) or `05_outreach/talks/[format]_talk.tex` (Beamer). Figures referenced from `04_paper/academic_paper/figures/` or `03_analysis/output/`.
