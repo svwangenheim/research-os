@@ -74,6 +74,36 @@ git history after a conflicted revert instead of hand-resolving text.
 
 **Cost.** S once a direction is picked.
 
+### 5. `.githooks/pre-commit` validates the working directory, not the staged tree
+
+**What.** Both checkers walk the filesystem directly (`Path(...).glob(...)`
+from the repo root), so the pre-commit gate can pass locally on a shared
+repo even when the *committed* state it produces is inconsistent — an
+uncommitted file from an unrelated concurrent workstream satisfies a
+row-parity check that has no business passing once that file is gone.
+
+**How this was found.** PR #1 shipped a commit documenting two hooks and a
+rule (`dialogue-triggers.py`, `observe.py`, `dialogue-triggers.md`) that were
+never actually committed — they were `??` untracked files from a different,
+unrelated task sitting in the same working tree. The local gate saw them on
+disk and accepted README rows describing them; CI checked out the pushed
+branch fresh, found no such files, and correctly failed both runs. Confirmed
+by `git stash push -u -k` (stash everything except the index) and re-running
+both checkers against the true staged-plus-committed state, which is what a
+clean checkout actually sees.
+
+**Why deferred.** The immediate instance is fixed (the phantom rows are
+gone). The general fix is the one Pedro Sant'Anna's original `pre-commit`
+uses and this port dropped: stash unstaged and untracked changes with
+`git stash push -u -k` before running the checkers, always pop after (a
+trap on `EXIT`, not just the success path, so a checker crash doesn't leave
+files stashed), and skip the stash only when a file has both staged and
+unstaged hunks (the `git add -p` case, where a stash/pop round-trip can
+write literal conflict markers into a file mid-edit).
+
+**Cost.** S — the stash/pop wrapper is a known, small pattern; the main work
+is testing it doesn't misfire on the partial-stage edge case above.
+
 ## Resolved this session (2026-08-12)
 
 Kept briefly for context on what was decided and why, since the reasoning

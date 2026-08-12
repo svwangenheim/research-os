@@ -6,7 +6,7 @@
 
 ## Every script in this directory
 
-Twelve are registered in `hooks.json`; the last three are not Claude Code hooks (or not yet registered) and are listed here because they live in this directory.
+Eleven are registered in `hooks.json`; the last two are not Claude Code hooks at all and are listed here because they live in this directory.
 
 <!-- surface-sync-table: hooks -->
 
@@ -23,10 +23,8 @@ Twelve are registered in `hooks.json`; the last three are not Claude Code hooks 
 | `post-edit-lint.py` | PostToolUse | `Write\|Edit\|MultiEdit` | Mechanical lint of R/Python/Julia under `03_analysis/scripts/` against INV-14 .. INV-19. Throttled per file per 2 min. |
 | `claim-reconcile.py` | PostToolUse | `Write\|Edit\|MultiEdit` | On a write to a tracked analysis input, reports how many `passport.yaml` `claim_manifest` claims now depend on stale evidence, and points at `/peer-review --replicate`. Notifier only — never writes the passport. |
 | `context-monitor.py` | PostToolUse | `Bash\|Task` | Progressive context nudges (40/55/65% → `/checkpoint` or `/wiki-push`; 80% info; 90% finish-at-quality). Persists `context-pct.txt` for the status line. |
-| `dialogue-triggers.py` | PostToolUse | `Write\|Edit\|MultiEdit` | Ambient nudge toward the right skill at the right moment — the pipeline's Socratic beats — instead of waiting to be asked. Same rule as every other ambient hook here: offer, never block. |
 | `lint-scripts.sh` | not a hook | — | The grep-based linter library `post-edit-lint.py` calls. Also runnable standalone (`/tools lint`). |
 | `post-merge.sh` | not a hook | — | A **git** hook, not a Claude Code hook: prints a `/checkpoint` reminder after a merge. |
-| `observe.py` | not yet registered | — | Records tool-use *metadata* (timestamp, tool name, capture verdict, a redacted-when-sensitive path) for the workflow-layer observer — never file contents or tool output. Every path is checked against the project's own deny rules via `scripts/capture_policy.py` before anything is recorded, and fails closed. Not yet wired into `hooks.json`. |
 
 ## Related, outside this directory
 

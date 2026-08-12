@@ -14,7 +14,6 @@ Governance rules. Agents and skills read these; several are the single source of
 | `confidential-data.md` | on reference | Restricted and administrative data — never commit raw microdata, disclosure clearance before a figure leaves, access process in handoffs rather than the data. |
 | `content-invariants.md` | on reference | The numbered non-negotiables (INV-*). Critics cite invariant numbers, and violations are deductions rather than suggestions. |
 | `content-standards.md` | path-scoped | Table, figure, PDF-processing, and exploration standards for analysis code, LaTeX, and generated output. |
-| `dialogue-triggers.md` | on reference | Single declarative place for when the pipeline opens a Socratic beat on its own, rather than waiting to be asked. Read by `hooks/dialogue-triggers.py`. |
 | `folder-map.md` | on reference | The numbered project layout. Every agent, hook, and skill resolves project paths through this file. |
 | `html-dashboard.md` | on reference | Structure and design system of the single-page project dashboard. |
 | `lifecycle.md` | on reference | Pre-dispatch and post-completion handoff validation around every agent invocation. |
