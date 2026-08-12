@@ -37,7 +37,8 @@ Derive `<slug>` (kebab-case) and `<path>` (a positional path arg, else `./<slug>
 
 ```bash
 cd "<path>"
-mkdir -p 00_admin/process/{plans,decisions,sessions} 00_admin/logistics \
+mkdir -p .claude/rules \
+         00_admin/process/{plans,decisions,sessions,handoffs} 00_admin/logistics \
          01_literature/{sources,reviews,notes} \
          02_data/{raw,cleaned,codebooks,external} \
          03_analysis/{strategy,scripts/R,scripts/py,scripts/jl,output,replication} \
@@ -56,6 +57,10 @@ Fill placeholders from the interview + selections, then write:
 - `00_admin/research_outline.md` — a short living brief seeded from the interview
 - `explorations/README.md` ← `${CLAUDE_PLUGIN_ROOT}/templates/explorations-root-readme.md`
 - `project_dashboard.html` — run `/dashboard` (or its generator) to seed the living overview
+
+Also copy every file from `${CLAUDE_PLUGIN_ROOT}/templates/project-rules/` into `.claude/rules/` (create the directory). These are **path-scoped rule stubs**, and they are the only reason the plugin's rules activate on their own.
+
+The mechanism is worth understanding, because it is not obvious: `rules/` is **not** a recognized Claude Code plugin component, so the plugin's own rules never auto-load — they are inert files a skill has to `Read`. A project's `.claude/rules/` **is** loaded, and honours `paths:` frontmatter, so a rule there enters context only when a matching file is touched. Each stub therefore carries the `paths:` glob plus a short pointer to the authoritative rule in the plugin. Keep them thin: the plugin rule stays the single source of truth, and a stub that starts restating it will drift from it.
 
 ## Step 6 — Prime the wiki bridge
 
