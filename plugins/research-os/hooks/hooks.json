@@ -40,6 +40,16 @@
             "timeout": 5
           }
         ]
+      },
+      {
+        "matcher": "Read|Glob|Grep",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "sh -c 'PY=$(command -v python3 || command -v python); exec \"$PY\" \"${CLAUDE_PLUGIN_ROOT}/hooks/data-consent.py\"'",
+            "timeout": 5
+          }
+        ]
       }
     ],
     "PreCompact": [
@@ -128,6 +138,16 @@
           {
             "type": "command",
             "command": "sh -c 'PY=$(command -v python3 || command -v python); exec \"$PY\" \"${CLAUDE_PLUGIN_ROOT}/hooks/observe.py\"'",
+            "timeout": 5
+          }
+        ]
+      },
+      {
+        "matcher": "Read|Glob|Grep",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "sh -c 'PY=$(command -v python3 || command -v python); exec \"$PY\" \"${CLAUDE_PLUGIN_ROOT}/hooks/data-consent.py\"'",
             "timeout": 5
           }
         ]
