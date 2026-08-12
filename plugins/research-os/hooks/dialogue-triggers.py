@@ -32,6 +32,7 @@ from __future__ import annotations
 
 import json
 import os
+import subprocess
 import sys
 import time
 from pathlib import Path
@@ -269,6 +270,44 @@ def handle_post_tool_use(payload: dict[str, Any]) -> tuple[str, list[str]] | Non
     return None
 
 
+def has_uncommitted_work(project_dir: Path) -> bool:
+    """Pure git, deliberately -- this is what makes the trigger fire
+    identically for a research-os project and a BMAD one (Microsimulation,
+    Macro-Fiscal). No passport.yaml, no pipeline stage read; just the
+    working tree. Bounded timeout, fails to False (never nags on an error)."""
+    try:
+        result = subprocess.run(
+            ["git", "-C", str(project_dir), "status", "--porcelain"],
+            capture_output=True,
+            encoding="utf-8",
+            errors="replace",
+            timeout=10,
+            check=False,
+        )
+    except (OSError, subprocess.SubprocessError):
+        return False
+    return result.returncode == 0 and bool(result.stdout.strip())
+
+
+def handle_stop(payload: dict[str, Any]) -> tuple[str, list[str]] | None:
+    """The audit's top-scored real gap: 'checkpoint every session with work' --
+    evidenced verbatim in a real session (Job Insecurity, mined 2026-08-12):
+    'lets stop here for today. do /research-os:git-workflow &
+    /research-os:checkpoint & /research-os:wiki-push for all of todays
+    findings'. Nothing previously reminded you to run that ritual; this does,
+    once, at Stop, only when the working tree actually says something happened."""
+    project = project_dir(payload)
+    if not has_uncommitted_work(project):
+        return None
+    return (
+        "session-close-needed",
+        [
+            "Uncommitted work in this project -- want the session-close ritual?",
+            "git-workflow -> checkpoint -> wiki-push (or /automate run phd-session-close).",
+        ],
+    )
+
+
 def main() -> int:
     try:
         payload = json.load(sys.stdin)
@@ -289,6 +328,7 @@ def main() -> int:
     handlers = {
         "SessionStart": handle_session_start,
         "PostToolUse": handle_post_tool_use,
+        "Stop": handle_stop,
     }
     handler = handlers.get(event)
     if handler is None:

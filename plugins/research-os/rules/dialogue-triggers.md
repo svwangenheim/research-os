@@ -46,8 +46,16 @@ The snooze log is also the instrument: whichever triggers get dismissed repeated
 | `encode-worthy-confusion` | Stop | ≥2 clarifying exchanges on one concept | offer `/learn` on that concept | declared, not yet implemented |
 | `due-reviews` | SessionStart | FSRS due count > 0 | offer `/recall` | shipped (`engram-session-start.sh`) |
 | `unpushed-knowledge` | Stop | unchecked `wiki-links.md` items | remind to `/wiki-push` | shipped (session journal / push nudge) |
+| `session-close-needed` | Stop | `git status --porcelain` nonempty in the project dir | offer the session-close ritual (`git-workflow` → `checkpoint` → `wiki-push`), matching the `phd-session-close` procedure | active |
 
 Entries marked *declared, not yet implemented* are in the registry deliberately: the registry is the complete statement of intent, so the next person extends it rather than inventing a parallel mechanism. Entries marked *superseded* record that a need is already met — `session-anchor` stays listed at `enabled: false` precisely so nobody re-implements what `wiki-context.py` already does.
+
+**2026-08-12:** a plugin sync silently reverted `session-anchor` back to
+`enabled: true`, which would have fired alongside `wiki-context.py`'s own
+digest and duplicated it. Re-disabled — see the plugin-volatility finding in
+`docs/13-the-automation-layer.md`: plugin-side state that isn't committed can
+be reverted out from under you, so re-check registry state like this after
+any sync rather than assuming it holds.
 
 ## Adding a trigger
 

@@ -70,6 +70,11 @@
             "type": "command",
             "command": "sh -c 'PY=$(command -v python3 || command -v python); exec \"$PY\" \"${CLAUDE_PLUGIN_ROOT}/hooks/session-journal.py\"'",
             "timeout": 10
+          },
+          {
+            "type": "command",
+            "command": "sh -c 'PY=$(command -v python3 || command -v python); exec \"$PY\" \"${CLAUDE_PLUGIN_ROOT}/hooks/dialogue-triggers.py\"'",
+            "timeout": 10
           }
         ]
       }

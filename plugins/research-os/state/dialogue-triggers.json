@@ -13,8 +13,9 @@
       "condition": "cwd_has:passport.yaml",
       "fires": "Load prior context for this project (/wiki-pull) and state the current stage plus the single next step.",
       "mode": "ambient",
-      "enabled": true,
-      "why": "rules/skill-router.md says every research session should start with /wiki-pull. That was a hope; a hook makes it real."
+      "enabled": false,
+      "why": "rules/skill-router.md says every research session should start with /wiki-pull. That was a hope; a hook makes it real. RE-DISABLED 2026-08-12 after the plugin sync silently reverted this to true, which would have duplicated wiki-context.py's own SessionStart digest.",
+      "implemented_by": "hooks/wiki-context.py"
     },
     {
       "id": "stage-transition",
@@ -82,6 +83,15 @@
       "enabled": true,
       "implemented_by": "hooks/stop-push-nudge.py",
       "why": "Already shipped. Listed for completeness."
+    },
+    {
+      "id": "session-close-needed",
+      "event": "Stop",
+      "condition": "git status --porcelain is nonempty in the project dir (works identically for BMAD projects with no passport.yaml)",
+      "fires": "Offer the session-close ritual (git-workflow -> checkpoint -> wiki-push), matching the phd-session-close procedure.",
+      "mode": "ambient",
+      "enabled": true,
+      "why": "The audit's top-scored real gap: 'checkpoint every session with work'. Evidenced verbatim in a real session (Job Insecurity, mined 2026-08-12): the exact three-skill ritual, in that order, on explicit command -- nothing previously reminded the user to run it."
     }
   ]
 }
