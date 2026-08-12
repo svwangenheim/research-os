@@ -73,8 +73,12 @@ python "${CLAUDE_PLUGIN_ROOT}/scripts/reconcile_week.py" --root <vault>
 ```
 
 Rewrites **only** the `@generated:start week-state` block: calendar changes,
-newly observed commitments, the role-hour burn-down, and drift flags.
-Everything outside that block is yours and is never touched.
+newly observed commitments, **deadlines in the next 14 days across DZ + PhD +
+life** (from the calendar's own `Self-imposed Deadline`/`External Deadline`
+categories, plus `_brain/life-admin.md` if it exists — optional, never
+fabricated), the role-hour burn-down, and drift flags — a deadline with no
+`Work Blocker` time booked before it flags there too. Everything outside
+that block is yours and is never touched.
 
 If there is no weekly file for this week, the script says so and stops. Offer
 `/weekly-planning`; do not author a week's plan here.

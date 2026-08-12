@@ -187,15 +187,119 @@ def calendar_changes(calendar: dict[str, Any]) -> list[str]:
     return changes
 
 
+DEADLINE_CATEGORIES = ("Self-imposed Deadline", "External Deadline")
+COMMITMENT_LOOKAHEAD_DAYS = 14
+
+
+def load_life_admin(brain_root: Path) -> list[tuple[datetime, str]]:
+    """Optional, personal, deliberately outside Outlook: a flat list of
+    `- YYYY-MM-DD: description` lines in `_brain/life-admin.md`. Read if
+    present; absence is normal, not an error -- nothing here is invented.
+    """
+    path = brain_root / "life-admin.md"
+    if not path.is_file():
+        return []
+    entries: list[tuple[datetime, str]] = []
+    try:
+        text = path.read_text(encoding="utf-8", errors="replace")
+    except OSError:
+        return []
+    for line in text.split("\n"):
+        stripped = line.strip()
+        if not stripped.startswith("- "):
+            continue
+        rest = stripped[2:]
+        date_part, sep, desc = rest.partition(":")
+        if not sep:
+            continue
+        try:
+            date = datetime.strptime(date_part.strip()[:10], "%Y-%m-%d")
+        except ValueError:
+            continue
+        entries.append((date, desc.strip()))
+    return entries
+
+
+def upcoming_commitments(
+    calendar: dict[str, Any], brain_root: Path, today: datetime
+) -> list[tuple[datetime, str, str]]:
+    """Everything with a date attached in the next COMMITMENT_LOOKAHEAD_DAYS,
+    across DZ + PhD + life -- one system, per the explicit scope decision
+    that a sweep seeing only one of them systematically overstates available
+    time. Returns (date, description, source) sorted by date.
+
+    Deadlines are read from the calendar's OWN categories (`Self-imposed
+    Deadline`, `External Deadline`) rather than a free-text scanner over
+    project notes -- no project currently has a structured deadline field,
+    and guessing dates out of prose is exactly the kind of unreliable
+    heuristic this system tries to avoid elsewhere (see project_state_scan.py
+    preferring git's index over a directory walk).
+    """
+    horizon = today + timedelta(days=COMMITMENT_LOOKAHEAD_DAYS)
+    commitments: list[tuple[datetime, str, str]] = []
+
+    for event in calendar.get("events", []):
+        categories = event.get("categories") or []
+        if not any(c in DEADLINE_CATEGORIES for c in categories):
+            continue
+        start = event.get("start")
+        if not start:
+            continue
+        try:
+            when = datetime.fromisoformat(str(start).replace("Z", ""))
+        except ValueError:
+            continue
+        if today <= when <= horizon:
+            commitments.append((when, str(event.get("subject") or "(untitled)"), "calendar"))
+
+    for when, description in load_life_admin(brain_root):
+        if today <= when <= horizon:
+            commitments.append((when, description, "life-admin"))
+
+    return sorted(commitments, key=lambda c: c[0])
+
+
+def has_time_booked_before(
+    deadline: datetime, calendar: dict[str, Any], today: datetime
+) -> bool:
+    """Any Work Blocker between today and the deadline counts -- this does
+    not try to link a specific block to a specific deadline (nothing in the
+    calendar schema ties them together); it answers the coarser, still
+    useful question: is ANY work time booked before this lands at all."""
+    for event in calendar.get("events", []):
+        if "Work Blocker" not in (event.get("categories") or []):
+            continue
+        start = event.get("start")
+        if not start:
+            continue
+        try:
+            when = datetime.fromisoformat(str(start).replace("Z", ""))
+        except ValueError:
+            continue
+        if today <= when < deadline:
+            return True
+    return False
+
+
 def drift_flags(
     states: list[ProjectState],
     calendar: dict[str, Any],
     budgets: dict[str, float],
     booked: dict[str, float],
     today: datetime,
+    brain_root: Path | None = None,
 ) -> list[str]:
     """The point of reconciling: what the plan now gets wrong."""
     flags: list[str] = []
+
+    if brain_root is not None:
+        for when, description, source in upcoming_commitments(calendar, brain_root, today):
+            days_out = (when.date() - today.date()).days
+            if not has_time_booked_before(when, calendar, today):
+                flags.append(
+                    f"[{source}] '{description}' due in {days_out}d ({when:%Y-%m-%d}) - "
+                    f"no work time booked before it"
+                )
 
     for role, budget in sorted(budgets.items()):
         spent = booked.get(role, 0.0)
@@ -237,6 +341,7 @@ def render_block(
     calendar: dict[str, Any],
     budgets: dict[str, float],
     today: datetime,
+    brain_root: Path | None = None,
 ) -> str:
     booked = booked_hours_by_role(calendar, states)
     lines = [
@@ -262,6 +367,19 @@ def render_block(
     lines.extend(inbox or ["- None."])
     lines.append("")
 
+    lines.append(f"### Deadlines in the next {COMMITMENT_LOOKAHEAD_DAYS} days (DZ + PhD + life)")
+    if brain_root is not None:
+        commitments = upcoming_commitments(calendar, brain_root, today)
+        if commitments:
+            for when, description, source in commitments:
+                booked_flag = "time booked" if has_time_booked_before(when, calendar, today) else "**NOTHING BOOKED**"
+                lines.append(f"- {when:%Y-%m-%d} [{source}] {description} - {booked_flag}")
+        else:
+            lines.append("- None found (calendar deadline categories + `_brain/life-admin.md`).")
+    else:
+        lines.append("- Skipped -- no brain root given.")
+    lines.append("")
+
     lines.append("### Role-hour burn-down")
     if budgets:
         lines.append("")
@@ -275,7 +393,7 @@ def render_block(
     lines.append("")
 
     lines.append("### Drift flags")
-    flags = drift_flags(states, calendar, budgets, booked, today)
+    flags = drift_flags(states, calendar, budgets, booked, today, brain_root)
     lines.extend([f"- {f}" for f in flags] if flags else ["- Nothing drifting."])
     lines.append("")
     lines.append(BLOCK_END)
@@ -317,7 +435,7 @@ def main(argv: list[str] | None = None) -> int:
     calendar = load_calendar(brain_root)
     budgets = load_role_budgets(brain_root)
 
-    block = render_block(states, calendar, budgets, today)
+    block = render_block(states, calendar, budgets, today, brain_root)
     updated, replaced = splice(week.text, block)
 
     if args.check:

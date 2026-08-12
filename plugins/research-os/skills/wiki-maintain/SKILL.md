@@ -130,6 +130,39 @@ Do not fabricate claims. If a source is unavailable, unclear, or badly
 converted, mark the uncertain part as `needs source verification` (or route
 it through Step 2 first if it's a conversion problem, not a content one).
 
+## Step 3b: Gap-detection — sources cited but never ingested
+
+Step 3 audits **forward**: for a source already in `10_sources/`, is it
+summarized well? This step audits **backward**: is there a source that
+should be in `10_sources/` at all, but isn't?
+
+Added 2026-08-12, from the first `/workflow-audit`'s own refinement of the
+wiki-push backlog problem: *"I should be reminded to search for missing
+papers and include them in the sources folder and to run wiki-ingest more
+often"* — a reliability gap, not a missing capability (`/wiki-ingest`
+already exists; nothing was prompting its use for citations that never
+made it in).
+
+For every project whose `main_wiki` resolves to this wiki:
+
+1. Read `passport.yaml`'s `literature_corpus` — every entry with a
+   `citation_status` of `relevant`, `intended`, or `cited`.
+2. For each, check whether `wiki_path` is set **and** resolves to a real
+   file under `10_sources/` or `20_summaries/`.
+3. Flag every entry that is cited/discussed (per step 1) but has no
+   resolving `wiki_path` — this is a paper the project is relying on that
+   the wiki does not actually have.
+4. Cross-check `00_admin/process/journal.md` and `03_analysis/strategy/`
+   for author-year mentions (`Author et al. YYYY` / `(Author, YYYY)`
+   patterns) that don't appear anywhere in `literature_corpus` at all —
+   these are citations that were never even logged, the earlier stage of
+   the same gap.
+
+For each flag, do not silently ingest — ingestion is a judgment call about
+scope and placement (see `/wiki-ingest`'s own guardrails). **Surface the gap
+in this pass's report** (Step 10) and hand off to `/wiki-ingest` per source,
+by name, so the human sees exactly what's missing before it's added.
+
 ## Step 4: Canonical Concept Scan
 
 Read all summaries and existing concept notes in `$WIKI/30_concepts/`.
@@ -262,6 +295,9 @@ Report, per wiki audited:
 - scope maintained;
 - counts before and after;
 - re-conversions attempted, succeeded, or blocked (missing original PDF);
+- **gaps found (Step 3b): cited/discussed sources with no resolving
+  `wiki_path`, named per project and per source — the hand-off list for
+  `/wiki-ingest`, not something this pass ingests itself;**
 - summaries upgraded or created;
 - concepts/methods/datasets created, updated, aliased, or merged;
 - synthesis/log updates;
