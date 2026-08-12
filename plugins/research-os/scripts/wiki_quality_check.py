@@ -102,7 +102,7 @@ BRAIN_FOLDER_NOTE_TYPES: dict[str, tuple[str, ...]] = {
 # folder -> required frontmatter keys (presence + non-empty)
 BRAIN_REQUIRED_FIELDS: dict[str, tuple[str, ...]] = {
     "projects": ("title", "status", "updated"),
-    "procedures": ("title", "role", "trigger", "automation", "updated"),
+    "procedures": ("title", "name", "role", "trigger", "automation", "updated"),
     "thoughts": ("title", "updated"),
     "learning": ("title", "confidence", "updated"),
     "synthesis": ("title", "updated"),
@@ -113,11 +113,20 @@ BRAIN_REQUIRED_FIELDS: dict[str, tuple[str, ...]] = {
 BRAIN_STALE_DAYS = 120  # an 'active' project note untouched this long is flagged
 
 # Closed enums for procedure notes. A typo here silently breaks the Dataview
-# catalog and the promotion check, so it is caught at audit time instead.
-PROCEDURE_ROLES = ("phd", "dz-modelling", "dz-outreach", "admin")
-PROCEDURE_AUTOMATION = ("manual", "assisted", "scheduled", "vetoed")
-PROCEDURE_PROMOTION = ("draft", "maturing", "ready", "promoted")
+# catalog and /automate's dispatch, so it is caught at audit time instead.
+#
+# 2026-08-12: procedures are executable specs (docs/13-the-automation-layer.md),
+# not documentation behind a promotion gate. PROCEDURE_PROMOTION is retired --
+# there is no gate. "cross-cutting" (executes as a modifier on another role's
+# work) and "life" (personal, non-work commitments the planning layer still
+# needs to see) were added the same day, from the first real /workflow-audit run.
+PROCEDURE_ROLES = ("phd", "dz-modelling", "dz-outreach", "admin", "cross-cutting", "life")
+PROCEDURE_AUTOMATION = ("assisted", "scheduled", "vetoed")
 STEP_ACTOR_TAGS = ("[ai]", "[human]", "[external]", "[veto]")
+
+# schedule: is free text consumed by automate_schedule.py, but it must start with
+# one of these or the schedule is silently never registered.
+SCHEDULE_PREFIXES = ("daily", "weekly", "monthly")
 
 MIN_SUMMARY_WORDS = 120  # below this, a summary body is "thin"
 DUPLICATE_TITLE_RATIO = 0.80  # difflib ratio threshold for "possible duplicate"
@@ -639,10 +648,13 @@ def check_brain_staleness(notes: list[Note], today: Any = None) -> list[Finding]
 def check_procedure_note(note: Note) -> list[Finding]:
     """Procedure-specific integrity checks.
 
-    Three things break a procedure silently, so all three are caught here:
-    a value outside a closed enum (invisible to the Dataview catalog), a step
-    with no actor tag (unclear who runs it, so it can never be promoted), and a
-    veto without a reason (an unexplained veto decays into an ignored one).
+    Procedures are executable specs (docs/13-the-automation-layer.md) -- there
+    is no promotion gate, so what breaks one silently is different from what it
+    was when a gate existed: an enum typo (invisible to /automate's dispatch), a
+    step with no actor tag (unclear who runs it -- the runner cannot execute
+    what it cannot classify), a veto without a reason, a `name` that doesn't
+    match the filename (breaks `/automate run <name>` lookup), and a malformed
+    `schedule:` (silently never registered by automate_schedule.py).
     """
     if note.frontmatter.get("note_type") != "procedure":
         return []
@@ -654,7 +666,6 @@ def check_procedure_note(note: Note) -> list[Finding]:
     enum_checks = (
         ("role", PROCEDURE_ROLES),
         ("automation", PROCEDURE_AUTOMATION),
-        ("promotion", PROCEDURE_PROMOTION),
     )
     for key, allowed in enum_checks:
         value = fm.get(key)
@@ -666,6 +677,28 @@ def check_procedure_note(note: Note) -> list[Finding]:
     if fm.get("automation") == "vetoed" and is_empty(fm.get("veto_reason")):
         findings.append(
             Finding("procedure", rel, "automation: vetoed but no veto_reason - a veto must say why")
+        )
+
+    name = fm.get("name")
+    if not is_empty(name) and str(name) != note.path.stem:
+        findings.append(
+            Finding(
+                "procedure",
+                rel,
+                f"name: {name!r} does not match the filename ({note.path.stem}) - "
+                f"/automate run {name!r} would not find this note",
+            )
+        )
+
+    schedule = fm.get("schedule")
+    if not is_empty(schedule) and not str(schedule).strip().lower().startswith(SCHEDULE_PREFIXES):
+        findings.append(
+            Finding(
+                "procedure",
+                rel,
+                f"schedule: {schedule!r} does not start with one of {SCHEDULE_PREFIXES} - "
+                f"automate_schedule.py will never register it",
+            )
         )
 
     untagged = untagged_steps(note.body)

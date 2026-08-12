@@ -30,6 +30,16 @@
             "timeout": 5
           }
         ]
+      },
+      {
+        "matcher": "Read|Write|Edit|MultiEdit|Bash|Glob|Grep",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "sh -c 'PY=$(command -v python3 || command -v python); exec \"$PY\" \"${CLAUDE_PLUGIN_ROOT}/hooks/observe.py\"'",
+            "timeout": 5
+          }
+        ]
       }
     ],
     "PreCompact": [
@@ -108,6 +118,16 @@
           {
             "type": "command",
             "command": "sh -c 'PY=$(command -v python3 || command -v python); exec \"$PY\" \"${CLAUDE_PLUGIN_ROOT}/hooks/context-monitor.py\"'",
+            "timeout": 5
+          }
+        ]
+      },
+      {
+        "matcher": "Read|Write|Edit|MultiEdit|Bash|Glob|Grep",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "sh -c 'PY=$(command -v python3 || command -v python); exec \"$PY\" \"${CLAUDE_PLUGIN_ROOT}/hooks/observe.py\"'",
             "timeout": 5
           }
         ]
