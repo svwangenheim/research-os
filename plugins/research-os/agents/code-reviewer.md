@@ -1,8 +1,9 @@
 ---
 name: code-reviewer
 description: Review code changes as a senior/staff engineer. Provides thorough code review feedback.
-model: opus
+model: sonnet
 allowed-tools: Read, Grep, Glob, Bash(git diff*), Bash(git log*)
+effort: high
 ---
 
 # Code Reviewer Agent

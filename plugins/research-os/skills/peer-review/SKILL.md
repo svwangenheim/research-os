@@ -51,6 +51,14 @@ Adapted from ARS. `/peer-review` is the sole invoker: no other skill triggers th
 4. **Partial pass** (e.g. plausible-but-unconfirmed `% UNVERIFIED` citations, no fabrications) -> surface as a warning, not a block, but the user must acknowledge it before proceeding.
 5. **Skip for standalone diagnostic modes** that do not move `pipeline.stages.review` -- `--methods`, `--theory`, `--proofread` alone, `--code`, `--replicate`. Still surface any integrity concern noticed incidentally during those reviews.
 
+### The wiki corpus during review
+
+Citation triangulation already reads the wiki corpus before it goes to external databases -- the verifier owns that step and it is specified in `${CLAUDE_PLUGIN_ROOT}/agents/verifier.md` ("Citation triangulation", stage 2a). Do not restate or re-run it here.
+
+What the **referees** add is a contradiction check. Resolve the thematic wiki via the standard ladder in `${CLAUDE_PLUGIN_ROOT}/rules/wiki-integration.md` (`--wiki` > `passport.yaml` `meta.main_wiki` > `.research-os-wiki` > the registry's only wiki), reading `~/.claude/vaults.json` for the path, then read `<main_wiki>/30_concepts/` for the concepts the draft leans on. Where a canonical concept page states something the draft contradicts -- an opposite effect sign, a scope condition the draft ignores, a measurement caveat it does not mention -- raise it as a referee comment citing the page.
+
+A contradiction is not automatically an error in the draft. The wiki records what this theme's literature says, and a paper may disagree with it on purpose; the point is that the disagreement gets argued rather than passing unnoticed. If no wiki is resolvable, skip this step silently.
+
 ---
 
 ## Paper-Type Awareness (mandatory for all critics)
@@ -133,7 +141,22 @@ The editor:
 3. Produces a decision letter: Accept / Minor Revisions / Major Revisions / Reject
 4. Lists MUST address, SHOULD address, and MAY push back items
 
-Save to `04_paper/reviews/editorial_decision.md`, updating in place. Log the referee assignments (dispositions + pet peeves) in the decision so the user can re-run with different combinations. Refresh the dashboard: run `/dashboard`.
+#### Phase 3b: Hallucination gate (before the decision is saved)
+
+The editor reduces two referee reports into one verdict. It must not **introduce** a blocking reason neither referee gave — and a desk-reject is the most consequential output this skill produces, so an unfounded one is expensive in exactly the way the rest of the pipeline is built to prevent.
+
+1. Diff the editor's FATAL / desk-reject reasons against the union of both referees' findings.
+2. Any FATAL not traceable to a referee finding is a **candidate hallucination**.
+3. Re-verify each candidate in a fresh fork: `Task` with `subagent_type=claim-verifier` and `context: fork`, given the claim and the artifact location it cites. Do not pass the referee reports or the decision letter — the verifier checks the claim against the paper, not against the reasoning that produced it.
+   - Grounded in a quote or a location → keep it, annotate `[JUDGE-ADDED, verified]`.
+   - Cannot be grounded → drop it to a flagged note, tag `[JUDGE-HALLUCINATED]`, and **recompute the decision** without it.
+4. The editor may always *downgrade*, *de-duplicate*, or *take a side* between referees. It may only *introduce* a blocking reason that survives this gate.
+
+This runs on the zero-to-two reasons an editor actually introduces, so it is cheap. Skip it only for `--stress`, where a hostile editor inventing objections is the point of the exercise — and say so in the report.
+
+See `${CLAUDE_PLUGIN_ROOT}/references/orchestration-schemas.md` §4.
+
+Save to `04_paper/reviews/editorial_decision.md`, updating in place. Log the referee assignments (dispositions + pet peeves) in the decision so the user can re-run with different combinations, and record any `[JUDGE-HALLUCINATED]` drops. Refresh the dashboard: run `/dashboard`.
 
 ### R&R Round 2/3 (`--peer --r2 [journal]` / `--peer --r3 [journal]`)
 
@@ -204,7 +227,26 @@ Dispatch **writer-critic** standalone -- categories 4, 5, 6, 8 only (writing qua
 2. Dispatch **Coder** in replication mode -- re-implement in target language
 3. **coder-critic** reviews both implementations
 4. Compare numerical outputs per `${CLAUDE_PLUGIN_ROOT}/skills/analyze/config/replication-tolerances.json` / `00_admin/domain-profile.md`
-5. Save replicated script and comparison report to `04_paper/reviews/[FILENAME]_replication_check.md`
+5. Assign a **disposition** to each compared value (below), not a bare pass/fail
+6. Save replicated script and comparison report to `04_paper/reviews/[FILENAME]_replication_check.md`, and write the disposition back to the matching `passport.yaml` `claim_manifest` entry
+
+#### Dispositions
+
+| Disposition | Means | Blocks? |
+|---|---|---|
+| **PASS** | Within tolerance. | no |
+| **FAIL** | Outside tolerance, with no concrete named alternative recorded. | **yes** |
+| **EXPLAINED** | Outside tolerance, **but** a specific named alternative specification accounts for the gap. | no |
+| **STALE** | The source script or output changed after the last verification (this is what `hooks/claim-reconcile.py` flags in-session). | no, but re-run |
+| **UNMATCHED** | No computed counterpart found. Never auto-downgradable. | **yes** |
+
+**A defensible alternative is not a failure.** In applied work the most common out-of-tolerance result is not a bug — it is a different, defensible choice: never-treated versus not-yet-treated comparison group, conditional versus unconditional parallel trends, `reghdfe` versus `feols` clustering degrees of freedom, a different MC seed or number of reps, display rounding. Record the **named** alternative and mark the claim EXPLAINED.
+
+The naming requirement is the whole safeguard. A note reading "small numerical difference" or "unclear" never downgrades a FAIL — it has to identify the specification that produces the observed gap. Otherwise EXPLAINED becomes a way to retire inconvenient findings.
+
+**The manuscript is not the oracle.** When the computed value disagrees with the paper, do not assume the code is right and the paper stale, nor the reverse. A refactor can break a previously correct table, which makes the *on-disk output* the buggy side. Report a mismatch as **"one of {paper, code} must change — isolate which"**, never as "revert the code to match the paper." That framing is what stops a genuine bug-fix from being reverted to make a paper reproduce. To localize which pipeline step drifted, hand off to `/diagnose`.
+
+**Repeated EXPLAINED is itself a finding.** A claim marked EXPLAINED in two consecutive audits without ever reaching PASS is surfaced prominently — "contested number, EXPLAINED twice, never corrected" — rather than left sitting behind its recorded note. Same two-strikes logic as `${CLAUDE_PLUGIN_ROOT}/rules/summary-parity.md`.
 
 ---
 
