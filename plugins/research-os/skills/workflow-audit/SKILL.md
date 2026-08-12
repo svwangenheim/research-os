@@ -11,7 +11,7 @@ Step 1 of the workflow layer: find out what you actually do, then rank it by how
 much of it can be handed over.
 
 **Output:** `_brain/workflow-audit.md` — a scored inventory. The top entries
-become the first cohort of procedures via `/procedure new`.
+become the first cohort of procedures via `/automate new`.
 
 This runs **once properly**, then gets refreshed occasionally (`--refresh`
 re-runs the harvest and re-scores, preserving your corrections). It is not a
@@ -170,7 +170,7 @@ from evidence — a later reader must be able to tell.
 ## Phase 5 — Hand off
 
 Report the top cohort and offer: *"Shall we write the first of these as a
-procedure?"* → `/procedure new <task>`. Do not write procedures in this skill.
+procedure?"* → `/automate new <task>`. Do not write procedures in this skill.
 
 ## Guardrails
 
@@ -181,5 +181,5 @@ Do not:
 - score a component the user never gave you evidence or an answer for — leave it null and say so
 - treat a high score as a recommendation, or a low one as a dismissal
 - let a veto be represented as a low score
-- write procedure notes here — that is `/procedure new`
+- write procedure notes here — that is `/automate new`
 - defer the PhD role because it "starts in October"

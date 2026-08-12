@@ -56,7 +56,7 @@ sample of what would change. Lead with the biggest loss risk. State plainly what
 each grant would mean in future runs, since a grant persists.
 
 Use `AskUserQuestion` here — this *is* a decision between discrete options, and
-one tap per project is the whole point. (This is the opposite of `/procedure new`
+one tap per project is the whole point. (This is the opposite of `/automate new`
 and `/workflow-audit`, which are conversations.) Offer, per project:
 
 - **Grant** — do it now and from now on, without asking again

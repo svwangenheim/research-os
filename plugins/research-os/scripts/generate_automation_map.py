@@ -1,28 +1,31 @@
 #!/usr/bin/env python3
 """
-Render the procedure layer as a self-contained interactive HTML map.
+Render every personal procedure as a self-contained interactive HTML map.
 
-Step 4 of the workflow layer. Two views:
+Guide step 4, retargeted for the executable-procedure schema (docs/13-the-
+automation-layer.md). Three views:
 
-  by role      -- what a week actually contains, grouped by hat. The view that
-                  answers "can I hold a PhD and a think-tank job at once".
+  by role      -- what a week actually contains, grouped by hat, work AND life.
   by procedure -- each procedure's step flow, coloured by who executes each step.
+  coverage     -- which research-os skills / BMAD workflows each procedure
+                  composes via `calls:` -- the layer-1/layer-2 seam made visible.
+                  Procedures may call skills; skills never call procedures.
 
-Node colour carries automation status, extending the source guide's scheme with
-a class it did not need and a researcher does:
+Node colour, extending the source guide's scheme with a class it did not need
+and a researcher does:
 
   purple  Claude executes            [ai]
   yellow  human input required       [human]
   green   external tool or system    [external]
   red     VETOED -- never automate   [veto]
-  grey    not yet specified
+  grey    not yet specified (the runner stops here rather than guessing)
 
-Self-contained by construction: no CDN, no fetch, no external font. The page is
-opened from disk, often offline, and must never depend on the network.
+Self-contained by construction: no CDN, no fetch, no external font. Opened from
+disk, often offline, and must never depend on the network.
 
 Usage:
-    python generate_procedure_map.py --root <vault>
-    python generate_procedure_map.py --root <vault> --out <path.html>
+    python generate_automation_map.py --root <vault>
+    python generate_automation_map.py --root <vault> --out <path.html>
 """
 
 from __future__ import annotations
@@ -38,8 +41,7 @@ from typing import Any
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 
-from wiki_quality_check import parse_frontmatter  # noqa: E402  (needs sys.path above)
-from wiki_quality_check import force_utf8_console  # noqa: E402
+from wiki_quality_check import force_utf8_console, parse_frontmatter  # noqa: E402
 
 ACTOR_CLASSES: dict[str, tuple[str, str]] = {
     "[ai]": ("ai", "Claude executes"),
@@ -52,7 +54,9 @@ ROLE_LABELS: dict[str, str] = {
     "phd": "PhD",
     "dz-modelling": "DZ · Modelling",
     "dz-outreach": "DZ · Outreach",
-    "admin": "Admin",
+    "admin": "Admin — planning & organization",
+    "cross-cutting": "Cross-cutting",
+    "life": "Life",
     "": "Unassigned",
 }
 
@@ -67,12 +71,9 @@ class Step:
 
 
 def as_number(value: Any) -> float | None:
-    """Coerce a frontmatter scalar to a number.
-
-    parse_frontmatter is regex-based and returns every scalar as a string, so
-    `clone_score: 72` arrives as "72" and sorting on it raises. Anything
-    genuinely absent or non-numeric becomes None, which sorts last.
-    """
+    """Coerce a frontmatter scalar to a number. parse_frontmatter is
+    regex-based and returns every scalar as a string, so clone_score: 72
+    arrives as "72" and sorting on it raises without this."""
     if value is None or isinstance(value, bool):
         return None
     if isinstance(value, (int, float)):
@@ -83,18 +84,26 @@ def as_number(value: Any) -> float | None:
         return None
 
 
+def as_bool(value: Any, default: bool = False) -> bool:
+    if isinstance(value, bool):
+        return value
+    if value is None:
+        return default
+    return str(value).strip().lower() in ("true", "yes", "1")
+
+
 @dataclass
 class Procedure:
     slug: str
     title: str
     role: str
     trigger: str
-    frequency: str
+    schedule: str
     clone_score: float | None
     automation: str
     veto_reason: str
-    promotion: str
-    runs: int
+    draft: bool
+    calls: list[str] = field(default_factory=list)
     steps: list[Step] = field(default_factory=list)
 
     @property
@@ -106,7 +115,7 @@ class Procedure:
 
     @property
     def automatable_share(self) -> float:
-        """Share of steps Claude could run. The map's one honest summary number."""
+        """Share of steps Claude runs unattended -- the map's one honest summary number."""
         if not self.steps:
             return 0.0
         return sum(1 for s in self.steps if s.actor == "ai") / len(self.steps)
@@ -139,6 +148,14 @@ def parse_steps(body: str) -> list[Step]:
     return steps
 
 
+def parse_calls(raw: Any) -> list[str]:
+    if isinstance(raw, list):
+        return [str(c).strip() for c in raw if str(c).strip()]
+    if isinstance(raw, str) and raw.strip():
+        return [raw.strip()]
+    return []
+
+
 def load_procedures(brain_root: Path) -> list[Procedure]:
     folder = brain_root / "procedures"
     if not folder.is_dir():
@@ -154,22 +171,18 @@ def load_procedures(brain_root: Path) -> list[Procedure]:
         fm, body = parse_frontmatter(text)
         if fm.get("note_type") != "procedure":
             continue
-        try:
-            runs = int(fm.get("runs") or 0)
-        except (TypeError, ValueError):
-            runs = 0
         procedures.append(
             Procedure(
-                slug=path.stem,
+                slug=str(fm.get("name") or path.stem),
                 title=str(fm.get("title") or path.stem),
                 role=str(fm.get("role") or ""),
                 trigger=str(fm.get("trigger") or ""),
-                frequency=str(fm.get("frequency") or ""),
+                schedule=str(fm.get("schedule") or "") if fm.get("schedule") not in (None, "null") else "",
                 clone_score=as_number(fm.get("clone_score")),
-                automation=str(fm.get("automation") or "manual"),
+                automation=str(fm.get("automation") or "assisted"),
                 veto_reason=str(fm.get("veto_reason") or ""),
-                promotion=str(fm.get("promotion") or "draft"),
-                runs=runs,
+                draft=as_bool(fm.get("draft"), default=True),
+                calls=parse_calls(fm.get("calls")),
                 steps=parse_steps(body),
             )
         )
@@ -217,6 +230,10 @@ padding:15px 16px}
 .card .trig{font-size:12.5px;color:var(--g700);margin-bottom:9px}
 .card .facts{font-family:var(--mono);font-size:11px;color:var(--g500);
 display:flex;flex-wrap:wrap;gap:9px;margin-bottom:9px}
+.badge{font-family:var(--mono);font-size:10px;padding:1px 6px;border-radius:8px;
+background:var(--g100);color:var(--g700)}
+.badge.draft{background:var(--human);color:#fff}
+.badge.sched{background:var(--external);color:#fff}
 .bar{display:flex;height:7px;border-radius:4px;overflow:hidden;background:var(--g100)}
 .bar i{display:block}
 .bar i.ai{background:var(--ai)}.bar i.human{background:var(--human)}
@@ -241,6 +258,12 @@ ol.steps li.veto::before{background:var(--veto)}
 ol.steps li.unspecified::before{background:var(--unspec)}
 ol.steps li.veto{background:color-mix(in srgb,var(--veto) 7%,transparent)}
 .tag{font-family:var(--mono);font-size:10px;color:var(--g500);margin-left:7px}
+.covrow{display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:1px solid var(--g100)}
+.covrow .callee{font-family:var(--mono);font-size:12.5px;background:var(--g100);
+padding:2px 8px;border-radius:6px;color:var(--slate)}
+.covrow .arrow{color:var(--g500)}
+.covrow .callers{font-size:12.5px;color:var(--g700)}
+.uncalled{font-size:12.5px;color:var(--g500);margin-top:10px}
 .empty{background:var(--paper);border:1px dashed var(--g300);border-radius:var(--radius);
 padding:28px;text-align:center;color:var(--g500)}
 .empty code{font-family:var(--mono);font-size:12.5px;color:var(--clay)}
@@ -280,7 +303,9 @@ def render_role_view(procedures: list[Procedure]) -> str:
 
     blocks: list[str] = []
     for role in sorted(by_role, key=lambda r: (r == "", r)):
-        items = sorted(by_role[role], key=lambda p: -(p.clone_score if p.clone_score is not None else -1))
+        items = sorted(
+            by_role[role], key=lambda p: -(p.clone_score if p.clone_score is not None else -1)
+        )
         scored = [p.clone_score for p in items if p.clone_score is not None]
         avg = f"avg clone score {sum(scored) / len(scored):.0f}" if scored else "unscored"
         cards: list[str] = []
@@ -291,12 +316,16 @@ def render_role_view(procedures: list[Procedure]) -> str:
                 if procedure.automation == "vetoed"
                 else ""
             )
+            badges = ""
+            if procedure.draft:
+                badges += '<span class="badge draft">DRAFT</span> '
+            if procedure.schedule:
+                badges += f'<span class="badge sched">{esc(procedure.schedule)}</span>'
             cards.append(
                 f'<div class="card{veto}"><h3>{esc(procedure.title)}</h3>'
                 f'<div class="trig">{esc(procedure.trigger)}</div>'
-                f'<div class="facts"><span>{esc(procedure.frequency or "?")}</span>'
-                f'<span>score {esc(f"{procedure.clone_score:.0f}" if procedure.clone_score is not None else "-")}</span>'
-                f'<span>{procedure.runs} run(s)</span><span>{esc(procedure.promotion)}</span></div>'
+                f'<div class="facts"><span>score {esc(f"{procedure.clone_score:.0f}" if procedure.clone_score is not None else "-")}</span>'
+                f'<span>{esc(procedure.automation)}</span>{badges}</div>'
                 f'{render_bar(procedure)}'
                 f'<div class="share">{procedure.automatable_share * 100:.0f}% of steps automatable'
                 f' &middot; {len(procedure.steps)} steps</div>{veto_line}</div>'
@@ -321,20 +350,51 @@ def render_procedure_view(procedures: list[Procedure]) -> str:
             body = f'<ol class="steps">{steps_html}</ol>'
         else:
             body = '<div class="share">No steps written yet.</div>'
+        badges = ' &middot; DRAFT' if procedure.draft else ''
+        sched = f' &middot; {esc(procedure.schedule)}' if procedure.schedule else ''
         blocks.append(
             f'<div class="proc"><h3>{esc(procedure.title)}</h3>'
             f'<div class="sub">{esc(ROLE_LABELS.get(procedure.role, procedure.role))} &middot; '
             f'trigger: {esc(procedure.trigger or "unspecified")} &middot; '
-            f'{esc(procedure.automation)} &middot; {procedure.runs} run(s)</div>{body}</div>'
+            f'{esc(procedure.automation)}{sched}{badges}</div>{body}</div>'
         )
     return "".join(blocks)
+
+
+def render_coverage_view(procedures: list[Procedure]) -> str:
+    """calls: -> which procedures use it. The layer-1/layer-2 seam, visible:
+    procedures compose skills; a skill never appears calling a procedure."""
+    by_callee: dict[str, list[str]] = {}
+    uncalled: list[str] = []
+    for procedure in procedures:
+        if not procedure.calls:
+            uncalled.append(procedure.title)
+            continue
+        for callee in procedure.calls:
+            by_callee.setdefault(callee, []).append(procedure.title)
+
+    if not by_callee and not uncalled:
+        return '<div class="share">No procedures yet.</div>'
+
+    rows = "".join(
+        f'<div class="covrow"><span class="callee">{esc(callee)}</span>'
+        f'<span class="arrow">&larr; called by</span>'
+        f'<span class="callers">{esc(", ".join(sorted(set(callers))))}</span></div>'
+        for callee, callers in sorted(by_callee.items())
+    )
+    uncalled_html = (
+        f'<div class="uncalled">Compose nothing yet: {esc(", ".join(sorted(uncalled)))}</div>'
+        if uncalled
+        else ""
+    )
+    return f'<div class="proc">{rows}{uncalled_html}</div>'
 
 
 def render_empty() -> str:
     return (
         '<div class="empty"><p>No procedures yet.</p>'
         '<p style="margin-top:10px">Run <code>/workflow-audit</code> to find what you do '
-        "repeatedly, then <code>/procedure new &lt;name&gt;</code> to write the first one.</p></div>"
+        "repeatedly, then <code>/automate new &lt;name&gt;</code> to write the first one.</p></div>"
     )
 
 
@@ -346,7 +406,7 @@ def render_page(procedures: list[Procedure], stamp: str) -> str:
             ("human", "Human input"),
             ("external", "External tool"),
             ("veto", "Vetoed - never automate"),
-            ("unspecified", "Not yet specified"),
+            ("unspecified", "Not yet specified - runner stops here"),
         ]
     )
     if procedures:
@@ -354,32 +414,35 @@ def render_page(procedures: list[Procedure], stamp: str) -> str:
             f'<div class="legend">{legend}</div>'
             f'<div id="v-role" class="view">{render_role_view(procedures)}</div>'
             f'<div id="v-proc" class="view hidden">{render_procedure_view(procedures)}</div>'
+            f'<div id="v-cov" class="view hidden">{render_coverage_view(procedures)}</div>'
         )
         tabs = (
             '<div class="tabs">'
             '<button class="active" data-view="v-role">By role</button>'
-            '<button data-view="v-proc">By procedure</button></div>'
+            '<button data-view="v-proc">By procedure</button>'
+            '<button data-view="v-cov">Coverage</button></div>'
         )
     else:
         views, tabs = render_empty(), ""
 
     total_steps = sum(len(p.steps) for p in procedures)
+    draft_count = sum(1 for p in procedures if p.draft)
     return f"""<!doctype html>
 <html lang="en"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Procedure Map</title><style>{CSS}</style></head>
+<title>Automation Map</title><style>{CSS}</style></head>
 <body><div class="wrap">
-<h1>Procedure Map</h1>
-<div class="stamp">as of {esc(stamp)} &middot; {len(procedures)} procedure(s) &middot; {total_steps} steps</div>
+<h1>Automation Map</h1>
+<div class="stamp">as of {esc(stamp)} &middot; {len(procedures)} procedure(s) &middot; {total_steps} steps &middot; {draft_count} draft</div>
 {tabs}{views}
 </div><script>{JS}</script></body></html>"""
 
 
 def main(argv: list[str] | None = None) -> int:
     force_utf8_console()
-    parser = argparse.ArgumentParser(description="Render _brain/procedures/ as an HTML map.")
+    parser = argparse.ArgumentParser(description="Render _brain/procedures/ as an HTML automation map.")
     parser.add_argument("--root", type=Path, required=True, help="Vault root or _brain directory.")
-    parser.add_argument("--out", type=Path, help="Output path (default: <brain>/procedure-map.html).")
+    parser.add_argument("--out", type=Path, help="Output path (default: <brain>/automation-map.html).")
     parser.add_argument("--stamp", help="Override the generation timestamp (for reproducible tests).")
     args = parser.parse_args(argv)
 
@@ -390,7 +453,7 @@ def main(argv: list[str] | None = None) -> int:
 
     procedures = load_procedures(brain_root)
     stamp = args.stamp or datetime.now().strftime("%Y-%m-%d %H:%M")
-    out_path = args.out or (brain_root / "procedure-map.html")
+    out_path = args.out or (brain_root / "automation-map.html")
     out_path.write_text(render_page(procedures, stamp), encoding="utf-8")
 
     print(f"Wrote {out_path} ({len(procedures)} procedure(s))")
