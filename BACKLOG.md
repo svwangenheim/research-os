@@ -11,22 +11,7 @@ session, **L** is several sessions or needs a measurement period first.
 
 ## Open
 
-### 1. Confirm whether plugin rules auto-load from `paths:` frontmatter
-
-**What.** Establish empirically whether Claude Code auto-loads a rule from a
-*plugin's* `rules/` directory when its `paths:` glob matches an edited file, or
-whether that only works for project and user `.claude/rules/`. Test with a
-throwaway rule containing a distinctive token and a file that matches its glob.
-
-**Why deferred.** The answer picks between two different implementations. If
-plugin rules auto-load, add `paths:` frontmatter to the file-type-specific
-rules. If they do not, `/create-project` writes thin project-scope stubs into
-`<project>/.claude/rules/` that each carry `paths:` and an `@`-reference to the
-plugin rule. Building either before knowing the answer wastes one of them.
-
-**Cost.** S to test, M to implement whichever branch it selects.
-
-### 2. Tune the session-start retrieval budget
+### 1. Tune the session-start retrieval budget
 
 **What.** The wiki digest injected at session start is capped at roughly 40
 lines / 600 tokens. That number is a guess.
@@ -36,22 +21,7 @@ tune against. Guessing again now is not better than the first guess.
 
 **Cost.** S to change the cap, plus a week of use to know what to change it to.
 
-### 3. Decide the fate of `~/.claude/rules/common/`
-
-**What.** Eleven files, roughly 48 KB, loaded by nothing. `additionalDirectories`
-grants read access, not loading, so `skill-router.md` describes itself as
-always-on and never runs.
-
-**Why deferred.** It is a judgement call, not a mechanical fix, and it touches
-user-level configuration rather than the repository. The standing recommendation
-is to delete the six that plugin rules already supersede (`agents.md`,
-`code-review.md`, `development-workflow.md`, `hooks.md`, `patterns.md`,
-`performance.md`) and wire the remaining two (`skill-router.md`, `security.md`)
-through a `~/.claude/CLAUDE.md` with `@rules/common/*.md` imports.
-
-**Cost.** S.
-
-### 4. German-language output style
+### 2. German-language output style
 
 **What.** A third output style for Dezernat Zukunft policy briefs, alongside
 `academic-writing` and `referee`.
@@ -62,7 +32,7 @@ one more surface the sync gate has to keep honest.
 
 **Cost.** S once the question is answered.
 
-### 5. Calibrate the wiki auto-write council thresholds
+### 3. Calibrate the wiki auto-write council thresholds
 
 **What.** The promotion council's vote-to-action mapping — 5/5 and 4/5
 auto-write, 3/5 propose, 2 or fewer discard — is a starting point, not a
@@ -74,38 +44,68 @@ would have rejected, raise the bar to 5/5 only. If almost nothing clears, the
 candidates are under-evidenced and the fix is upstream in `/wiki-ingest`, not a
 lower threshold.
 
+**Evidence so far.** A six-case dry run against a disposable scratch vault
+(2026-08-12) found the council genuinely adversarial rather than a rubber
+stamp — it independently caught an unacknowledged contradiction and a
+template mismatch in the first hand-built test candidate, and correctly
+split 4/5 on a second candidate whose Evidence dissent (a study's summary
+statistics don't establish that a structured dataset exists) was a real
+methodological point, not noise. Both are early, favorable signals for the
+current thresholds, not a substitute for the two-week read.
+
 **Cost.** S to change the thresholds, two weeks of use to know which way.
 
-### 6. Surface-sync table markers in the READMEs
+### 4. `log.md` merge conflicts on an older `wiki(auto):` revert
 
-**What.** `check_surface_sync.py` enforces one table row per item on disk, but
-only for tables introduced by `<!-- surface-sync-table: skills -->`. No README
-carries a marker yet, so row parity is currently unenforced.
+**What.** `git revert` on a `wiki(auto):` commit restores the affected wiki
+*page* cleanly — verified byte-for-byte in the same dry run — but `log.md` is
+a single append-only file that most auto-write commits touch near the same
+lines. Reverting one several commits back can produce an ordinary merge
+conflict there, needing a manual `git add` / `revert --continue`.
 
-**Why deferred.** The markers belong with the documentation rewrite that
-re-derives those tables from disk. Adding markers to tables that are already
-wrong just moves the failure earlier.
+**Why deferred.** It is not a data-integrity problem — the reverted page is
+never at risk, only the log entry needs manual resolution — and it only
+shows up on a revert that isn't the most recent auto-write. Worth fixing, not
+urgent. Two directions worth weighing before picking one: give each auto-write
+its own dated log file instead of one running `log.md` (trades a single
+chronological view for conflict-free reverts), or teach `/wiki-maintain
+--review-auto`'s revert helper to regenerate the affected `log.md` lines from
+git history after a conflicted revert instead of hand-resolving text.
 
-**Cost.** S per README, once the tables are rewritten.
+**Cost.** S once a direction is picked.
 
-### 7. Backfill `effort:` on every agent
+## Resolved this session (2026-08-12)
 
-**What.** `check_plugin_integrity.py` reports a P2 for each agent without an
-`effort:` field. All of them are missing it today.
+Kept briefly for context on what was decided and why, since the reasoning
+does not fully survive in a one-line `CHANGELOG.md` entry. Delete once the
+`feat/harness-overhaul` branch merges and the decisions are no longer live
+questions anyone would re-litigate.
 
-**Why deferred.** Effort belongs with the model-routing roster, not ahead of
-it. Setting effort per agent without the roster means guessing twice.
-
-**Cost.** S once the roster is settled.
-
-### 8. Give the general-purpose skills an `allowed-tools` list
-
-**What.** Thirteen skills adopted from an earlier global-skills collection ship
-with no `allowed-tools` frontmatter, so `check_plugin_integrity.py` cannot
-check tool parity on them at all.
-
-**Why deferred.** It is mechanical but not free: each one needs its body read
-to work out what it actually invokes, and a wrong list is worse than no list
-because it silently blocks a tool the skill needs.
-
-**Cost.** M.
+- **Plugin `rules/` auto-loading.** Confirmed empirically (via
+  `claude-code-guide`, citing the plugins reference and the memory docs):
+  `rules/` is not a recognized plugin component and never auto-loads — only
+  user (`~/.claude/rules/`) and project (`.claude/rules/`) rules do, and only
+  the latter two honor `paths:` frontmatter. `/create-project` now writes
+  five thin path-scoped stubs from `templates/project-rules/` into the new
+  project's `.claude/rules/`, each pointing at the authoritative plugin rule.
+- **`~/.claude/rules/common/`.** The premise that these loaded nothing was
+  itself wrong — files without `paths:` frontmatter auto-load unconditionally
+  at user scope (confirmed directly: their content appeared in this
+  session's own system prompt). Six superseded by plugin rules were deleted
+  (`agents.md`, `code-review.md`, `development-workflow.md`, `hooks.md`,
+  `patterns.md`, `performance.md` — the last of which would have directly
+  contradicted `rules/model-routing.md`); `coding-style.md`, `git-workflow.md`,
+  `security.md`, `skill-router.md` were kept as-is. No `@`-import wiring was
+  needed, since always-on loading turned out to already be the mechanism.
+- **Surface-sync table markers.** All four component READMEs now carry
+  `<!-- surface-sync-table: ... -->` markers with one row per item on disk;
+  `check_surface_sync.py` enforces row parity in the pre-commit hook and CI.
+- **`effort:` on every agent.** Landed with the model-routing roster
+  (`rules/model-routing.md`) rather than ahead of it, as this file originally
+  recommended — all 29 agents carry both `model:` and `effort:`.
+- **`allowed-tools` on the general-purpose skills.** Twelve of the thirteen
+  skills without frontmatter got a minimal correct tool list, each read
+  individually rather than assigned generically. The thirteenth,
+  `skill-stocktake`, was retired rather than fixed — it scanned the wrong
+  directories for this plugin's own skills and duplicated work the new
+  checkers and `/deep-audit` now do more precisely.
