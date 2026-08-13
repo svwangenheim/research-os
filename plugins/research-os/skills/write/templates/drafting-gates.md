@@ -1,4 +1,4 @@
-# Drafting Gates -- Approval Checkpoints
+# Drafting Gates — Approval Checkpoints
 
 Draft sections in this order, pausing for user approval at each gate.
 

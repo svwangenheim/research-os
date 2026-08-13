@@ -36,7 +36,7 @@
 
 ## Inference
 - [ ] Use bias-corrected robust confidence intervals from `rdrobust`
-- [ ] Do NOT use conventional CIs -- they undercover
+- [ ] Do NOT use conventional CIs — they undercover
 - [ ] Cluster if there's group structure in the running variable (e.g., age in years)
 
 ## Robustness Checks

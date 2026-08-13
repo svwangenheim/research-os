@@ -17,16 +17,16 @@ Verify the core design holds BEFORE checking robustness details. A paper with vi
 _Always runs. This is triage._
 
 **First:** Identify the paper type:
-- **Reduced-form** -- causal inference via exogenous variation
-- **Structural** -- model estimation and counterfactual simulation
-- **Theory + empirics** -- model predictions tested with data
-- **Descriptive / measurement** -- new data, facts, or measures
+- **Reduced-form** — causal inference via exogenous variation
+- **Structural** — model estimation and counterfactual simulation
+- **Theory + empirics** — model predictions tested with data
+- **Descriptive / measurement** — new data, facts, or measures
 
 **Then** identify the specifics:
 
 ### Reduced-form:
 1. **Causal design(s) used:** DiD (classic or staggered), IV, RDD, Synthetic Control, Event Study, or combinations
-2. **Estimand:** ATT, ATE, LATE -- what parameter is being estimated?
+2. **Estimand:** ATT, ATE, LATE — what parameter is being estimated?
 3. **Treatment:** What is the treatment? Who receives it? When?
 4. **Control:** What is the comparison group?
 5. **Outcome(s):** What outcomes are studied?
@@ -55,7 +55,7 @@ If the paper uses multiple designs (e.g., DiD + Event Study), list them in order
 
 ## Phase 2: Does the Core Design Hold?
 
-_Runs for the PRIMARY design first. If multiple designs, review them sequentially -- not interleaved._
+_Runs for the PRIMARY design first. If multiple designs, review them sequentially — not interleaved._
 
 ### Step 2A: Design-Specific Assumption Check
 
@@ -82,9 +82,9 @@ For the identified design, check ONLY the critical assumptions (the 3-5 things t
 
 #### Instrumental Variables
 - [ ] First-stage F-statistic reported (Montiel Olea-Pflueger effective F preferred)
-- [ ] Exclusion restriction **argued**, not just stated -- WHY is it plausible?
+- [ ] Exclusion restriction **argued**, not just stated — WHY is it plausible?
 - [ ] Independence/relevance assumptions explicitly stated
-- [ ] LATE vs. ATE distinction made -- who are the compliers?
+- [ ] LATE vs. ATE distinction made — who are the compliers?
 - [ ] For weak instruments: Anderson-Rubin confidence sets or tF procedure
 - [ ] Monotonicity discussed if heterogeneous effects
 - [ ] Overidentification test if multiple instruments (Hansen J)
@@ -122,14 +122,14 @@ _Use this checklist when the paper type is Structural._
 
 #### Model Specification
 - [ ] **Environment defined:** agents, timing, information structure, market structure
-- [ ] **Functional forms justified economically** -- not just "tractable" or "standard." Why Cobb-Douglas vs. CES? Why logit vs. probit? Does the functional form drive the counterfactual results?
+- [ ] **Functional forms justified economically** — not just "tractable" or "standard." Why Cobb-Douglas vs. CES? Why logit vs. probit? Does the functional form drive the counterfactual results?
 - [ ] **Decision problem well-posed:** objective, choice variables, constraints all stated
-- [ ] **Equilibrium concept stated and justified** -- Nash, competitive, Walrasian. Is uniqueness established or assumed?
+- [ ] **Equilibrium concept stated and justified** — Nash, competitive, Walrasian. Is uniqueness established or assumed?
 - [ ] **Solution method appropriate** for the model's complexity
 
 #### Identification of Structural Parameters
 - [ ] **Each key parameter has an identified source of variation.** "The [data variation] identifies [parameter] because [economic logic]."
-- [ ] **Exclusion restrictions stated and defended** -- what is excluded from one equation but appears in another?
+- [ ] **Exclusion restrictions stated and defended** — what is excluded from one equation but appears in another?
 - [ ] **Functional form identification vs. data identification:** Are results coming from the model's functional form assumptions or from actual data variation? Flag if the former.
 - [ ] **Collinearity of parameters:** Can the data separately identify all estimated parameters, or are some mechanically related?
 
@@ -137,37 +137,37 @@ _Use this checklist when the paper type is Structural._
 - [ ] **Estimation method justified:** Why MLE/GMM/SMM/indirect inference? Is the method consistent given the model?
 - [ ] **Moment conditions:** If GMM/SMM, are moments clearly stated? Are there more moments than parameters (overidentification)?
 - [ ] **Computational details:** Optimization algorithm, starting values (sensitivity checked?), convergence criteria
-- [ ] **Standard errors appropriate:** Delta method, bootstrap, outer product of gradients -- match the estimation method
+- [ ] **Standard errors appropriate:** Delta method, bootstrap, outer product of gradients — match the estimation method
 
 #### Model Fit
 - [ ] **In-sample fit shown:** predicted vs. actual for moments NOT used in estimation
-- [ ] **Fit quality assessed honestly** -- not just "the model fits well" but which dimensions it fits and which it misses
+- [ ] **Fit quality assessed honestly** — not just "the model fits well" but which dimensions it fits and which it misses
 - [ ] **Out-of-sample validation if possible:** different time period, different market, held-out sample
 
 #### Counterfactual Credibility
 - [ ] **Counterfactuals within the support of the data?** Or requiring extrapolation beyond observed variation?
 - [ ] **Lucas critique addressed:** Do agents re-optimize under the counterfactual policy?
 - [ ] **Sensitivity of counterfactuals to parameter values:** How much do results change with +/-1 SE on key parameters?
-- [ ] **Welfare metric defined and justified:** Consumer surplus, compensating variation, total surplus -- which and why?
+- [ ] **Welfare metric defined and justified:** Consumer surplus, compensating variation, total surplus — which and why?
 
 ### Step 2A (Theory + Empirics): Prediction and Test Check
 
 _Use this checklist when the paper type is Theory + Empirics._
 
 #### Model Assessment
-- [ ] **Predictions are sharp** -- they rule out some empirical patterns. "X increases Y" alone is too weak if the alternative also predicts this.
+- [ ] **Predictions are sharp** — they rule out some empirical patterns. "X increases Y" alone is too weak if the alternative also predicts this.
 - [ ] **At least one distinguishing prediction** that competing models do NOT generate
 - [ ] **Predictions numbered and clearly stated** before any empirical evidence
-- [ ] **Model assumptions justified** -- why these preferences, this information structure, this timing?
+- [ ] **Model assumptions justified** — why these preferences, this information structure, this timing?
 
 #### Mapping Predictions to Tests
-- [ ] **Each prediction has a clearly specified test** -- not just "we check whether the data is consistent"
-- [ ] **Test has power to reject the prediction** -- would you see a different result if the model were wrong?
-- [ ] **Controls for alternative explanations** -- other theories that generate the same prediction
-- [ ] **Direction of test stated ex ante** -- what would confirmation look like? What would rejection look like?
+- [ ] **Each prediction has a clearly specified test** — not just "we check whether the data is consistent"
+- [ ] **Test has power to reject the prediction** — would you see a different result if the model were wrong?
+- [ ] **Controls for alternative explanations** — other theories that generate the same prediction
+- [ ] **Direction of test stated ex ante** — what would confirmation look like? What would rejection look like?
 
 #### Honesty Assessment
-- [ ] **Can any result be rationalized by the model?** If yes, the test is uninformative -- flag it.
+- [ ] **Can any result be rationalized by the model?** If yes, the test is uninformative — flag it.
 - [ ] **Multiple equilibria handled?** Which equilibrium does the empirical setting select?
 - [ ] **Where the model fails acknowledged?** If all predictions confirmed, is the paper being honest or just not testing sharp predictions?
 - [ ] **Post-hoc rationalization risk:** Were predictions derived before or after seeing the data?
@@ -177,16 +177,16 @@ _Use this checklist when the paper type is Theory + Empirics._
 _Use this checklist when the paper type is Descriptive / Measurement._
 
 #### Construct Validity
-- [ ] **Concept clearly defined** -- what exactly is being measured?
-- [ ] **Measure maps to concept** -- is the operationalization faithful, or is there a gap between concept and measure?
-- [ ] **Measurement error discussed** -- noise, systematic bias, attenuation
-- [ ] **Alternative operationalizations considered** -- why this construction over alternatives?
+- [ ] **Concept clearly defined** — what exactly is being measured?
+- [ ] **Measure maps to concept** — is the operationalization faithful, or is there a gap between concept and measure?
+- [ ] **Measurement error discussed** — noise, systematic bias, attenuation
+- [ ] **Alternative operationalizations considered** — why this construction over alternatives?
 
 #### Construction and Replicability
-- [ ] **Data sources documented** -- complete enough to replicate
-- [ ] **Construction steps explicit** -- thresholds, imputations, weights, linking methodology
-- [ ] **Key decisions justified** -- each subjective choice in construction has a reason
-- [ ] **Sensitivity to construction choices** -- how do results change with alternative decisions?
+- [ ] **Data sources documented** — complete enough to replicate
+- [ ] **Construction steps explicit** — thresholds, imputations, weights, linking methodology
+- [ ] **Key decisions justified** — each subjective choice in construction has a reason
+- [ ] **Sensitivity to construction choices** — how do results change with alternative decisions?
 
 #### Validation
 - [ ] **Internal validation:** consistency checks, monotonicity, face validity
@@ -195,12 +195,12 @@ _Use this checklist when the paper type is Descriptive / Measurement._
 - [ ] **Discriminant validity:** the measure captures what it claims, not something correlated
 
 #### Causal Language Check
-- [ ] **No causal claims without a design.** Descriptive papers use "associated with," "predicts," "correlates with" -- not "causes" or "leads to"
+- [ ] **No causal claims without a design.** Descriptive papers use "associated with," "predicts," "correlates with" — not "causes" or "leads to"
 - [ ] **If the paper does make causal claims:** it needs a design, and the reduced-form checklists above apply to that component
 
 ### Step 2B: Sanity Check (MANDATORY)
 
-**Before proceeding to Phase 3, verify that results actually make sense.** This is the most important step -- it catches nonsensical results that pass all the checklist items above.
+**Before proceeding to Phase 3, verify that results actually make sense.** This is the most important step — it catches nonsensical results that pass all the checklist items above.
 
 **Reduced-form:**
 - [ ] **Sign:** Does the direction of the effect make economic sense? If a job training program reduces employment, that needs explanation.
@@ -212,7 +212,7 @@ _Use this checklist when the paper type is Descriptive / Measurement._
 - [ ] **Consistency:** Do results across specifications tell a consistent story, or does the main result only survive one particular specification?
 
 **Structural:**
-- [ ] **Parameter values economically sensible?** Elasticities, risk aversion, discount factors -- do they fall in plausible ranges from the literature?
+- [ ] **Parameter values economically sensible?** Elasticities, risk aversion, discount factors — do they fall in plausible ranges from the literature?
 - [ ] **Model fit:** Does the estimated model reproduce the data moments it wasn't fitted to? If model fit is poor, counterfactuals are not credible.
 - [ ] **Counterfactual magnitudes plausible?** A policy that eliminates 90% of welfare loss is suspicious. Back-of-envelope check.
 - [ ] **Sensitivity:** Do counterfactual results change dramatically with small parameter changes? If yes, the results depend on estimation precision more than economic forces.
@@ -243,7 +243,7 @@ _Runs after Phase 2. If Phase 2 found critical issues, still review but flag tha
 - [ ] **Computational convergence:** Tolerance criteria stated, gradient near zero at solution
 
 ### Theory + Empirics Inference (when paper type is Theory + Empirics)
-- [ ] **Each test has appropriate inference** -- clustering, standard errors match the data structure
+- [ ] **Each test has appropriate inference** — clustering, standard errors match the data structure
 - [ ] **Joint test of multiple predictions:** If testing several predictions, are they tested jointly or only marginally?
 - [ ] **Power assessment:** Could the data detect the predicted effect size? If power is low, a null result is uninformative.
 
@@ -295,13 +295,13 @@ _Runs after Phase 2. If Phase 2 found critical issues, still review but flag tha
 - [ ] Small-sample adjustment appropriate for cluster count
 
 **Other recognized packages:**
-- `staggered`, `did2s`, `didimputation`, `eventstudyr` -- check options match design
-- `ivreg`, `ivpack` -- check instrument specification
-- `rdlocrand` -- check window selection for randomization inference RDD
-- `gsynth`, `augsynth` -- check factor model or augmented specifications
-- `sensemakr` -- Oster-style sensitivity for observational studies
-- `wildrwolf`, `fwildclusterboot` -- check bootstrap parameters
-- `pwr`, `DeclareDesign` -- check power calculation assumptions
+- `staggered`, `did2s`, `didimputation`, `eventstudyr` — check options match design
+- `ivreg`, `ivpack` — check instrument specification
+- `rdlocrand` — check window selection for randomization inference RDD
+- `gsynth`, `augsynth` — check factor model or augmented specifications
+- `sensemakr` — Oster-style sensitivity for observational studies
+- `wildrwolf`, `fwildclusterboot` — check bootstrap parameters
+- `pwr`, `DeclareDesign` — check power calculation assumptions
 
 **Note:** Flag non-standard package choices for user awareness but do NOT treat them as errors. Validate correctness within the chosen package's API.
 
@@ -309,7 +309,7 @@ _Runs after Phase 2. If Phase 2 found critical issues, still review but flag tha
 
 ## Phase 4: Polish & Completeness
 
-_Runs only if Phases 2-3 have no unresolved CRITICAL issues. Lower priority -- a working paper missing some of these is MINOR, not MAJOR._
+_Runs only if Phases 2-3 have no unresolved CRITICAL issues. Lower priority — a working paper missing some of these is MINOR, not MAJOR._
 
 ### Reduced-Form Robustness Checks
 - [ ] Oster (2019) bounds: $\delta$ and $R^2_{\max}$ reported for key coefficients
@@ -325,7 +325,7 @@ _Runs only if Phases 2-3 have no unresolved CRITICAL issues. Lower priority -- a
 - [ ] **Alternative estimation methods:** Does a different estimator (e.g., MLE vs. GMM) give similar parameter estimates?
 - [ ] **Subsample stability:** Do parameters estimated on different subsamples or time periods remain stable?
 - [ ] **Reduced-form consistency:** Do the model's predictions match simple reduced-form evidence where available?
-- [ ] **Sensitivity of counterfactuals:** Report counterfactual results at +/-1 SE of key parameters. If results flip sign, the conclusion depends on estimation precision -- flag it.
+- [ ] **Sensitivity of counterfactuals:** Report counterfactual results at +/-1 SE of key parameters. If results flip sign, the conclusion depends on estimation precision — flag it.
 - [ ] **Comparison to simpler models:** Does a simpler model produce similar counterfactual conclusions? If so, what does the richer model buy?
 
 ### Theory + Empirics Robustness Checks

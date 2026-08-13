@@ -16,106 +16,21 @@ Usage:
 
 import argparse
 import json
-import os
 import re
 import subprocess
+import sys
 from datetime import datetime
 from html import escape
 from pathlib import Path
 
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+
+# Passport reading lives in one place so the dashboard and the graph router
+# never drift apart on how state is parsed. See scripts/passport.py.
+from passport import find_project_root, load_passport  # noqa: E402
+
 # The single output folder lives under 04_paper/academic_paper/ (see folder-map.md).
 OUTPUT_TYPES = ["academic_paper"]
-
-
-def find_project_root(start=None):
-    p = Path(start or os.getcwd()).resolve()
-    while p != p.parent:
-        if (p / "passport.yaml").exists() or (p / "CLAUDE.md").exists():
-            return p
-        p = p.parent
-    return Path(start or os.getcwd()).resolve()
-
-
-# ---------- Passport loader ----------
-
-def load_passport(root):
-    """Load passport.yaml. Prefers PyYAML; falls back to a targeted line parser
-    for the fields the dashboard needs (meta, pipeline, literature_corpus,
-    sessions, integrity, research)."""
-    pf = root / "passport.yaml"
-    if not pf.exists():
-        return {}
-    text = pf.read_text(encoding="utf-8", errors="replace")
-    try:
-        import yaml  # type: ignore
-        data = yaml.safe_load(text)
-        return data if isinstance(data, dict) else {}
-    except Exception:
-        return _fallback_passport(text)
-
-
-def _fallback_passport(text):
-    """Minimal, defensive parser for the passport's regular structure.
-    Handles top-level scalars/sections, inline flow maps under pipeline.stages,
-    and simple block lists of mappings (literature_corpus, sessions)."""
-    data = {"meta": {}, "research": {}, "pipeline": {"stages": {}},
-            "literature_corpus": [], "sessions": [], "integrity": {}}
-
-    def scalar(v):
-        v = v.strip()
-        if v in ("null", "~", ""):
-            return None
-        if v in ("[]", "{}"):
-            return []
-        if (v.startswith('"') and v.endswith('"')) or (v.startswith("'") and v.endswith("'")):
-            return v[1:-1]
-        if re.fullmatch(r"-?\d+", v):
-            return int(v)
-        return v
-
-    # Top-level scalars under meta:
-    m = re.search(r"^meta:\s*$(.*?)(?=^\S|\Z)", text, re.MULTILINE | re.DOTALL)
-    if m:
-        for line in m.group(1).split("\n"):
-            km = re.match(r"\s{2}(\w+):\s*(.*)", line)
-            if km:
-                data["meta"][km.group(1)] = scalar(km.group(2).split("#")[0])
-
-    # pipeline.current_stage
-    cs = re.search(r"^\s{2}current_stage:\s*(.*)", text, re.MULTILINE)
-    if cs:
-        data["pipeline"]["current_stage"] = scalar(cs.group(1).split("#")[0])
-
-    # pipeline.stages.<name>: { status: "...", score: ..., gate: ... }
-    for sm in re.finditer(r"^\s{4}(\w+):\s*\{([^}]*)\}", text, re.MULTILINE):
-        name = sm.group(1)
-        body = sm.group(2)
-        stage = {}
-        for kv in re.finditer(r"(\w+):\s*([^,]+)", body):
-            stage[kv.group(1)] = scalar(kv.group(2))
-        data["pipeline"]["stages"][name] = stage
-
-    # Block lists of mappings: literature_corpus, sessions
-    for key in ("literature_corpus", "sessions"):
-        lm = re.search(rf"^{key}:\s*(\[\])?\s*$(.*?)(?=^\S|\Z)", text, re.MULTILINE | re.DOTALL)
-        if not lm or lm.group(1) == "[]":
-            continue
-        items = []
-        current = None
-        for line in lm.group(2).split("\n"):
-            im = re.match(r"\s+-\s+(\w+):\s*(.*)", line)
-            km = re.match(r"\s+(\w+):\s*(.*)", line)
-            if im:
-                if current:
-                    items.append(current)
-                current = {im.group(1): scalar(im.group(2).split(" #")[0])}
-            elif km and current is not None:
-                current[km.group(1)] = scalar(km.group(2).split(" #")[0])
-        if current:
-            items.append(current)
-        data[key] = items
-
-    return data
 
 
 # ---------- Scanners (numbered scheme) ----------
@@ -1075,6 +990,84 @@ def build_quality_panel(passport):
     </section>"""
 
 
+# ---------- Graph panel (falls back to the stage scorecard above) ----------
+
+GRAPH_STATE_PILL = {
+    "done": "pill-pass",
+    "stale": "pill-warn",
+    "ungated": "pill-warn",
+    "ready": "pill-accent",
+    "blocked": "pill-fail",
+    "n/a": "pill-neutral",
+}
+GRAPH_STATE_LABEL = {
+    "done": "done", "stale": "stale", "ungated": "awaiting review",
+    "ready": "ready", "blocked": "blocked", "n/a": "n/a",
+}
+GRAPH_STATE_ORDER = ["done", "stale", "ungated", "ready", "blocked", "n/a"]
+
+
+def load_graph_states(root):
+    """Compute pipeline-graph node states for the dashboard. Returns [] on any
+    failure -- missing module, corrupt graph/passport, unreadable project -- so
+    the dashboard degrades to the stage scorecard rather than failing to build."""
+    try:
+        from graph_eval import all_states, build_context
+        from graph_spec import load_graph
+
+        graph = load_graph()
+        ctx = build_context(root, graph)
+        return all_states(ctx)
+    except Exception:
+        return []
+
+
+def build_graph_panel(root, passport):
+    """Per-node view of the pipeline graph (graph/pipeline.json), replacing the
+    coarser per-stage scorecard when the graph layer is available. Falls back to
+    build_quality_panel on any failure -- see rules/permissions.md and
+    graph/schema.md for what each state means."""
+    states = [s for s in load_graph_states(root) if not s.node.is_ambient]
+    if not states:
+        return build_quality_panel(passport)
+
+    by_state = {}
+    for st in states:
+        by_state.setdefault(st.state.value, []).append(st)
+
+    cards = '<div class="grid-2">'
+    for state_key in GRAPH_STATE_ORDER:
+        for st in by_state.get(state_key, []):
+            score = st.score
+            scls = GRAPH_STATE_PILL.get(state_key, "pill-neutral")
+            badge = f"{score}" if score is not None else GRAPH_STATE_LABEL.get(state_key, state_key)
+            color = score_color(score) if score is not None else "var(--g500)"
+            pct = score if isinstance(score, (int, float)) else (100 if state_key == "done" else 0)
+            if st.failures:
+                note = st.failures[0]
+            elif st.stale_inputs:
+                note = f"changed: {', '.join(st.stale_inputs[:2])}"
+            else:
+                note = GRAPH_STATE_LABEL.get(state_key, state_key)
+            cards += f"""
+      <div class="card" style="margin-bottom:0">
+        <div class="flex-between" style="margin-bottom:8px">
+          <span style="font-family:var(--serif);font-weight:500;color:var(--slate);font-size:14px">{escape(st.node.id)}</span>
+          <span class="pill {scls}">{escape(str(badge))}</span>
+        </div>
+        <div class="score-bar-track"><div class="score-bar-fill" style="width:{pct}%;background:{color}"></div></div>
+        <div style="font-family:var(--mono);font-size:11px;color:var(--g500);margin-top:6px">{escape(note)}</div>
+      </div>"""
+    cards += "</div>"
+
+    counts = " &middot; ".join(f"{len(by_state[k])} {k}" for k in GRAPH_STATE_ORDER if by_state.get(k))
+    return f"""
+    <section id="quality">
+      <h2>Pipeline Graph &nbsp;<span style="font-family:var(--mono);font-size:13px;color:var(--g500);font-weight:400">{counts}</span></h2>
+      {cards}
+    </section>"""
+
+
 def build_history_panel(reviews):
     if not reviews:
         return """
@@ -1178,7 +1171,7 @@ def build_dashboard(root, user_notes=""):
         build_analysis_panel(scripts_list, results),
         build_results_panel(results),
         build_paper_panel(sections, n_figs, n_tabs),
-        build_quality_panel(passport),
+        build_graph_panel(root, passport),
         build_history_panel(reviews),
         build_plans_panel(plans),
     ]

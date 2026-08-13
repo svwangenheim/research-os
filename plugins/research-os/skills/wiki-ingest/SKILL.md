@@ -1,8 +1,8 @@
 ---
 name: wiki-ingest
-description: Ingest a source into a thematic research wiki - PDF, markdown, Office doc, or citation string. Runs source placement, summary, concept/method/dataset updates, and log update.
+description: Ingest a source into a thematic research wiki — PDF, markdown, Office doc, or citation string — running source placement, summary, concept/method/dataset updates, and the log entry. Use on "add this paper", "ingest this", or when a new source should enter the knowledge base.
 argument-hint: "[--wiki <theme>] [path/to/file.pdf | path/to/file.md | 'Author Year Title']"
-allowed-tools: Read, Write, Edit, Bash, Glob, Grep
+allowed-tools: Read, Write, Edit, Bash, Glob, Grep, Task
 ---
 
 # Wiki Ingest
@@ -12,6 +12,8 @@ point for adding any source — PDF, Office doc, markdown, or citation text —
 to the persistent, Claude-maintained knowledge base. **This skill writes only
 into a thematic wiki, never into `_brain/`** — personal or project-specific
 content is out of scope here; that belongs to `/wiki-push` or `/checkpoint`.
+
+**Input:** `$ARGUMENTS` — a path to the source, or a citation string, optionally preceded by `--wiki <theme>`. Omitted, the skill asks for the source and resolves the wiki from the registry.
 
 ## Step 0: Resolve the wiki
 
@@ -223,7 +225,7 @@ Mandatory quality standard for this workflow:
    - Use the template at `$VAULT_ROOT/_templates/source_summary_template.md`
    - Filename: `[author-year]-[short-title].md`
    - Populate: title, authors, year, doi, journal, abstract (1-3 plain-text
-     sentences -- the source's own abstract if published, else a faithful
+     sentences — the source's own abstract if published, else a faithful
      synopsis; this is what project dashboards show in the Literature panel,
      read live from this frontmatter), proximity, related_concepts
      (wikilinks to `30_concepts/`), related_methods, related_datasets,
@@ -261,7 +263,32 @@ Mandatory quality standard for this workflow:
 
 6. **Check `$WIKI/90_synthesis/`** — if the source materially changes the
    picture in its topic area **within this theme**, flag or update the
-   relevant synthesis page.
+   relevant synthesis page. Synthesis stays proposal-only: flag it, do not
+   auto-write it (`rules/wiki-integration.md`).
+
+7. **Council-gate the canonical pages.** The `20_summaries/` note is the
+   direct product of the ingest and lands as it always has. But any
+   *canonical* page this ingest would create or extend — in `30_concepts/`,
+   `40_methods/`, `50_datasets/`, `60_people_institutions/` — goes through
+   the five-critic council first, exactly as in `/wiki-push` Step 3b: five
+   parallel `Task` calls with `subagent_type=wiki-promotion-council` and
+   `context: fork`, one per role, then 5/5 or 4/5 writes, 3/5 proposes, and
+   2-or-fewer discards with the reason logged.
+
+   The canonicity critic earns its place here: a new source is the most
+   common moment for a second page on a concept that already has one.
+
+8. **Refresh the catalogue and commit.** `_map.md` is what `/wiki-pull` and
+   the SessionStart hook read first, so an ingest that skips it leaves the
+   fast path stale:
+   ```bash
+   python "${CLAUDE_PLUGIN_ROOT}/scripts/generate_wiki_moc.py" --vault "$WIKI"
+   git -C "$VAULT_ROOT" add <touched pages> log.md _map.md
+   git -C "$VAULT_ROOT" commit -m "wiki: ingest <source title> (<theme>)"
+   ```
+   Use the `wiki(auto):` prefix instead for any page the council auto-wrote,
+   so `--review-auto` can find it. Stage specific files — blanket staging is
+   blocked by the git guardrails hook.
 
 ## Step 5: Update Project Bridge
 

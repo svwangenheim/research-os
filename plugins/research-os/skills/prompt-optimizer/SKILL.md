@@ -6,6 +6,7 @@ origin: community
 metadata:
   author: YannJY02
   version: "1.0.0"
+allowed-tools: Read, Grep, Glob, Skill
 ---
 
 # Prompt Optimizer
@@ -29,7 +30,7 @@ and output a complete optimized prompt the user can paste and run.
 - User wants the task done directly (just execute it)
 - User says "优化代码", "优化性能", "optimize this code", "optimize performance" — these are refactoring tasks, not prompt optimization
 - User is asking about ECC configuration (use `configure-ecc` instead)
-- User wants a skill inventory (use `skill-stocktake` instead)
+- User wants a skill inventory (use `/research-os-help` catalog mode instead)
 - User says "just do it" or "直接做"
 
 ## How It Works
@@ -381,7 +382,7 @@ Recommended: Opus 4.6 for blueprint planning, Sonnet 4.6 for phase execution.
 | Component | When to Reference |
 |-----------|------------------|
 | `configure-ecc` | User hasn't set up ECC yet |
-| `skill-stocktake` | Audit which components are installed (use instead of hardcoded catalog) |
+| `research-os-help` | Catalog which components are installed (use instead of a hardcoded list) |
 | `search-first` | Research phase in optimized prompts |
 | `blueprint` | EPIC-scope optimized prompts (invoke as skill, not command) |
 | `strategic-compact` | Long session context management |

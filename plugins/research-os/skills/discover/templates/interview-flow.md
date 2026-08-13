@@ -1,6 +1,6 @@
 # Discovery Interview Flow
 
-Structured conversational guide for the `/discover interview` mode. Ask questions one or two at a time. Wait for the user to respond before continuing. Build on answers -- each question should follow from the previous response.
+Structured conversational guide for the `/discover interview` mode. Ask questions one or two at a time. Wait for the user to respond before continuing. Build on answers — each question should follow from the previous response.
 
 ## Category 1: Origin
 "What made you interested in this topic?"

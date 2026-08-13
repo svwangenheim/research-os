@@ -2,11 +2,21 @@
   "hooks": {
     "PreToolUse": [
       {
-        "matcher": "Edit|Write",
+        "matcher": "Edit|Write|MultiEdit",
         "hooks": [
           {
             "type": "command",
-            "command": "\"${CLAUDE_PLUGIN_ROOT}\"/hooks/protect-files.sh",
+            "command": "sh -c 'PY=$(command -v python3 || command -v python); exec \"$PY\" \"${CLAUDE_PLUGIN_ROOT}/hooks/protect-files.py\"'",
+            "timeout": 5
+          }
+        ]
+      },
+      {
+        "matcher": "Bash|Write|Edit|MultiEdit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "sh -c 'PY=$(command -v python3 || command -v python); exec \"$PY\" \"${CLAUDE_PLUGIN_ROOT}/hooks/git-guardrails.py\"'",
             "timeout": 5
           }
         ]
@@ -17,6 +27,26 @@
           {
             "type": "command",
             "command": "sh -c 'PY=$(command -v python3 || command -v python); exec \"$PY\" \"${CLAUDE_PLUGIN_ROOT}/hooks/session-guard.py\"'",
+            "timeout": 5
+          }
+        ]
+      },
+      {
+        "matcher": "Read|Write|Edit|MultiEdit|Bash|Glob|Grep",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "sh -c 'PY=$(command -v python3 || command -v python); exec \"$PY\" \"${CLAUDE_PLUGIN_ROOT}/hooks/observe.py\"'",
+            "timeout": 5
+          }
+        ]
+      },
+      {
+        "matcher": "Read|Glob|Grep",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "sh -c 'PY=$(command -v python3 || command -v python); exec \"$PY\" \"${CLAUDE_PLUGIN_ROOT}/hooks/data-consent.py\"'",
             "timeout": 5
           }
         ]
@@ -38,8 +68,13 @@
         "hooks": [
           {
             "type": "command",
-            "command": "sh -c 'PY=$(command -v python3 || command -v python); exec \"$PY\" \"${CLAUDE_PLUGIN_ROOT}/hooks/stop-push-nudge.py\"'",
-            "timeout": 5
+            "command": "sh -c 'PY=$(command -v python3 || command -v python); exec \"$PY\" \"${CLAUDE_PLUGIN_ROOT}/hooks/session-journal.py\"'",
+            "timeout": 10
+          },
+          {
+            "type": "command",
+            "command": "sh -c 'PY=$(command -v python3 || command -v python); exec \"$PY\" \"${CLAUDE_PLUGIN_ROOT}/hooks/dialogue-triggers.py\"'",
+            "timeout": 10
           }
         ]
       }
@@ -60,6 +95,11 @@
         "hooks": [
           {
             "type": "command",
+            "command": "sh -c 'PY=$(command -v python3 || command -v python); exec \"$PY\" \"${CLAUDE_PLUGIN_ROOT}/hooks/wiki-context.py\"'",
+            "timeout": 10
+          },
+          {
+            "type": "command",
             "command": "\"${CLAUDE_PLUGIN_ROOT}\"/hooks/engram-session-start.sh",
             "timeout": 10
           }
@@ -68,12 +108,52 @@
     ],
     "PostToolUse": [
       {
-        "matcher": "Edit|Write",
+        "matcher": "Write|Edit|MultiEdit",
         "hooks": [
           {
             "type": "command",
-            "command": "\"${CLAUDE_PLUGIN_ROOT}\"/hooks/post-edit-lint.sh",
+            "command": "sh -c 'PY=$(command -v python3 || command -v python); exec \"$PY\" \"${CLAUDE_PLUGIN_ROOT}/hooks/post-edit-lint.py\"'",
             "timeout": 10
+          },
+          {
+            "type": "command",
+            "command": "sh -c 'PY=$(command -v python3 || command -v python); exec \"$PY\" \"${CLAUDE_PLUGIN_ROOT}/hooks/claim-reconcile.py\"'",
+            "timeout": 5
+          },
+          {
+            "type": "command",
+            "command": "sh -c 'PY=$(command -v python3 || command -v python); exec \"$PY\" \"${CLAUDE_PLUGIN_ROOT}/hooks/dialogue-triggers.py\"'",
+            "timeout": 5
+          }
+        ]
+      },
+      {
+        "matcher": "Bash|Task",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "sh -c 'PY=$(command -v python3 || command -v python); exec \"$PY\" \"${CLAUDE_PLUGIN_ROOT}/hooks/context-monitor.py\"'",
+            "timeout": 5
+          }
+        ]
+      },
+      {
+        "matcher": "Read|Write|Edit|MultiEdit|Bash|Glob|Grep",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "sh -c 'PY=$(command -v python3 || command -v python); exec \"$PY\" \"${CLAUDE_PLUGIN_ROOT}/hooks/observe.py\"'",
+            "timeout": 5
+          }
+        ]
+      },
+      {
+        "matcher": "Read|Glob|Grep",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "sh -c 'PY=$(command -v python3 || command -v python); exec \"$PY\" \"${CLAUDE_PLUGIN_ROOT}/hooks/data-consent.py\"'",
+            "timeout": 5
           }
         ]
       }

@@ -3,6 +3,7 @@ name: frontend-slides
 description: Create animation-rich HTML presentations from scratch or by converting PowerPoint. Use to build a deck, convert PPT/PPTX to web, or make slides for a talk or pitch.
 argument-hint: "[topic/outline for a new deck, or path to a .pptx to convert]"
 origin: ECC
+allowed-tools: Read, Write, Edit, Bash, Grep, Glob
 ---
 
 # Frontend Slides

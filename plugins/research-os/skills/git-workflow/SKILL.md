@@ -1,8 +1,9 @@
 ---
 name: git-workflow
 description: Git workflow patterns including branching strategies, commit conventions, merge vs rebase, conflict resolution, and collaborative development best practices for teams of all sizes.
-argument-hint: "[git question or task -- e.g. branching strategy, commit message, conflict resolution]"
+argument-hint: "[git question or task — e.g. branching strategy, commit message, conflict resolution]"
 origin: ECC
+allowed-tools: Read, Grep, Glob, Bash, Task
 ---
 
 # Git Workflow Patterns

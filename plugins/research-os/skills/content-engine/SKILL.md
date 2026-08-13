@@ -3,6 +3,7 @@ name: content-engine
 description: Create platform-native content systems for X, LinkedIn, TikTok, YouTube, and newsletters. Use for social posts, threads, scripts, content calendars, or cross-platform repurposing.
 argument-hint: "[source asset or topic] [platform: x | linkedin | short-video | youtube | newsletter | repurpose]"
 origin: ECC
+allowed-tools: Read, Write, Edit, Grep, Glob, WebSearch
 ---
 
 # Content Engine

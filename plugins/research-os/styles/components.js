@@ -1,4 +1,4 @@
-/* clo-author HTML Report Components */
+/* research-os — HTML Report Components */
 
 (function() {
   'use strict';

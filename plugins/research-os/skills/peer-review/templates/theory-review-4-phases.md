@@ -21,12 +21,12 @@ Identify:
 1. **Object type:** identification / consistency / asymptotic normality / rate / influence function / efficiency bound / uniform validity / DML / bootstrap validity / test properties / comparative-static proposition
 2. **Target parameter** $\theta_0$ and how it is defined (functional of $P$, moment condition, argmax)
 3. **Estimator** $\hat\theta_n$ and how it is defined
-4. **Assumptions** -- list them by number with a one-line summary each
-5. **Main result(s)** -- quote the theorem statement(s) verbatim
-6. **Data structure** -- iid, panel, staggered, clustered, triangular array
-7. **Paper type fit** -- is this theory section appropriate for the paper type (econometric methods / theory+empirics / structural / methodological reduced-form)?
+4. **Assumptions** — list them by number with a one-line summary each
+5. **Main result(s)** — quote the theorem statement(s) verbatim
+6. **Data structure** — iid, panel, staggered, clustered, triangular array
+7. **Paper type fit** — is this theory section appropriate for the paper type (econometric methods / theory+empirics / structural / methodological reduced-form)?
 
-If the theory does not cleanly fit any object type, flag it -- the author may be claiming something that has no standard proof strategy.
+If the theory does not cleanly fit any object type, flag it — the author may be claiming something that has no standard proof strategy.
 
 ---
 
@@ -37,9 +37,9 @@ _The core of the review. If a proof is broken, everything downstream is moot._
 ### 2A. Logical Validity
 - [ ] Every step follows from the preceding steps or from a named, correctly cited result
 - [ ] No circular reasoning (using the conclusion to establish a premise)
-- [ ] No undefined objects -- every symbol in the proof was introduced earlier
+- [ ] No undefined objects — every symbol in the proof was introduced earlier
 - [ ] Case analysis is exhaustive when used
-- [ ] Quantifiers (for-all, exists, uniform vs. pointwise) are used consistently -- uniform claims are not supported by pointwise arguments
+- [ ] Quantifiers (for-all, exists, uniform vs. pointwise) are used consistently — uniform claims are not supported by pointwise arguments
 
 ### 2B. Measurability, Integrability, Interchange
 - [ ] Limit/expectation interchanges justified (DCT, MCT, Fubini) with the dominating function or monotonicity stated
@@ -49,7 +49,7 @@ _The core of the review. If a proof is broken, everything downstream is moot._
 
 ### 2C. Expansions and Remainders
 - [ ] Taylor expansions state the order and the remainder form (Lagrange, integral, mean-value)
-- [ ] Each remainder is shown to be $o_p(\cdot)$ or $O_p(\cdot)$ at the claimed rate -- not assumed
+- [ ] Each remainder is shown to be $o_p(\cdot)$ or $O_p(\cdot)$ at the claimed rate — not assumed
 - [ ] Rate arithmetic is correct (e.g., $o_p(n^{-1/4}) \times o_p(n^{-1/4}) = o_p(n^{-1/2})$)
 - [ ] For DML / orthogonal moments: Neyman orthogonality is verified, nuisance-rate conditions are used at the right step
 
@@ -87,7 +87,7 @@ _Runs after Phase 2. Checks whether the result says what it should say._
 
 ### 3B. Statement Quality
 - [ ] The conclusion is the strongest result the proof actually supports (no under-claiming)
-- [ ] The conclusion is NOT stronger than the proof supports (no over-claiming) -- especially: pointwise vs. uniform, $o_p$ vs. $O_p$, consistency vs. asymptotic normality, conditional vs. unconditional
+- [ ] The conclusion is NOT stronger than the proof supports (no over-claiming) — especially: pointwise vs. uniform, $o_p$ vs. $O_p$, consistency vs. asymptotic normality, conditional vs. unconditional
 - [ ] The variance characterization is explicit, not "some $V > 0$"
 - [ ] Regularity classes (Donsker, VC, etc.) are named, not hidden
 - [ ] Convergence mode (in probability, in distribution, almost sure, in $L^2$) is stated and correct

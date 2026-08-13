@@ -8,7 +8,7 @@ Extracted from `storyteller-critic.md`. Used by the storyteller-critic agent for
 
 **Before running categories:**
 
-- Read `${CLAUDE_PLUGIN_ROOT}/rules/content-invariants.md` -- enforce INV-20 and INV-21. Cite invariant numbers (e.g., "violates INV-20") in report alongside deductions.
+- Read `${CLAUDE_PLUGIN_ROOT}/rules/content-invariants.md` — enforce INV-20 and INV-21. Cite invariant numbers (e.g., "violates INV-20") in report alongside deductions.
 - Identify the paper type (reduced-form, structural, theory+empirics, descriptive). This determines which narrative arc checks apply.
 
 ---
@@ -89,9 +89,9 @@ Extracted from `storyteller-critic.md`. Used by the storyteller-critic agent for
 ## 6. Paper-Type Coherence
 
 - Does the narrative arc match the paper type?
-- Structural talk without counterfactuals? Flag it -- that's the whole point of having a model.
-- Theory talk without the distinguishing prediction? Flag it -- the audience needs to know what's unique.
-- Descriptive talk that makes causal claims? Flag it -- the paper doesn't have a design for that.
+- Structural talk without counterfactuals? Flag it — that's the whole point of having a model.
+- Theory talk without the distinguishing prediction? Flag it — the audience needs to know what's unique.
+- Descriptive talk that makes causal claims? Flag it — the paper doesn't have a design for that.
 
 ---
 

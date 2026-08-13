@@ -1,4 +1,4 @@
-# Scoring Rubrics -- All Critics
+# Scoring Rubrics — All Critics
 
 Consolidated deduction tables from all critic agents. Each critic starts at 100 and deducts for issues found. Floor at 0.
 
@@ -102,10 +102,10 @@ The strategist-critic does not use a point-deduction rubric. Instead, it classif
 | **MINOR** | Could strengthen but paper works without it. Nice to have. |
 
 **Overall assessment scale:**
-- **SOUND** -- Design is valid, implementation is correct
-- **MINOR ISSUES** -- Fixable concerns, none threatening core results
-- **MAJOR ISSUES** -- Significant concerns that could change conclusions
-- **CRITICAL ERRORS** -- Fundamental design flaw or incorrect implementation
+- **SOUND** — Design is valid, implementation is correct
+- **MINOR ISSUES** — Fixable concerns, none threatening core results
+- **MAJOR ISSUES** — Significant concerns that could change conclusions
+- **CRITICAL ERRORS** — Fundamental design flaw or incorrect implementation
 
 **Proportional criticism principle:** A working paper missing Oster bounds is MINOR. A paper with violated parallel trends is CRITICAL.
 
@@ -146,7 +146,7 @@ The strategist-critic does not use a point-deduction rubric. Instead, it classif
 
 ## Storyteller-Critic (Talk Review)
 
-**Advisory -- non-blocking.** Talk scores do not gate commits or PRs.
+**Advisory — non-blocking.** Talk scores do not gate commits or PRs.
 
 | Issue | Deduction |
 |-------|-----------|

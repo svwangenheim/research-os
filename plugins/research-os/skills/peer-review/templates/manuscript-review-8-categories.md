@@ -8,8 +8,8 @@ Extracted from `writer-critic.md`. Used by the writer-critic agent for manuscrip
 
 **Before running categories:**
 
-- Read `${CLAUDE_PLUGIN_ROOT}/rules/content-invariants.md` -- enforce INV-1 through INV-13 and INV-22. Cite invariant numbers (e.g., "violates INV-3") in report alongside deductions.
-- Read `${CLAUDE_PLUGIN_ROOT}/rules/working-paper-format.md` -- enforce all Required items listed in the deduction table.
+- Read `${CLAUDE_PLUGIN_ROOT}/rules/content-invariants.md` — enforce INV-1 through INV-13 and INV-22. Cite invariant numbers (e.g., "violates INV-3") in report alongside deductions.
+- Read `${CLAUDE_PLUGIN_ROOT}/rules/working-paper-format.md` — enforce all Required items listed in the deduction table.
 - Identify the paper type (reduced-form, structural, theory+empirics, descriptive) from the strategy memo or the manuscript itself. This determines which checks apply.
 
 ---
@@ -57,7 +57,7 @@ Extracted from `writer-critic.md`. Used by the writer-critic agent for manuscrip
 - Does the empirical strategy section accurately describe the strategy memo's design?
 - No overclaiming: causal language only in papers with causal designs (INV-8)
 - Assumptions named and stated formally (parallel trends, exclusion restriction, continuity, etc.)
-- Threats acknowledged -- no "our results are robust to all concerns"
+- Threats acknowledged — no "our results are robust to all concerns"
 - Estimand clearly stated (ATT, ATE, LATE, or equivalent)
 
 **Paper-type-specific:**
@@ -77,25 +77,25 @@ Extracted from `writer-critic.md`. Used by the writer-critic agent for manuscrip
 Run the 24-pattern AI detection check from the Writer's cleanup pass:
 
 **Content patterns:**
-- Significance inflation ("pivotal moment", "transformative impact", "groundbreaking") -- -3 per, max -9
-- Promotional language -- -3 per, max -9
-- Superficial -ing analyses ("highlighting...", "underscoring...") -- -2 per, max -6
-- Vague attributions ("experts argue", "scholars have noted") -- -3 per, max -9
+- Significance inflation ("pivotal moment", "transformative impact", "groundbreaking") — -3 per, max -9
+- Promotional language — -3 per, max -9
+- Superficial -ing analyses ("highlighting...", "underscoring...") — -2 per, max -6
+- Vague attributions ("experts argue", "scholars have noted") — -3 per, max -9
 
 **Language patterns:**
-- AI vocabulary (additionally, delve, foster, garner, interplay, tapestry, underscore, landscape) -- -2 per, max -10
-- Copula avoidance ("serves as" instead of "is") -- -1 per, max -5
-- Negative parallelisms ("not X but Y" overuse) -- -2 per, max -6
-- Excessive hedging beyond field norms -- -3
+- AI vocabulary (additionally, delve, foster, garner, interplay, tapestry, underscore, landscape) — -2 per, max -10
+- Copula avoidance ("serves as" instead of "is") — -1 per, max -5
+- Negative parallelisms ("not X but Y" overuse) — -2 per, max -6
+- Excessive hedging beyond field norms — -3
 
 **Style patterns:**
-- Em dash overuse (>2 per page) -- -3
-- Rule of three everywhere -- -3
-- Uniform sentence length (no variation) -- -5
+- Em dash overuse (>2 per page) — -3
+- Rule of three everywhere — -3
+- Uniform sentence length (no variation) — -5
 
 **Communication patterns:**
-- Filler phrases ("It's important to note that...", "It is worth mentioning...") -- -2 per, max -6
-- Announcements ("In the next section, we will discuss...") -- -2 per, max -6
+- Filler phrases ("It's important to note that...", "It is worth mentioning...") — -2 per, max -6
+- Announcements ("In the next section, we will discuss...") — -2 per, max -6
 
 ---
 
@@ -123,7 +123,7 @@ Enforce all Required items from `${CLAUDE_PLUGIN_ROOT}/rules/working-paper-forma
 | Missing `microtype` | -2 |
 | Missing abstract `\noindent` and `\singlespacing` | -2 |
 | Abstract exceeds 150 words (INV-5) | -3 |
-| No titles inside figures -- titles in `\caption{}` only (INV-12) | -3 per, max -9 |
+| No titles inside figures — titles in `\caption{}` only (INV-12) | -3 per, max -9 |
 | R/Python/Julia output includes `\begin{table}` wrapper (INV-13) | -3 per, max -9 |
 
 ---
@@ -155,7 +155,7 @@ Compare the draft against the style guide:
 | Hedging frequency doesn't match documented pattern | -3 |
 | Em dash rate deviates significantly from guide | -2 |
 
-If the style guide is still a template, report: "Voice fidelity not scored -- style guide not yet extracted. Run `/write style-guide [paper-dir]` to enable."
+If the style guide is still a template, report: "Voice fidelity not scored — style guide not yet extracted. Run `/write style-guide [paper-dir]` to enable."
 
 ---
 
@@ -164,14 +164,14 @@ If the style guide is still a template, report: "Voice fidelity not scored -- st
 - Same symbol means the same thing everywhere (INV-7)
 - Every symbol defined at first use
 - Notation matches the strategy memo
-- Subscript conventions consistent ($i$ for individual, $t$ for time, $g$ for group -- or whatever the paper uses, but consistent)
+- Subscript conventions consistent ($i$ for individual, $t$ for time, $g$ for group — or whatever the paper uses, but consistent)
 - Notation in tables matches notation in text
 
 ---
 
 ## Standalone Mode
 
-When invoked via `/peer-review [file.tex]` or `/peer-review --proofread`, run categories **4, 5, 6, 8 only** (writing quality + LaTeX + compilation + notation). No strategy alignment -- just prose and format quality.
+When invoked via `/peer-review [file.tex]` or `/peer-review --proofread`, run categories **4, 5, 6, 8 only** (writing quality + LaTeX + compilation + notation). No strategy alignment — just prose and format quality.
 
 When invoked via `/peer-review --all` or `/peer-review --peer`, run all 8 categories.
 

@@ -143,17 +143,33 @@ Re-entry is allowed for all phases except Submission (terminal).
 
 ### How It Works
 
-The Orchestrator reads `permissions.md` before dispatching any agent. If an agent's REQUIRES are satisfied, it can activate — regardless of whether earlier phases are "complete."
+`permissions.md` is the narrative source of REQUIRES/PARALLEL_GROUP; `${CLAUDE_PLUGIN_ROOT}/graph/pipeline.json` is the executable form of the same declarations, evaluated by `scripts/graph.py`. Before dispatching any agent, run:
+
+```bash
+python3 "${CLAUDE_PLUGIN_ROOT}/scripts/graph.py" next
+```
+
+This computes the *ready frontier* — every node whose REQUIRES are currently satisfied — directly
+from the graph, the filesystem, and `passport.yaml`. It can activate a node regardless of whether
+earlier phases are "complete," because "complete" isn't how the graph reasons; satisfied
+predicates are.
 
 **Example — entering mid-pipeline:**
-You already have data and a draft paper. You can enter at Strategy (skip Discovery) or even at Review (skip Analysis). The Orchestrator checks REQUIRES, not phase numbers.
+You already have data and a draft paper. `graph.py next` on that project reports `strategist`
+ready directly (its REQUIRES is `literature review OR data-sources.md`, and the second half is
+met) — no Discovery step recommended, no phase-number check involved.
 
 **Example — targeted re-entry:**
-A referee says "control for X." The Orchestrator routes back to coder (not through the full pipeline), coder-critic reviews, writer updates, writer-critic reviews the update, then back to review.
+A referee says "control for X." The editorial decision routes to `writer` on a `major` verdict
+(`permissions.md`'s editor entry; the graph's `editor` node encodes the same routing). From there
+`graph.py why coder` shows coder itself is unaffected, so the loop is coder → coder-critic → writer
+→ writer-critic → review, not the full pipeline.
 
 ### Parallel Activation
 
-Agents in the same PARALLEL_GROUP run concurrently when their REQUIRES are met. See `permissions.md` for the complete parallel group table.
+`graph.py next` groups by `PARALLEL_GROUP` and reports concurrent-safe sets directly — nodes
+sharing a group with no dependency edge between them. Dispatch the whole set together rather than
+picking one; see `permissions.md` for the narrative parallel group table.
 
 ---
 

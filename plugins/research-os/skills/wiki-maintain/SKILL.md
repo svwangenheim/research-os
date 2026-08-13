@@ -1,8 +1,8 @@
 ---
 name: wiki-maintain
-description: Audit and remediate registered thematic wikis to A-tier standards - summaries, canonical concepts, methods, datasets, synthesis, links. Also re-converts garbled PDF twins.
-argument-hint: "[--wiki <theme>] [optional scope: all | summaries | concepts | methods | datasets | synthesis | reconvert | path]"
-allowed-tools: Read, Write, Edit, Bash, Glob, Grep
+description: Audit and remediate registered thematic wikis to A-tier standards — summaries, canonical concepts, methods, datasets, synthesis, links — and re-convert garbled PDF twins. Use on "check the wiki", "clean up the wiki", or after a run of ingests.
+argument-hint: "[--wiki <theme>] [--review-auto [--since <date>]] [--synthesize] [optional scope: all | summaries | concepts | methods | datasets | synthesis | reconvert | path]"
+allowed-tools: Read, Write, Edit, Bash, Glob, Grep, Task
 ---
 
 # Wiki Maintain
@@ -12,6 +12,8 @@ whole-wiki counterpart to `wiki-ingest`: `wiki-ingest` processes one source;
 `wiki-maintain` checks and improves an entire maintained wiki (or every
 registered wiki) until the established standards are met. It never touches
 `_brain/` — that layer is human-owned.
+
+**Input:** `$ARGUMENTS` — an optional scope and mode flags. Omitted, the skill audits every registered wiki across all dimensions.
 
 ## Step 0: Resolve scope
 
@@ -130,6 +132,39 @@ Do not fabricate claims. If a source is unavailable, unclear, or badly
 converted, mark the uncertain part as `needs source verification` (or route
 it through Step 2 first if it's a conversion problem, not a content one).
 
+## Step 3b: Gap-detection — sources cited but never ingested
+
+Step 3 audits **forward**: for a source already in `10_sources/`, is it
+summarized well? This step audits **backward**: is there a source that
+should be in `10_sources/` at all, but isn't?
+
+Added 2026-08-12, from the first `/workflow-audit`'s own refinement of the
+wiki-push backlog problem: *"I should be reminded to search for missing
+papers and include them in the sources folder and to run wiki-ingest more
+often"* — a reliability gap, not a missing capability (`/wiki-ingest`
+already exists; nothing was prompting its use for citations that never
+made it in).
+
+For every project whose `main_wiki` resolves to this wiki:
+
+1. Read `passport.yaml`'s `literature_corpus` — every entry with a
+   `citation_status` of `relevant`, `intended`, or `cited`.
+2. For each, check whether `wiki_path` is set **and** resolves to a real
+   file under `10_sources/` or `20_summaries/`.
+3. Flag every entry that is cited/discussed (per step 1) but has no
+   resolving `wiki_path` — this is a paper the project is relying on that
+   the wiki does not actually have.
+4. Cross-check `00_admin/process/journal.md` and `03_analysis/strategy/`
+   for author-year mentions (`Author et al. YYYY` / `(Author, YYYY)`
+   patterns) that don't appear anywhere in `literature_corpus` at all —
+   these are citations that were never even logged, the earlier stage of
+   the same gap.
+
+For each flag, do not silently ingest — ingestion is a judgment call about
+scope and placement (see `/wiki-ingest`'s own guardrails). **Surface the gap
+in this pass's report** (Step 10) and hand off to `/wiki-ingest` per source,
+by name, so the human sees exactly what's missing before it's added.
+
 ## Step 4: Canonical Concept Scan
 
 Read all summaries and existing concept notes in `$WIKI/30_concepts/`.
@@ -194,6 +229,42 @@ canonical pages; include a retrieval map where useful.
 Also refresh the calling project's `wiki-links.md`, if one exists and this
 maintenance pass changed what it should retrieve.
 
+### `--synthesize`: propose pages for the thinnest layer
+
+`90_synthesis/` sits fifth in the `/wiki-pull` reading order — above the
+summaries and just under the canonical pages — and it is reliably the emptiest
+folder in the vault. That inverts the retrieval design: the tier meant to be
+read first has the least in it.
+
+With `--synthesize`, find clusters worth a page: **five or more summaries
+sharing two or more concepts, methods, or datasets**, or a set of papers whose
+findings disagree. For each cluster, propose (do not write) a synthesis page
+with a working title, the member summaries, and the specific tension or
+convergence that justifies it.
+
+**Propose only.** Synthesis is interpretation, and interpretation stays outside
+the auto-write blast radius no matter how strong the clustering signal
+(`rules/wiki-integration.md`). The user picks which proposals become pages.
+
+While here, `60_people_institutions/` is usually empty too and is cheaper to
+fill: the authors and affiliations already sit in `20_summaries/` frontmatter,
+so offer to generate entity pages from what is on disk.
+
+## Step 7b: `--review-auto` — audit what was written without asking
+
+Auto-write is only safe because it is reviewable. This mode is the review.
+
+1. Find every auto-written change: `git -C "<VAULT_ROOT>" log --oneline --grep="^wiki(auto):"` (add `--since` when given), and every `## Changelog` line tagged `auto`.
+2. Present them grouped by note, each with its council tally, the triggering session, and a one-line diff summary.
+3. Flag for closer attention: anything that passed **4 of 5** (a critic objected and was outvoted), anything appended to a page that has taken three or more auto-writes in the window (a page accreting without a human ever reading it), and any contradiction appended without a matching source.
+4. Offer to revert a batch: `git -C "<VAULT_ROOT>" revert <sha>`.
+
+**Read the tallies as calibration data, not just as a log.** If the 4-of-5
+writes are consistently the ones you would have rejected, the threshold is too
+loose — raise it to 5-of-5 only. If almost nothing clears the council, the
+candidates are under-evidenced and the fix is upstream in `/wiki-ingest`, not a
+lower bar here.
+
 ## Step 8: Log and Backlinks
 
 Update `$VAULT_ROOT/log.md` with a dated, theme-prefixed maintenance entry:
@@ -226,6 +297,9 @@ Report, per wiki audited:
 - scope maintained;
 - counts before and after;
 - re-conversions attempted, succeeded, or blocked (missing original PDF);
+- **gaps found (Step 3b): cited/discussed sources with no resolving
+  `wiki_path`, named per project and per source — the hand-off list for
+  `/wiki-ingest`, not something this pass ingests itself;**
 - summaries upgraded or created;
 - concepts/methods/datasets created, updated, aliased, or merged;
 - synthesis/log updates;

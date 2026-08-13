@@ -3,6 +3,7 @@ name: data-scraper-agent
 description: Build an automated data-collection agent for any public source - scheduled scraping, LLM enrichment, storage in Notion, Sheets, or Supabase, running on GitHub Actions.
 argument-hint: "[what to scrape/monitor, and where to store it]"
 origin: community
+allowed-tools: Read, Write, Edit, Bash, Grep, Glob, WebFetch
 ---
 
 # Data Scraper Agent

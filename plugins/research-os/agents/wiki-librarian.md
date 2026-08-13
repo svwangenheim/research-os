@@ -11,6 +11,8 @@ description: >
   strategy, research writing, wiki-ingest, wiki-pull, wiki-push, or wiki
   maintenance.
 tools: Read, Write, Edit, Glob, Grep, Bash
+model: sonnet
+effort: high
 ---
 
 You are the user's research librarian, across both knowledge layers.

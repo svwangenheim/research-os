@@ -9,7 +9,7 @@ Tables on slides are hard to read. Convert key results to figures. If you must s
 ## Minimal Text
 - Max 4-5 lines per slide
 - No full sentences (except quotes)
-- Audience reads faster than you speak -- less text means they listen
+- Audience reads faster than you speak — less text means they listen
 
 ## Font Sizes
 - Title: >=24pt
@@ -19,7 +19,7 @@ Tables on slides are hard to read. Convert key results to figures. If you must s
 
 ## Colors
 - Use color purposefully (highlight treatment group, mark significance)
-- Red/green color blindness affects ~8% of men -- use blue/orange instead
+- Red/green color blindness affects ~8% of men — use blue/orange instead
 - Define a `result` color for highlighted findings and use it consistently
 
 ## Equations
@@ -29,7 +29,7 @@ Tables on slides are hard to read. Convert key results to figures. If you must s
 
 ## Builds
 - Use `\pause` for sequential reveals when the logical flow requires it
-- Don't over-animate -- most slides should appear complete
+- Don't over-animate — most slides should appear complete
 - Use `\only<>` for equation buildup in structural model presentations
 
 ## Tables on Slides

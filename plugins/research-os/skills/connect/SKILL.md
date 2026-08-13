@@ -10,6 +10,8 @@ allowed-tools: Read, Glob, Grep
 Find the connections your knowledge base implies but has not yet drawn. This
 is a **global**, **read-only** skill — it proposes, it never writes.
 
+**Input:** `$ARGUMENTS` — two theme names to bridge. Omitted, the skill scans every registered wiki against the personal brain.
+
 ## When to use
 
 The user wants to discover latent cross-theme structure: "is there anything

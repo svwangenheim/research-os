@@ -1,6 +1,6 @@
 ---
 name: peer-review
-description: Review phase - routes the paper or code to the right critics and owns the blocking ARS integrity gate (claim tracing, citation triangulation, anachronism audit). All paper types.
+description: Review phase — routes the paper or code to the right critics and owns the blocking ARS integrity gate (claim tracing, citation triangulation, anachronism audit). All paper types. Use on "review this", "referee my paper", "run the integrity gate", or before submitting.
 argument-hint: "[file path or --flag] Options: --peer [journal], --peer --r2/--r3 [journal], --stress [journal], --methods, --theory [target], --proofread, --code [file], --replicate [lang], --all"
 allowed-tools: Read,Grep,Glob,Write,Edit,Bash,WebSearch,Task
 ---
@@ -9,7 +9,7 @@ allowed-tools: Read,Grep,Glob,Write,Edit,Bash,WebSearch,Task
 
 Unified review command that routes to the appropriate critic agents based on the target and flags.
 
-**Input:** `$ARGUMENTS` -- file path and/or flags.
+**Input:** `$ARGUMENTS` — file path and/or flags.
 
 State lives in **`passport.yaml`** (schema: `${CLAUDE_PLUGIN_ROOT}/templates/passport.yaml`). Paths follow `${CLAUDE_PLUGIN_ROOT}/rules/folder-map.md`: manuscript peer-review reports (editorial decision, referee reports) live in `04_paper/reviews/`; standalone code reviews update `03_analysis/output/code_review.md`; talk reviews live beside the talk in `05_outreach/talks/`. Outputs obey `${CLAUDE_PLUGIN_ROOT}/rules/output-discipline.md`: **update the existing report in place with a `## Changelog`; a new file only for a genuinely new target (a different manuscript, a different script).** Critic scores land in `passport.yaml` `pipeline.stages.review` (gate 90); Review-phase severity is Adversarial/maximum (`${CLAUDE_PLUGIN_ROOT}/rules/quality.md` Section 2).
 
@@ -29,27 +29,35 @@ State lives in **`passport.yaml`** (schema: `${CLAUDE_PLUGIN_ROOT}/templates/pas
 - `--peer --r2 [journal]` / `--peer --r3 [journal]` -> **R&R round 2/3** (integrity gate re-run -> same referees, same dispositions, memory of prior review, anti-sycophancy scoring)
 - `--stress [journal]` -> **Hostile stress test** (same flow, adversarial referee dispositions; advisory, non-blocking)
 - `--methods` -> **Causal audit** (strategist-critic standalone, 4-phase review)
-- `--theory [target]` -> **Proof audit** (theorist-critic standalone, 4-phase review -- logical validity, assumption minimality, citations, linkage)
+- `--theory [target]` -> **Proof audit** (theorist-critic standalone, 4-phase review — logical validity, assumption minimality, citations, linkage)
 - `--proofread` -> **Manuscript polish** (writer-critic standalone, categories 4/5/6/8)
 - `--code [file]` -> **Code review** (coder-critic standalone, categories 5-16)
 - `--replicate [language]` -> **Cross-language replication check** (Coder re-implements in target language + coder-critic + comparison)
-- `--all` or no file -> **Paper excellence** (all critics in parallel + weighted score -- theorist-critic included only when a theory section is present, per the CONDITIONAL flag in `permissions.md`)
+- `--all` or no file -> **Paper excellence** (all critics in parallel + weighted score — theorist-critic included only when a theory section is present, per the CONDITIONAL flag in `permissions.md`)
 
 ---
 
-## The ARS Integrity Gate (BLOCKING -- runs before `--peer`, `--peer --r2/--r3`, `--stress`, and `--all`)
+## The ARS Integrity Gate (BLOCKING — runs before `--peer`, `--peer --r2/--r3`, `--stress`, and `--all`)
 
 Adapted from ARS. `/peer-review` is the sole invoker: no other skill triggers this gate, and the editor may not be dispatched until it returns PASS (`${CLAUDE_PLUGIN_ROOT}/rules/permissions.md`: editor's REQUIRES includes "the integrity gate has passed").
 
 1. **Dispatch verifier** (primary owner, per `quality.md` Section 3 ownership table) to run the four checks against `passport.yaml` and the manuscript:
-   - **Claim tracing** -- every `claim_manifest` entry traces to a real `evidence_origin` (a `bibkey` in `literature_corpus`, `data:<path>`, `analysis:<script>`, or `reasoning`). Sets `claims_verified` / `claims_total`.
-   - **Citation triangulation** (co-owned with methods-referee) -- every cited reference checked against Semantic Scholar, OpenAlex, Crossref, and arXiv. Unverifiable -> `% UNVERIFIED`; fabricated or contradicted -> FAIL. Sets `citations_triangulated`.
-   - **Temporal / anachronism audit** (owned by methods-referee) -- no claim may rely on evidence that postdates the event it explains; no citation to work that did not yet exist at the stated time.
-   - **Figure-caption fidelity** (owned by writer-critic) -- every caption's numbers, variables, and stated sample/source match the underlying output.
+   - **Claim tracing** — every `claim_manifest` entry traces to a real `evidence_origin` (a `bibkey` in `literature_corpus`, `data:<path>`, `analysis:<script>`, or `reasoning`). Sets `claims_verified` / `claims_total`.
+   - **Citation triangulation** (co-owned with methods-referee) — every cited reference checked against Semantic Scholar, OpenAlex, Crossref, and arXiv. Unverifiable -> `% UNVERIFIED`; fabricated or contradicted -> FAIL. Sets `citations_triangulated`.
+   - **Temporal / anachronism audit** (owned by methods-referee) — no claim may rely on evidence that postdates the event it explains; no citation to work that did not yet exist at the stated time.
+   - **Figure-caption fidelity** (owned by writer-critic) — every caption's numbers, variables, and stated sample/source match the underlying output.
 2. **Write results to `passport.yaml` `integrity`**: `last_gate` (timestamp), `claims_verified`/`claims_total`, `citations_triangulated`, `unresolved` (blocking issues), `contamination_signals` (anachronisms/fabrications found).
-3. **PASS** -> proceed to the requested mode. **FAIL** -> stop immediately; report every item in `integrity.unresolved` to the user; do **not** dispatch the editor or referees. Per Separation of Powers (`agents.md`), the flagging agents (verifier, methods-referee, writer-critic) never fix what they found -- the writer/coder remediate, then the gate re-runs.
+3. **PASS** -> proceed to the requested mode. **FAIL** -> stop immediately; report every item in `integrity.unresolved` to the user; do **not** dispatch the editor or referees. Per Separation of Powers (`agents.md`), the flagging agents (verifier, methods-referee, writer-critic) never fix what they found — the writer/coder remediate, then the gate re-runs.
 4. **Partial pass** (e.g. plausible-but-unconfirmed `% UNVERIFIED` citations, no fabrications) -> surface as a warning, not a block, but the user must acknowledge it before proceeding.
-5. **Skip for standalone diagnostic modes** that do not move `pipeline.stages.review` -- `--methods`, `--theory`, `--proofread` alone, `--code`, `--replicate`. Still surface any integrity concern noticed incidentally during those reviews.
+5. **Skip for standalone diagnostic modes** that do not move `pipeline.stages.review` — `--methods`, `--theory`, `--proofread` alone, `--code`, `--replicate`. Still surface any integrity concern noticed incidentally during those reviews.
+
+### The wiki corpus during review
+
+Citation triangulation already reads the wiki corpus before it goes to external databases — the verifier owns that step and it is specified in `${CLAUDE_PLUGIN_ROOT}/agents/verifier.md` ("Citation triangulation", stage 2a). Do not restate or re-run it here.
+
+What the **referees** add is a contradiction check. Resolve the thematic wiki via the standard ladder in `${CLAUDE_PLUGIN_ROOT}/rules/wiki-integration.md` (`--wiki` > `passport.yaml` `meta.main_wiki` > `.research-os-wiki` > the registry's only wiki), reading `~/.claude/vaults.json` for the path, then read `<main_wiki>/30_concepts/` for the concepts the draft leans on. Where a canonical concept page states something the draft contradicts — an opposite effect sign, a scope condition the draft ignores, a measurement caveat it does not mention — raise it as a referee comment citing the page.
+
+A contradiction is not automatically an error in the draft. The wiki records what this theme's literature says, and a paper may disagree with it on purpose; the point is that the disagreement gets argued rather than passing unnoticed. If no wiki is resolvable, skip this step silently.
 
 ---
 
@@ -59,11 +67,11 @@ Review scope adapts to `passport.yaml` `research.paper_type`. Do not penalize a 
 
 | Paper/output type | Review emphasis | Typically skipped |
 |---|---|---|
-| `imrad` (reduced-form / structural / theory+empirics / descriptive) | Full 8-category manuscript review + causal audit matched to the design | -- |
+| `imrad` (reduced-form / structural / theory+empirics / descriptive) | Full 8-category manuscript review + causal audit matched to the design | — |
 | `literature_review` | writer-critic categories 4/5/6/8 + librarian-critic's 6-category coverage/gap/recency check | strategist-critic (no identification claim to audit) |
 | `theory` | theorist-critic 4-phase proof audit + writer-critic notation/exposition | strategist-critic, unless empirics are also tested (theory+empirics) |
 | `case_study` | writer-critic + explorer-critic external-validity framing | Causal audit, unless the case study makes an explicit identification claim |
-| `conference` | Same as `imrad`, length-calibrated to the venue's page/word limit | -- |
+| `conference` | Same as `imrad`, length-calibrated to the venue's page/word limit | — |
 
 ---
 
@@ -71,10 +79,10 @@ Review scope adapts to `passport.yaml` `research.paper_type`. Do not penalize a 
 
 ### Comprehensive Review (default for `.tex` paper, `--all`)
 Dispatch in parallel:
-1. **strategist-critic** -- causal design audit (4 phases)
-2. **theorist-critic** -- proof audit (4 phases), only if a theory section exists (CONDITIONAL, `permissions.md`)
-3. **writer-critic** -- manuscript polish (8 categories)
-4. **verifier** -- compilation check + integrity-gate contribution (Section 1 of `quality.md`)
+1. **strategist-critic** — causal design audit (4 phases)
+2. **theorist-critic** — proof audit (4 phases), only if a theory section exists (CONDITIONAL, `permissions.md`)
+3. **writer-critic** — manuscript polish (8 categories)
+4. **verifier** — compilation check + integrity-gate contribution (Section 1 of `quality.md`)
 
 Compute the weighted aggregate per `quality.md` Section 1 (renormalize if a component is absent). Save the combined report to `04_paper/reviews/[FILENAME]_comprehensive_review.md`, updating in place.
 
@@ -91,10 +99,10 @@ Dispatch the **editor** agent with the paper and target journal.
 The editor:
 1. Reads the paper (abstract, intro, contribution, identification, results)
 2. Searches the literature via WebSearch to verify novelty claims
-3. Applies **paper-type-aware** judgment (`imrad|literature_review|theory|case_study|conference`) when weighing fit and contribution -- a literature review is not judged against AER's novelty bar for a single empirical result
+3. Applies **paper-type-aware** judgment (`imrad|literature_review|theory|case_study|conference`) when weighing fit and contribution — a literature review is not judged against AER's novelty bar for a single empirical result
 4. Decides: **DESK REJECT** or **SEND TO REFEREES**
 5. If desk reject -> write the decision (with reasons + suggested alternative journals) to `04_paper/reviews/editorial_decision.md`. Done.
-6. If send to referees -> editor selects referee dispositions and pet peeves from the journal's **Referee pool**, with paper-type awareness (e.g. a `literature_review` draws less from STRUCTURAL/THEORY; a `case_study` weights CREDIBILITY differently than an `imrad` paper) -- see `${CLAUDE_PLUGIN_ROOT}/references/journal-profiles.md` and `${CLAUDE_PLUGIN_ROOT}/skills/peer-review/templates/disposition-pool.md`
+6. If send to referees -> editor selects referee dispositions and pet peeves from the journal's **Referee pool**, with paper-type awareness (e.g. a `literature_review` draws less from STRUCTURAL/THEORY; a `case_study` weights CREDIBILITY differently than an `imrad` paper) — see `${CLAUDE_PLUGIN_ROOT}/references/journal-profiles.md` and `${CLAUDE_PLUGIN_ROOT}/skills/peer-review/templates/disposition-pool.md`
 
 #### Phase 2: Referee Reports
 The editor's referee assignment specifies for each referee:
@@ -118,9 +126,9 @@ PET PEEVES:
 Give extra weight to these in your review.
 ```
 
-Both reviews are independent and blind -- neither referee sees the other's report.
+Both reviews are independent and blind — neither referee sees the other's report.
 
-Every major comment MUST include a **"What would change my mind"** statement -- the specific evidence, test, or analysis that would resolve the concern.
+Every major comment MUST include a **"What would change my mind"** statement — the specific evidence, test, or analysis that would resolve the concern.
 
 Save to `04_paper/reviews/referee_domain.md` and `04_paper/reviews/referee_methods.md` (`${CLAUDE_PLUGIN_ROOT}/skills/peer-review/templates/referee-report-template.md`).
 
@@ -133,31 +141,46 @@ The editor:
 3. Produces a decision letter: Accept / Minor Revisions / Major Revisions / Reject
 4. Lists MUST address, SHOULD address, and MAY push back items
 
-Save to `04_paper/reviews/editorial_decision.md`, updating in place. Log the referee assignments (dispositions + pet peeves) in the decision so the user can re-run with different combinations. Refresh the dashboard: run `/dashboard`.
+#### Phase 3b: Hallucination gate (before the decision is saved)
+
+The editor reduces two referee reports into one verdict. It must not **introduce** a blocking reason neither referee gave — and a desk-reject is the most consequential output this skill produces, so an unfounded one is expensive in exactly the way the rest of the pipeline is built to prevent.
+
+1. Diff the editor's FATAL / desk-reject reasons against the union of both referees' findings.
+2. Any FATAL not traceable to a referee finding is a **candidate hallucination**.
+3. Re-verify each candidate in a fresh fork: `Task` with `subagent_type=claim-verifier` and `context: fork`, given the claim and the artifact location it cites. Do not pass the referee reports or the decision letter — the verifier checks the claim against the paper, not against the reasoning that produced it.
+   - Grounded in a quote or a location → keep it, annotate `[JUDGE-ADDED, verified]`.
+   - Cannot be grounded → drop it to a flagged note, tag `[JUDGE-HALLUCINATED]`, and **recompute the decision** without it.
+4. The editor may always *downgrade*, *de-duplicate*, or *take a side* between referees. It may only *introduce* a blocking reason that survives this gate.
+
+This runs on the zero-to-two reasons an editor actually introduces, so it is cheap. Skip it only for `--stress`, where a hostile editor inventing objections is the point of the exercise — and say so in the report.
+
+See `${CLAUDE_PLUGIN_ROOT}/references/orchestration-schemas.md` §4.
+
+Save to `04_paper/reviews/editorial_decision.md`, updating in place. Log the referee assignments (dispositions + pet peeves) in the decision so the user can re-run with different combinations, and record any `[JUDGE-HALLUCINATED]` drops. Refresh the dashboard: run `/dashboard`.
 
 ### R&R Round 2/3 (`--peer --r2 [journal]` / `--peer --r3 [journal]`)
 
 Continues the review cycle after the author has revised the paper.
 
-1. **Re-run the integrity gate** (Phase 0) -- a revision can introduce new claims, new citations, or a new figure that needs its own fidelity check.
-2. **Load prior review state** -- read `04_paper/reviews/referee_domain.md`, `referee_methods.md`, `editorial_decision.md`.
-3. **Skip desk review** -- the paper was already accepted for review.
-4. **Same referees, same dispositions and pet peeves** -- reloaded from round 1.
-5. **Referee R&R mode with anti-sycophancy** -- each referee receives their previous report alongside the revised manuscript and the author's response. Per `${CLAUDE_PLUGIN_ROOT}/skills/peer-review/templates/disposition-pool.md` Anti-Sycophancy & Frame-Lock:
+1. **Re-run the integrity gate** (Phase 0) — a revision can introduce new claims, new citations, or a new figure that needs its own fidelity check.
+2. **Load prior review state** — read `04_paper/reviews/referee_domain.md`, `referee_methods.md`, `editorial_decision.md`.
+3. **Skip desk review** — the paper was already accepted for review.
+4. **Same referees, same dispositions and pet peeves** — reloaded from round 1.
+5. **Referee R&R mode with anti-sycophancy** — each referee receives their previous report alongside the revised manuscript and the author's response. Per `${CLAUDE_PLUGIN_ROOT}/skills/peer-review/templates/disposition-pool.md` Anti-Sycophancy & Frame-Lock:
    - Score each addressed concern's rebuttal **1-5**.
-   - Concede (mark Resolved) **only if the score is >= 4 AND the rebuttal addresses the core critique** -- not a reframed, easier version of it. Otherwise hold the concern (Partially resolved / Not addressed) and restate it.
-   - A polite tone, author seniority, or confident phrasing never raises the score -- only evidence in the revised manuscript does.
-   - Run the dialogue-health self-check before finalizing (frame-lock vs. goalpost-moving vs. scope-creep-in-reverse -- see the template).
+   - Concede (mark Resolved) **only if the score is >= 4 AND the rebuttal addresses the core critique** — not a reframed, easier version of it. Otherwise hold the concern (Partially resolved / Not addressed) and restate it.
+   - A polite tone, author seniority, or confident phrasing never raises the score — only evidence in the revised manuscript does.
+   - Run the dialogue-health self-check before finalizing (frame-lock vs. goalpost-moving vs. scope-creep-in-reverse — see the template).
    - New concerns may arise from the revisions themselves; flag them separately.
-6. **Editor R&R decision** -- Round 2 allows Accept/Minor/Major/Reject. Round 3 allows Accept/Minor/Reject only. Max 3 rounds total.
-7. **Update the same three files in place** (`referee_domain.md`, `referee_methods.md`, `editorial_decision.md`) with a new `## Changelog` entry and the round's R&R addendum -- do not create `_r2.md` / `_r3.md` copies (output-discipline).
+6. **Editor R&R decision** — Round 2 allows Accept/Minor/Major/Reject. Round 3 allows Accept/Minor/Reject only. Max 3 rounds total.
+7. **Update the same three files in place** (`referee_domain.md`, `referee_methods.md`, `editorial_decision.md`) with a new `## Changelog` entry and the round's R&R addendum — do not create `_r2.md` / `_r3.md` copies (output-discipline).
 
 ### Hostile Stress Test (`--stress [journal]`)
 
 Same three-phase flow as `--peer` (integrity gate still runs first), with these changes:
 
-1. **Editor assigns adversarial dispositions** -- both referees get SKEPTIC or the most demanding disposition for that journal
-2. **Double pet peeves** -- each referee gets 2 critical and 1 constructive (instead of 1 and 1)
+1. **Editor assigns adversarial dispositions** — both referees get SKEPTIC or the most demanding disposition for that journal
+2. **Double pet peeves** — each referee gets 2 critical and 1 constructive (instead of 1 and 1)
 3. **Referee prompt addition:**
 ```
 You are looking for reasons to REJECT this paper. Your prior is that
@@ -165,30 +188,30 @@ the paper is not good enough for [journal]. The authors must convince
 you otherwise. Be specific about what would change your mind.
 ```
 
-This is for pre-submission stress testing. Advisory -- does not block `pipeline.stages.review`. Save to `04_paper/reviews/[FILENAME]_stress_test.md`.
+This is for pre-submission stress testing. Advisory — does not block `pipeline.stages.review`. Save to `04_paper/reviews/[FILENAME]_stress_test.md`.
 
 ### Code Review (`--code` or auto-detect `.R`/`.py`/`.do`/`.jl`)
 
-**Step 1: Mechanical lint** -- run the grep-based linter first:
+**Step 1: Mechanical lint** — run the grep-based linter first:
 ```bash
 "$CLAUDE_PROJECT_DIR"/.claude/hooks/lint-scripts.sh [file]
 ```
 Include the lint report in the coder-critic's input so it can skip already-flagged patterns and focus on judgment calls.
 
-**Step 2: Judgment review** -- dispatch **coder-critic** in standalone mode (categories 5-16, no strategy-memo comparison). Full checklist: `${CLAUDE_PLUGIN_ROOT}/skills/peer-review/templates/code-review-16-categories.md`.
+**Step 2: Judgment review** — dispatch **coder-critic** in standalone mode (categories 5-16, no strategy-memo comparison). Full checklist: `${CLAUDE_PLUGIN_ROOT}/skills/peer-review/templates/code-review-16-categories.md`.
 
 **Do NOT edit any source files.** Only produce reports. Fixes are applied after user review, via the Coder agent.
 
-Save to `03_analysis/output/code_review.md`, updating in place (one consolidated review, sectioned per script, per `output-discipline.md` -- the same file `/analyze` writes to).
+Save to `03_analysis/output/code_review.md`, updating in place (one consolidated review, sectioned per script, per `output-discipline.md` — the same file `/analyze` writes to).
 
 ### Causal Audit (`--methods`)
 
 Dispatch **strategist-critic** standalone for a full 4-phase causal inference review (`${CLAUDE_PLUGIN_ROOT}/skills/peer-review/templates/causal-audit-4-phases.md`):
 
-1. **Phase 1: Claim Identification** -- design, estimand, treatment, control
-2. **Phase 2: Core Design Validity** -- design-specific assumption checks; **early-stopping** on CRITICAL issues
-3. **Phase 3: Inference** -- clustering, multiple testing, code-theory alignment
-4. **Phase 4: Polish and Completeness** -- robustness, sensitivity bounds, citation fidelity
+1. **Phase 1: Claim Identification** — design, estimand, treatment, control
+2. **Phase 2: Core Design Validity** — design-specific assumption checks; **early-stopping** on CRITICAL issues
+3. **Phase 3: Inference** — clustering, multiple testing, code-theory alignment
+4. **Phase 4: Polish and Completeness** — robustness, sensitivity bounds, citation fidelity
 
 Overall assessment: SOUND / MINOR ISSUES / MAJOR ISSUES / CRITICAL ERRORS. Save to `04_paper/reviews/[FILENAME]_strategy_review.md`.
 
@@ -197,14 +220,33 @@ Overall assessment: SOUND / MINOR ISSUES / MAJOR ISSUES / CRITICAL ERRORS. Save 
 Dispatch **theorist-critic** standalone for the 4-phase theory review (`${CLAUDE_PLUGIN_ROOT}/skills/peer-review/templates/theory-review-4-phases.md`): claim identification -> proof validity (early-stop on gaps) -> assumption minimality + notation (INV-7) -> citation fidelity + linkage. Save to `04_paper/reviews/[FILENAME]_theory_review.md`.
 
 ### Manuscript Polish (`--proofread`)
-Dispatch **writer-critic** standalone -- categories 4, 5, 6, 8 only (writing quality, LaTeX/format, compilation, notation); no strategy alignment. Save to `04_paper/reviews/[FILENAME]_proofread_report.md`.
+Dispatch **writer-critic** standalone — categories 4, 5, 6, 8 only (writing quality, LaTeX/format, compilation, notation); no strategy alignment. Save to `04_paper/reviews/[FILENAME]_proofread_report.md`.
 
 ### Cross-Language Replication (`--replicate [language]`)
 1. Auto-detect source language from file extension
-2. Dispatch **Coder** in replication mode -- re-implement in target language
+2. Dispatch **Coder** in replication mode — re-implement in target language
 3. **coder-critic** reviews both implementations
 4. Compare numerical outputs per `${CLAUDE_PLUGIN_ROOT}/skills/analyze/config/replication-tolerances.json` / `00_admin/domain-profile.md`
-5. Save replicated script and comparison report to `04_paper/reviews/[FILENAME]_replication_check.md`
+5. Assign a **disposition** to each compared value (below), not a bare pass/fail
+6. Save replicated script and comparison report to `04_paper/reviews/[FILENAME]_replication_check.md`, and write the disposition back to the matching `passport.yaml` `claim_manifest` entry
+
+#### Dispositions
+
+| Disposition | Means | Blocks? |
+|---|---|---|
+| **PASS** | Within tolerance. | no |
+| **FAIL** | Outside tolerance, with no concrete named alternative recorded. | **yes** |
+| **EXPLAINED** | Outside tolerance, **but** a specific named alternative specification accounts for the gap. | no |
+| **STALE** | The source script or output changed after the last verification (this is what `hooks/claim-reconcile.py` flags in-session). | no, but re-run |
+| **UNMATCHED** | No computed counterpart found. Never auto-downgradable. | **yes** |
+
+**A defensible alternative is not a failure.** In applied work the most common out-of-tolerance result is not a bug — it is a different, defensible choice: never-treated versus not-yet-treated comparison group, conditional versus unconditional parallel trends, `reghdfe` versus `feols` clustering degrees of freedom, a different MC seed or number of reps, display rounding. Record the **named** alternative and mark the claim EXPLAINED.
+
+The naming requirement is the whole safeguard. A note reading "small numerical difference" or "unclear" never downgrades a FAIL — it has to identify the specification that produces the observed gap. Otherwise EXPLAINED becomes a way to retire inconvenient findings.
+
+**The manuscript is not the oracle.** When the computed value disagrees with the paper, do not assume the code is right and the paper stale, nor the reverse. A refactor can break a previously correct table, which makes the *on-disk output* the buggy side. Report a mismatch as **"one of {paper, code} must change — isolate which"**, never as "revert the code to match the paper." That framing is what stops a genuine bug-fix from being reverted to make a paper reproduce. To localize which pipeline step drifted, hand off to `/diagnose`.
+
+**Repeated EXPLAINED is itself a finding.** A claim marked EXPLAINED in two consecutive audits without ever reaching PASS is surfaced prominently — "contested number, EXPLAINED twice, never corrected" — rather than left sitting behind its recorded note. Same two-strikes logic as `${CLAUDE_PLUGIN_ROOT}/rules/summary-parity.md`.
 
 ---
 
@@ -270,10 +312,26 @@ Verifier score maps to 0 (FAIL) or 100 (PASS) for weighted aggregation.
 - **Smart routing.** File type determines the default review mode; flags override.
 - **Critics never edit.** All reviews produce reports only.
 - **Journal drives everything.** The journal profile shapes the editor's bar, referee selection, and review culture.
-- **Referees vary.** Different dispositions and pet peeves mean running `/peer-review --peer` twice gives different feedback -- just like submitting to two journals would.
-- **Anti-sycophancy across rounds.** In R&R, referees score rebuttals 1-5 and concede only on strong evidence addressing the core critique -- never on tone. Run the dialogue-health self-check every round.
+- **Referees vary.** Different dispositions and pet peeves mean running `/peer-review --peer` twice gives different feedback — just like submitting to two journals would.
+- **Anti-sycophancy across rounds.** In R&R, referees score rebuttals 1-5 and concede only on strong evidence addressing the core critique — never on tone. Run the dialogue-health self-check every round.
 - **"What would change my mind."** Every major referee comment must include the specific evidence or analysis that would resolve the concern.
 - **Paper-type aware, always.** All five types (`imrad|literature_review|theory|case_study|conference`) are first-class; don't penalize a paper for lacking elements its type doesn't require.
 - **Sequential phases in causal/theory audits.** Never skip to polish before verifying the core design or proof holds.
-- **Worker-critic separation.** The reviewer never fixes code or rewrites text -- it only critiques.
-- **Update over create.** One report per target, updated in place with a Changelog -- R&R rounds update, never duplicate.
+- **Worker-critic separation.** The reviewer never fixes code or rewrites text — it only critiques.
+- **Update over create.** One report per target, updated in place with a Changelog — R&R rounds update, never duplicate.
+
+## Node contract
+
+This skill executes four graph nodes that share the `review` phase: `domain-referee`,
+`methods-referee`, `editor`, and the `integrity` gate. Record each referee separately —
+`passport.pipeline.stages.review.score` is one flat number per phase, so without a per-node
+record the graph can't tell the domain-referee's score from the methods-referee's:
+
+```bash
+python3 "${CLAUDE_PLUGIN_ROOT}/scripts/graph.py" record domain-referee --score <N>
+python3 "${CLAUDE_PLUGIN_ROOT}/scripts/graph.py" record methods-referee --score <N>
+python3 "${CLAUDE_PLUGIN_ROOT}/scripts/graph.py" record editor --score <N>
+```
+
+`integrity` is a gate, not a scored node — it advances via `passport.yaml` `integrity.unresolved`
+(empty = passed), which the graph reads directly. Nothing to `record` for it.

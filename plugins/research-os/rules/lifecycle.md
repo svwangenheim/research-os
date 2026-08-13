@@ -6,22 +6,29 @@ Validation rules for agent dispatch and completion. The Orchestrator runs these 
 
 ## PRE-Dispatch Validation
 
-Before dispatching any agent, the Orchestrator reads the agent's entry in `permissions.md` and verifies:
+Before dispatching any agent, run:
 
-1. **REQUIRES artifacts exist:**
-   - For file paths: `Glob` the path, confirm at least one match
-   - For score gates (e.g., "strategist-critic score >= 80"): read `passport.yaml` `pipeline.stages` for the most recent critic score (the narrative rationale is in `00_admin/process/journal.md`)
-   - For directories: confirm the directory is non-empty
+```bash
+python3 "${CLAUDE_PLUGIN_ROOT}/scripts/graph.py" why <node>
+```
 
-2. **REQUIRES sections present** (when specified):
-   - Read the artifact file
-   - Check that each required section heading exists
-   - Example: strategy memo (`03_analysis/strategy/strategy_memo.md`) must contain Estimand, Specification, Assumptions, Robustness Plan, Threats
+This evaluates the node's `REQUIRES` from `${CLAUDE_PLUGIN_ROOT}/graph/pipeline.json` — the
+machine-readable twin of `permissions.md` — against the filesystem, `passport.yaml`, and the run
+ledger, and prints exactly which predicate is unmet. It replaces re-deriving REQUIRES from prose
+by hand: file-glob checks, section-heading checks, and score-gate lookups are all executed, not
+re-interpreted, so the same REQUIRES clause is evaluated identically every time.
 
-3. **If PRE validation fails:**
-   - Do NOT dispatch the agent
-   - Report: "Cannot dispatch [agent]: missing [specific artifact or section]"
-   - Suggest: "Run [skill] first to produce [artifact]"
+1. **`ready` or `ungated`** → dispatch is valid. `ungated` means the artifact exists but the
+   critic hasn't scored it yet — dispatch the *critic*, not the worker.
+2. **`blocked`** → do NOT dispatch. `why` names the missing predicate directly (a file glob with
+   no match, a section heading absent from an existing file, or a score below its gate).
+   Report: "Cannot dispatch [agent]: [predicate from `why`'s output]"
+   Suggest: the prerequisite node's `skill` field.
+3. **`stale`** → the node has already run, but a declared input changed since. This is
+   **advisory, never blocking** — surface it, let the user decide whether to re-run.
+4. **Fallback** (graph.py unavailable): read the agent's entry in `permissions.md` and check
+   REQUIRES by hand — `Glob` for file paths, `passport.yaml` `pipeline.stages` for score gates,
+   read the artifact for required section headings. This is the degraded path, not the default.
 
 ---
 
@@ -40,7 +47,14 @@ After an agent completes, before advancing the pipeline:
 
 3. **Critic score recorded:**
    - Verify the paired critic has produced a scored report
-   - Verify the score is written to `passport.yaml` `pipeline.stages` and noted in `00_admin/process/journal.md`
+   - Write the score to `passport.yaml` `pipeline.stages`, note it in `00_admin/process/journal.md`, **and** run:
+     ```bash
+     python3 "${CLAUDE_PLUGIN_ROOT}/scripts/graph.py" record <node> --score <N>
+     ```
+     This appends to `00_admin/process/runs.jsonl` (append-only — never rewritten) and hashes the
+     node's declared inputs, which is what makes staleness detection possible on the *next* PRE
+     check. Skipping this step doesn't break routing (the graph falls back to `pipeline.stages`),
+     but it does silently disable staleness for that node.
 
 4. **If POST validation fails:**
    - Do NOT advance to the next phase

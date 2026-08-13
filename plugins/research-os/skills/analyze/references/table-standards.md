@@ -2,10 +2,10 @@
 
 Publication-quality tables using standard economics formatting (booktabs rules, no vertical rules). Two approaches are supported:
 
-- **tabularray (`tblr` / `talltblr`)** -- modern key-value interface. Preferred for hand-written tables in `main.tex`.
-- **`tabular` + `booktabs` + `threeparttable`** -- traditional stack. Required for R/Python/Julia-generated output (scripts export bare `tabular`).
+- **tabularray (`tblr` / `talltblr`)** — modern key-value interface. Preferred for hand-written tables in `main.tex`.
+- **`tabular` + `booktabs` + `threeparttable`** — traditional stack. Required for R/Python/Julia-generated output (scripts export bare `tabular`).
 
-Journal-specific conventions (significance stars, note format) adapt to the target journal -- see journal-profiles.md.
+Journal-specific conventions (significance stars, note format) adapt to the target journal — see journal-profiles.md.
 
 ---
 
@@ -62,7 +62,7 @@ Every table uses exactly three horizontal rules and **zero vertical lines**:
 - `\bottomrule` at the very end
 - `\cmidrule(lr){2-4}` for partial rules spanning column groups
 - **R/Python/Julia output:** wrap with `threeparttable` for notes via `\begin{tablenotes}`
-- **Hand-written tables:** prefer `talltblr` with `note{}` keys -- unifies caption, label, and notes
+- **Hand-written tables:** prefer `talltblr` with `note{}` keys — unifies caption, label, and notes
 - **Never** use `\hline`, `|`, or any vertical rules
 
 ---
@@ -178,7 +178,7 @@ kbl(df, format = "latex", booktabs = TRUE, escape = FALSE,
 
 ## Typography
 
-- Serif font throughout (inherits from document class -- no extra commands needed)
+- Serif font throughout (inherits from document class — no extra commands needed)
 - `\small` or `\footnotesize` for tables that need to fit within column width
 - Variable names in plain text, panel labels in `\textit{}`
 - Never bold table body content; bold only for rare emphasis in headers

@@ -35,6 +35,7 @@ Before writing any code, the Coder must output a structured report proving it re
 - Fixed effects: [list]
 - Clustering: [level]
 **Data source:** [path or description]
+**Wiki dataset notes:** [`<main_wiki>/50_datasets/<dataset>.md` — coverage, unit of observation, provider, known quirks; or "no wiki resolvable"]
 **Estimator:** [from strategy memo]
 **Robustness checks required:** [list from memo]
 **Naming map confirms:** [yes / no — do planned code names match paper notation?]
@@ -43,6 +44,8 @@ Proceeding to implementation.
 ```
 
 If the strategy memo is missing and the user's description leaves the estimator, specification, or robustness approach ambiguous, ask the user which approach they want before writing code — don't silently pick one. If the description is already specific enough to implement unambiguously, proceed, but flag that no memo was found and strategic alignment checks (coder-critic categories 1-3) cannot be verified.
+
+**Dataset notes from the wiki.** Before writing any loading or cleaning code, resolve the thematic wiki via the standard ladder in `${CLAUDE_PLUGIN_ROOT}/rules/wiki-integration.md` (`--wiki` > `passport.yaml` `meta.main_wiki` > `.research-os-wiki` > the registry's only wiki), reading `~/.claude/vaults.json` for the path. Read `<main_wiki>/50_datasets/` for the canonical page on each dataset in play: coverage (years, geography, sample), unit of observation, provider and access terms, and the known quirks — top-coding, breaks in series, redefined variables, merge keys that do not mean what their name suggests. A quirk already documented there is a quirk you do not have to rediscover from a silently wrong number. Record the page path in the Pre-Code Report and reference it in the script header where a cleaning decision follows from it. If no wiki is resolvable, skip this step silently.
 
 ### Step 2: Data Preparation (if needed)
 If raw data provided, dispatch **Data-engineer** first:
@@ -229,3 +232,10 @@ Inspired by Scott Cunningham's replication methodology: **if two independent imp
 - **Publication-ready output.** Tables and figures directly includable in the paper.
 - **Overwrite, don't proliferate.** Re-running a script replaces its output in place; provenance lives in git + `passport.yaml`, not date-stamped filenames.
 - **Cross-language convergence.** When `--dual` is used, divergence is a bug until proven otherwise.
+
+## Node contract
+
+This skill executes graph nodes `coder` and `data-engineer` in
+`${CLAUDE_PLUGIN_ROOT}/graph/pipeline.json` (both gated by `coder-critic`; both can run in
+parallel per `PARALLEL_GROUP`). On completion:
+`python3 "${CLAUDE_PLUGIN_ROOT}/scripts/graph.py" record coder --score <N>` (or `data-engineer`).

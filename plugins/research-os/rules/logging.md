@@ -28,11 +28,18 @@ Append to `00_admin/process/journal.md` (newest-first) whenever an agent complet
 ```markdown
 ### YYYY-MM-DD HH:MM — [Agent Name]
 **Phase:** [Discovery/Strategy/Analysis/Writing/Review/Revision/Submission]
+**Node:** [graph node id, e.g. `coder` — see graph/pipeline.json]
+**Run:** [run_id from `graph.py record`, e.g. `r_531fcefabd5c` — omit if the node has no graph entry]
 **Target:** [file or topic]
 **Score:** [XX/100 or PASS/FAIL or N/A]
 **Verdict:** [one line — key finding or decision]
 **Report:** [path to full report]
 ```
+
+`Node` and `Run` are what let a journal entry be traced back to the exact evidence `graph.py stale`
+diffs against — the run ledger (`00_admin/process/runs.jsonl`) is append-only, so a run_id always
+resolves to one immutable record. `graph.py record <node> --score N` prints a ready-to-paste
+`journal line:` for this purpose; use it rather than inventing the run_id by hand.
 
 **Why it exists:** The journal is the *narrative* — "what happened and why." Scores and phase state are read from `passport.yaml` `pipeline.stages`; the journal explains the reasoning behind them. They are complementary, not redundant: the passport answers "where are we and what's next," the journal answers "how did we get here."
 

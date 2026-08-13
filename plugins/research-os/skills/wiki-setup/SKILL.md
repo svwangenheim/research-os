@@ -15,6 +15,8 @@ knowledge model: the registry (`~/.claude/vaults.json`), the personal brain
 Claude. **Idempotent** — re-running it recognizes what already exists,
 diagnoses gaps, and never overwrites or deletes existing content.
 
+**Input:** `$ARGUMENTS` — a path to the vault root, needed only the first time, before anything is registered.
+
 This skill is about **structure**, not content. It never touches note
 *quality* (summary depth, dedup, broken links, canonicalization) — that's
 `${CLAUDE_PLUGIN_ROOT}/scripts/wiki_quality_check.py` and `/wiki-maintain`.

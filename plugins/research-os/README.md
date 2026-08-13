@@ -5,7 +5,7 @@ This document covers the `plugins/research-os/` folder within the [research-os](
 ## Contents
 
 - [Motivation](#motivation)
-- [The three layers](#the-three-layers)
+- [The four layers](#the-four-layers)
 - [Two roles: research assistant and personal assistant](#two-roles-research-assistant-and-personal-assistant)
 - [Getting started](#getting-started)
 - [Common workflows](#common-workflows)
@@ -29,13 +29,17 @@ research-os is a single AI research assistant setup that works across every rese
 
 Every AI conversation otherwise starts from a blank slate: you re-explain your project each time, ideas raised mid-conversation are lost, and your notes never reach your AI assistant. At the same time, research work involves a lot of repetitive scaffolding — folder structures, literature reviews, citation formatting, replication packages — that a disciplined process can largely handle for you, provided something actually enforces that process. research-os is built to solve both: a system that retains context, and a system that does not skip steps.
 
-## The three layers
+## The four layers
 
-**1. A research pipeline.** Discover a question → design the strategy → analyze the data → write the paper → get it peer-reviewed → revise → submit. Each phase has a specialist "worker" agent and, in most phases, a paired "critic" agent whose sole job is to find problems in the worker's output — critics cannot edit files, and workers cannot grade their own work. This part is built on [clo-author](https://github.com/hugosantanna/clo-author), with [ARS](https://github.com/Imbad0202/academic-research-skills)'s integrity checks incorporated (see [Acknowledgments](#acknowledgments)).
+**1. A research pipeline — a declared graph, not a waterfall.** Discover a question → design the strategy → analyze the data → write the paper → get it peer-reviewed → revise → submit. Each phase has a specialist "worker" agent and, in most phases, a paired "critic" agent whose sole job is to find problems in the worker's output — critics cannot edit files, and workers cannot grade their own work. This part is built on [clo-author](https://github.com/hugosantanna/clo-author), with [ARS](https://github.com/Imbad0202/academic-research-skills)'s integrity checks incorporated (see [Acknowledgments](#acknowledgments)).
+
+The dependency structure between phases is machine-readable (`graph/pipeline.json`) rather than implied by prose, and nothing in it stores state — a node's status (ready, blocked, done, stale) is recomputed on every call from the graph plus the filesystem plus `passport.yaml`, so it cannot silently drift from reality. `python3 scripts/graph.py next` returns the true *ready frontier* — often more than one node at once, since real work fans out and a waterfall model would hide that — and a project that already has data can enter straight at `/strategize` instead of always starting at `/discover`. `graph.py dot --mermaid` renders the current graph as a diagram on demand.
 
 **2. A two-layer knowledge base.** `_brain/` is your personal space — profile, daily/weekly notes, project journals, your own synthesis. Alongside it sit one or more **thematic wikis** — Claude-maintained knowledge bases, one per research theme, that absorb every paper, dataset, and method you feed them and continuously rewrite themselves to stay current rather than simply accumulating notes. You read the wikis; you do not edit them directly.
 
 **3. A learning layer.** Built on [engram](https://github.com/nagisanzenin/engram), vendored directly into this plugin: point it at anything that was unclear, and it teaches the concept properly — a first-principles breakdown, Socratic dialogue, tested recall — then schedules spaced-repetition reviews so it is retained.
+
+**4. A personal automation layer.** Distinct from the pipeline above: this is *your own* recurring busywork, not generalizable research machinery, and it never ships as a research-os skill itself. `_brain/procedures/` holds procedures you or Claude write down; `/automate` authors (`new`), runs (`run`), inventories (`list`/`status`/`map`), and schedules (`schedule`) them. There is no promotion gate — a procedure is runnable the moment it validates, drafted either in dialogue or seeded from evidence mined out of your own past sessions (`scripts/mine_sessions.py`). Every step is tagged `[ai]` (Claude executes it), `[human]` (stops and asks — a scheduled run hits this and correctly just stops rather than guessing), `[external]` (hands off to another named tool or skill), or `[veto]` (refuses unconditionally, no plan emitted past it). Procedures may call research-os skills; skills never call procedures — one direction only. See `docs/13-the-automation-layer.md` for the full design history.
 
 ## Two roles: research assistant and personal assistant
 
@@ -104,6 +108,8 @@ Grouped by function. One line each, in plain language — see each skill's own f
 | `/talk` | Turn the paper into a presentation — Beamer or a modern web deck. |
 | `/dashboard` | Generate a single-page HTML overview of the project. |
 | `/tools` | Project utilities: commit, compile, check the bibliography, deploy. |
+| `/diagnose` | A result is wrong or won't run: reproduce it, shrink it, name the cause, then fix — never a guessed fix that makes the symptom disappear. |
+| `/coauthor-brief` | Write a handoff brief so a coauthor can take over part of the project — what changed, what state it's in, how to reproduce it locally. |
 | `/freeze` | Lock a set of folders against accidental edits while you focus elsewhere. |
 | `/careful` | Block dangerous shell commands (`rm -rf`, force-push, etc.) for the rest of the session. |
 
@@ -119,8 +125,9 @@ Agents dispatched by the above (not called directly):
 | `writer` / `writer-critic` | `/write` | Draft paper sections; the critic checks the draft against the evidence. |
 | `storyteller` / `storyteller-critic` | `/talk` | Build the presentation; the critic checks narrative flow and whether it compiles. |
 | `domain-referee` / `methods-referee` / `editor` | `/peer-review` | Referee field substance and methods separately; the editor makes the final call. |
+| `claim-verifier` | `/discover`, `/write`, `/peer-review`, others | Checks factual claims in a forked context that never sees the draft, so it cannot confirm its own side. |
 | `orchestrator` | (infrastructure) | Coordinates execution across the pipeline — determines what runs next and enforces quality gates. |
-| `verifier` | (infrastructure) | Confirms everything compiles, runs, and replicates before a commit, PR, or submission. |
+| `verifier` | (infrastructure) | Confirms everything compiles, runs, and replicates before a commit, PR, or submission, and owns the integrity gate. |
 
 ### Wiki & knowledge
 
@@ -137,6 +144,7 @@ Agents dispatched by the above (not called directly):
 | Agent | Dispatched by | What it does |
 |---|---|---|
 | `wiki-librarian` | all of the above | Enforces the two-layer knowledge model's standards behind the scenes. |
+| `wiki-promotion-council` | `/wiki-push`, `/wiki-ingest`, `/wiki-maintain` | Five independent critics vote on whether a note may enter the wiki. The gate that licenses writing without being asked. |
 
 ### Second brain & admin
 
@@ -144,7 +152,11 @@ Agents dispatched by the above (not called directly):
 |---|---|
 | `/checkpoint` | End-of-session save: what happened and what's next, into the project's journal. |
 | `/daily-summary` | End-of-day routine: commits the day's work, writes a summary, checks Slack/mail for anything relevant. |
+| `/week` | Refresh the live week view — pull the calendar, reconcile the plan, regenerate the week page. |
 | `/weekly-planning` | End-of-week routine: reviews plan against reality, sets next week's goals, proposes calendar blocks. |
+| `/pending` | Clear the backlog across every project — uncommitted work, unpushed commits, unpushed wiki knowledge — grouped by project, asked once and remembered. |
+| `/automate` | Author and run your own recurring procedures (`_brain/procedures/`) — no promotion gate, runnable the moment one validates. |
+| `/workflow-audit` | Inventory the recurring work across your roles and score it, so the highest-leverage processes become procedures. |
 | `/check-update-upstream-repos` | Checks whether the open-source projects this system is built on have changed since last reviewed. |
 | `/research-os-help` | The front door — "what's next," "what can this do," or a full plain-language walkthrough of the system. |
 
@@ -188,8 +200,6 @@ No dedicated agents in this group — these skills operate directly, without dis
 | `/prompt-optimizer` | Feed it a rough prompt and get back a sharper one — never runs the task itself. |
 | `/frontend-slides` | Build an animated HTML presentation, or convert a PowerPoint into one. |
 | `/data-scraper-agent` | Stand up a free, scheduled scraper for any public data source. |
-| `/continuous-learning-v2` | Claude observes its own sessions and gradually builds small learned preferences over time. |
-| `/skill-stocktake` | Audit all skills and commands in this plugin for quality. |
 
 | Agent | Dispatched by | What it does |
 |---|---|---|
@@ -205,7 +215,10 @@ No dedicated agents in this group — these skills operate directly, without dis
 | `agents/` | All the worker/critic agents above. |
 | `hooks/` | Small scripts that fire on session start/stop/compact — nudges (due learning reviews, unpushed wiki knowledge), guardrails. |
 | `rules/` | The governance rules agents follow (permissions, quality gates, wiki conventions). |
-| `templates/` | Every scaffold the plugin installs — vault root docs, `.obsidian` config, `_brain/` folder READMEs and placeholders, wiki-note and brain-note templates, the eight generic wiki-folder READMEs. Nothing scaffolded exists only as skill prose — see [Plugin internals](#plugin-internals). |
+| `graph/` | `pipeline.json` — the pipeline as a declared, executable dependency graph — plus its `schema.md`. Evaluated by `scripts/graph.py`; kept consistent with `rules/permissions.md` by `graph.py selftest`. |
+| `scripts/` | The status line, the wiki map generator, the dashboard renderer, the learning engine, the automation-layer scripts (`automate_run.py`, `automate_schedule.py`, `mine_sessions.py`), the graph evaluator, the plugin's own consistency checkers, and the scheduled routines. |
+| `output-styles/` | Response styles for academic writing and for refereeing, selectable via `outputStyle`. |
+| `templates/` | Every scaffold the plugin installs — vault root docs, `.obsidian` config, `_brain/` folder READMEs and placeholders, wiki-note and brain-note templates, the eight generic wiki-folder READMEs, the personal-procedure template. Nothing scaffolded exists only as skill prose — see [Plugin internals](#plugin-internals). |
 | `state/` | Tracks the upstream repos this is built on, so drift can be flagged. |
 | `docs/`, `gold/`, `references/` | Vendored engram pedagogy docs, its grading gold-set, and reference material such as the [scheduled-agent specs](references/scheduled-agents.md). |
 
@@ -223,11 +236,11 @@ No dedicated agents in this group — these skills operate directly, without dis
 - [clo-author](https://github.com/hugosantanna/clo-author) — the base research pipeline (skills, agents, hooks, rules), ported in and adapted.
 - [academic-research-skills (ARS)](https://github.com/Imbad0202/academic-research-skills) — the integrity layer merged into the ported pipeline: citation triangulation, anachronism checks, PRISMA systematic-review support, multi-style citations, AI-use disclosure.
 - [engram](https://github.com/nagisanzenin/engram) — the spaced-repetition learning engine, vendored directly rather than installed as a separate plugin: the FSRS-4.5 engine, its curriculum/assessment/artifact agents, and its pedagogy docs are copied in and adapted for this system.
-- [obsidian-second-brain](https://github.com/eugeniughelbur/obsidian-second-brain) — not integrated directly, but monitored for design ideas worth adopting: the freshness/confidence note conventions, the MOC/index approach, and the four-routine scheduled-agent design (see below) all draw on patterns from here.
+- [obsidian-second-brain](https://github.com/eugeniughelbur/obsidian-second-brain) — not integrated directly, but monitored for design ideas worth adopting: the freshness/confidence note conventions, the MOC/index approach, and the original scheduled-agent design (see below) all draw on patterns from here.
 
 ## Scheduled admin routines
 
-Four routines run unattended, entirely **locally** — no cloud, nothing pushed anywhere: a read-only morning brief (daily), a bounded-mutation nightly consolidation (daily; commits locally, never pushes), a read-only weekly vault-health audit (Fridays), and a draft-only weekly review and planning pass (Fridays). Each is a small PowerShell script (`scripts/scheduled/*.ps1`) registered as a Windows Scheduled Task, calling `claude -p` with a permission allowlist scoped to exactly what that routine needs — the nightly consolidation's allowlist simply has no `git push` in it, so it is structurally incapable of pushing, not merely instructed not to. Two of the four call the matching skill directly (`/research-os:daily-summary`, `/research-os:weekly-planning`) with an explicit non-interactive override, since those skills normally ask conversational questions a scheduled run has no one to answer. Every run logs to `vault/_brain/.scheduled-logs/<routine>/`.
+Seven routines run unattended, entirely **locally** — no cloud, nothing pushed anywhere: a read-only morning brief (daily), a bounded-mutation nightly consolidation (daily; commits locally, never pushes), a read-only nightly reproducibility check against the project's recorded claims (daily), a read-only weekly vault-health audit (Fridays), a draft-only weekly review and planning pass (Fridays), a weekly literature sweep on saved topics diffed against the previous week (Mondays), and a daily pending-work sweep that reports uncommitted, unpushed, and unpushed-wiki items across every project without invoking Claude at all. Each is a small PowerShell script (`scripts/scheduled/*.ps1`) registered as a Windows Scheduled Task, calling `claude -p` with a permission allowlist scoped to exactly what that routine needs — the nightly consolidation's allowlist simply has no `git push` in it, so it is structurally incapable of pushing, not merely instructed not to. The two that wrap an existing skill (`/research-os:daily-summary`, `/research-os:weekly-planning`) pass an explicit non-interactive override, since those skills normally ask conversational questions a scheduled run has no one to answer. Every run logs to `vault/_brain/.scheduled-logs/<routine>/`. A personal procedure can register its own schedule the same way via `/automate schedule <name>`, reusing the same wrapper machinery.
 
 See [scheduled-agents.md](references/scheduled-agents.md) for the exact schedule, prompts, and design rationale. Dry-run any of them by hand before trusting the schedule, and inspect the registered tasks with `schtasks /query /tn ResearchOS-<name> /fo LIST /v`.
 

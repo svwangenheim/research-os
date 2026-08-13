@@ -1,8 +1,9 @@
 ---
 name: python-testing
 description: Python testing strategies using pytest, TDD methodology, fixtures, mocking, parametrization, and coverage requirements.
-argument-hint: "[nothing -- reference guide; or a specific pytest/TDD question]"
+argument-hint: "[nothing — reference guide; or a specific pytest/TDD question]"
 origin: ECC
+allowed-tools: Read, Write, Edit, Bash, Grep, Glob
 ---
 
 # Python Testing Patterns

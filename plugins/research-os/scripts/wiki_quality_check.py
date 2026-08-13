@@ -87,10 +87,11 @@ CORE_LINK_FOLDERS = (
 )
 
 # _brain/ (personal layer) checks
-BRAIN_FOLDERS = ("projects", "thoughts", "learning", "synthesis", "daily", "weekly")
+BRAIN_FOLDERS = ("projects", "procedures", "thoughts", "learning", "synthesis", "daily", "weekly")
 
 BRAIN_FOLDER_NOTE_TYPES: dict[str, tuple[str, ...]] = {
     "projects": ("project",),
+    "procedures": ("procedure",),
     "thoughts": ("thought",),
     "learning": ("learning",),
     "synthesis": ("synthesis",),
@@ -101,6 +102,7 @@ BRAIN_FOLDER_NOTE_TYPES: dict[str, tuple[str, ...]] = {
 # folder -> required frontmatter keys (presence + non-empty)
 BRAIN_REQUIRED_FIELDS: dict[str, tuple[str, ...]] = {
     "projects": ("title", "status", "updated"),
+    "procedures": ("title", "name", "role", "trigger", "automation", "updated"),
     "thoughts": ("title", "updated"),
     "learning": ("title", "confidence", "updated"),
     "synthesis": ("title", "updated"),
@@ -109,6 +111,22 @@ BRAIN_REQUIRED_FIELDS: dict[str, tuple[str, ...]] = {
 }
 
 BRAIN_STALE_DAYS = 120  # an 'active' project note untouched this long is flagged
+
+# Closed enums for procedure notes. A typo here silently breaks the Dataview
+# catalog and /automate's dispatch, so it is caught at audit time instead.
+#
+# 2026-08-12: procedures are executable specs (docs/13-the-automation-layer.md),
+# not documentation behind a promotion gate. PROCEDURE_PROMOTION is retired --
+# there is no gate. "cross-cutting" (executes as a modifier on another role's
+# work) and "life" (personal, non-work commitments the planning layer still
+# needs to see) were added the same day, from the first real /workflow-audit run.
+PROCEDURE_ROLES = ("phd", "dz-modelling", "dz-outreach", "admin", "cross-cutting", "life")
+PROCEDURE_AUTOMATION = ("assisted", "scheduled", "vetoed")
+STEP_ACTOR_TAGS = ("[ai]", "[human]", "[external]", "[veto]")
+
+# schedule: is free text consumed by automate_schedule.py, but it must start with
+# one of these or the schedule is silently never registered.
+SCHEDULE_PREFIXES = ("daily", "weekly", "monthly")
 
 MIN_SUMMARY_WORDS = 120  # below this, a summary body is "thin"
 DUPLICATE_TITLE_RATIO = 0.80  # difflib ratio threshold for "possible duplicate"
@@ -627,6 +645,99 @@ def check_brain_staleness(notes: list[Note], today: Any = None) -> list[Finding]
     return findings
 
 
+def check_procedure_note(note: Note) -> list[Finding]:
+    """Procedure-specific integrity checks.
+
+    Procedures are executable specs (docs/13-the-automation-layer.md) -- there
+    is no promotion gate, so what breaks one silently is different from what it
+    was when a gate existed: an enum typo (invisible to /automate's dispatch), a
+    step with no actor tag (unclear who runs it -- the runner cannot execute
+    what it cannot classify), a veto without a reason, a `name` that doesn't
+    match the filename (breaks `/automate run <name>` lookup), and a malformed
+    `schedule:` (silently never registered by automate_schedule.py).
+    """
+    if note.frontmatter.get("note_type") != "procedure":
+        return []
+
+    findings: list[Finding] = []
+    rel = note.rel
+    fm = note.frontmatter
+
+    enum_checks = (
+        ("role", PROCEDURE_ROLES),
+        ("automation", PROCEDURE_AUTOMATION),
+    )
+    for key, allowed in enum_checks:
+        value = fm.get(key)
+        if not is_empty(value) and value not in allowed:
+            findings.append(
+                Finding("procedure", rel, f"{key}: {value!r} is not one of {allowed}")
+            )
+
+    if fm.get("automation") == "vetoed" and is_empty(fm.get("veto_reason")):
+        findings.append(
+            Finding("procedure", rel, "automation: vetoed but no veto_reason - a veto must say why")
+        )
+
+    name = fm.get("name")
+    if not is_empty(name) and str(name) != note.path.stem:
+        findings.append(
+            Finding(
+                "procedure",
+                rel,
+                f"name: {name!r} does not match the filename ({note.path.stem}) - "
+                f"/automate run {name!r} would not find this note",
+            )
+        )
+
+    schedule = fm.get("schedule")
+    if not is_empty(schedule) and not str(schedule).strip().lower().startswith(SCHEDULE_PREFIXES):
+        findings.append(
+            Finding(
+                "procedure",
+                rel,
+                f"schedule: {schedule!r} does not start with one of {SCHEDULE_PREFIXES} - "
+                f"automate_schedule.py will never register it",
+            )
+        )
+
+    untagged = untagged_steps(note.body)
+    if untagged:
+        preview = "; ".join(untagged[:3])
+        findings.append(
+            Finding(
+                "procedure",
+                rel,
+                f"{len(untagged)} step(s) with no actor tag {STEP_ACTOR_TAGS}: {preview}",
+            )
+        )
+
+    return findings
+
+
+def untagged_steps(body: str) -> list[str]:
+    """Numbered steps under `## Steps` that carry no actor tag.
+
+    Only the Steps section is scanned -- numbered lists elsewhere in the note
+    (failure modes, notes to self) are prose, not executable steps.
+    """
+    lines = body.split("\n")
+    in_steps = False
+    untagged: list[str] = []
+    for line in lines:
+        stripped = line.strip()
+        if stripped.startswith("## "):
+            in_steps = stripped.lower().startswith("## steps")
+            continue
+        if not in_steps or not stripped:
+            continue
+        if not re.match(r"^\d+\.\s+\S", stripped):
+            continue
+        if not any(tag in stripped for tag in STEP_ACTOR_TAGS):
+            untagged.append(stripped[:60])
+    return untagged
+
+
 @dataclass
 class BrainReport:
     path: Path
@@ -640,6 +751,7 @@ def check_brain(brain_path: Path) -> BrainReport:
     findings: list[Finding] = []
     for note in notes:
         findings.extend(check_brain_note(note))
+        findings.extend(check_procedure_note(note))
     findings.extend(check_brain_orphans(notes))
     findings.extend(check_brain_staleness(notes))
     return BrainReport(path=brain_path, counts=counts, findings=findings)
@@ -658,6 +770,7 @@ def render_brain_report(report: BrainReport) -> str:
         ("gap", "Frontmatter gaps"),
         ("orphan", "Catalog-invisible project notes"),
         ("stale", "Stale active project notes"),
+        ("procedure", "Procedure defects"),
     ]
     total = 0
     for kind, title in sections:
@@ -735,16 +848,24 @@ def build_arg_parser() -> argparse.ArgumentParser:
     return parser
 
 
-def main(argv: list[str] | None = None) -> int:
-    # Windows consoles (PowerShell/cmd) often default to a legacy codepage that
-    # cannot encode note titles/tags containing non-ASCII characters (e.g. German
-    # umlauts). Reconfigure defensively so a printable-character issue never
-    # crashes an advisory, always-exit-0 tool.
+def force_utf8_console() -> None:
+    """Make stdout/stderr safe for non-ASCII content.
+
+    Windows consoles (PowerShell/cmd) often default to a legacy codepage that
+    cannot encode note titles, German umlauts, or an arrow in a wiki-links
+    item. Reconfigure defensively so a printable-character issue never crashes
+    an advisory tool. Shared by every script in this directory -- see the
+    sibling modules that import it.
+    """
     for stream in (sys.stdout, sys.stderr):
         try:
             stream.reconfigure(encoding="utf-8", errors="replace")
         except (AttributeError, ValueError):
             pass
+
+
+def main(argv: list[str] | None = None) -> int:
+    force_utf8_console()
 
     parser = build_arg_parser()
     args = parser.parse_args(argv)

@@ -1,4 +1,4 @@
-# AEA RCT Registry -- Pre-Analysis Plan Template
+# AEA RCT Registry — Pre-Analysis Plan Template
 
 **Registry:** [AEA RCT Registry](https://www.socialscienceregistry.org/)
 **Requirement:** Must be registered BEFORE intervention begins.
@@ -99,7 +99,7 @@ $$
 Y_{it} = \alpha + \beta_1 T_i + \beta_2 T_i \times H_i + \beta_3 H_i + X_i'\gamma + \varepsilon_{it}
 $$
 
-- $H_i$: [heterogeneity dimension -- gender, baseline value, etc.]
+- $H_i$: [heterogeneity dimension — gender, baseline value, etc.]
 
 ---
 
@@ -170,4 +170,4 @@ $$
 
 | Date | Deviation | Reason | Impact |
 |------|-----------|--------|--------|
-| | [empty -- to be filled post-registration] | | |
+| | [empty — to be filled post-registration] | | |

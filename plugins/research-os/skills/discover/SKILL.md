@@ -1,7 +1,7 @@
 ---
 name: discover
-description: Discovery phase of the research-os pipeline - research interview, literature search (narrative or PRISMA), data discovery, and ideation. Writes the research spec into passport.yaml.
-argument-hint: "[mode: interview | lit | lit systematic | data | ideate] [topic or query]"
+description: Discovery phase of the research-os pipeline — research interview, literature search (narrative or PRISMA), data discovery, ideation, and single-idea feasibility triage. Writes the research spec into passport.yaml. Use when starting a paper, or on "find literature", "find data", "is this idea feasible".
+argument-hint: "[mode: interview | lit | lit systematic | data | ideate | feasibility] [topic or query]"
 allowed-tools: Read,Grep,Glob,Write,Edit,Bash,WebSearch,WebFetch,Task
 ---
 
@@ -203,6 +203,63 @@ Generate:
 3. Rank by feasibility and novelty
 4. Save to `explorations/research_ideas_[topic].md` (the research sandbox). A chosen idea graduates to the interview + a decision record.
 
+### `/discover feasibility <idea>` — Single-Idea Feasibility Triage
+
+Added 2026-08-12, from a real gap the first `/workflow-audit` found: `ideate`
+generates *new* ideas from a topic; there was no lightweight front door for
+the opposite, much more common case — **you already have one idea** and want
+it stress-tested before committing to a full discovery interview. Evidence,
+verbatim: *"I like the idea, but do not know whether it's actually feasible
+so I need Claude to find relevant settings, test whether there's appropriate
+data available, see if the data is enough to create a credible
+identification strategy with control group."* The example given was a
+universal-school-meals natural experiment (eligible-but-had-to-file-paperwork
+vs. automatically-enrolled households) — a pure cognitive-load shock with no
+income/hours change, which needs exactly this triage: is there a real
+institutional setting, is there data, is a credible control group
+constructible.
+
+Cheaper than `interview` (no passport commitment, no domain-profile write)
+and narrower than `data` (which assumes the research question is already
+fixed) — this sits between them.
+
+**Agents:** Explorer (finder) → explorer-critic (assessor) — same pairing as
+`data`, applied to one candidate idea instead of an already-committed design.
+**Output:** A verdict, not a spec → `explorations/feasibility_[idea-slug].md`
+
+Workflow:
+1. Restate the idea precisely: the shock, the treated group, the comparison
+   group, and — critically — what does NOT change between them (the evidence
+   for the school-meals idea rests on isolating a pure cognitive-load channel
+   with income/hours held fixed; state the equivalent isolation for whatever
+   idea is given).
+2. Dispatch Explorer to find **real institutional settings** where this shock
+   actually occurred or occurs — not a hypothetical, a named policy, program,
+   or natural experiment with a real trigger date/mechanism.
+3. For each setting found, dispatch Explorer to check **actual data
+   availability** against it — same public/administrative/survey/novel
+   categories as `data` mode, same A/B/C/D feasibility grading.
+4. Dispatch explorer-critic against the same 5-point assessment `data` mode
+   uses, with one addition specific to triage: **is a credible control/
+   comparison group constructible from what's actually available** — not
+   "would one exist in principle," but "does the found data actually contain
+   one."
+5. Render a verdict, not a research plan:
+   - **Feasible** — real setting(s) found, data graded B or better, a
+     control group is constructible. Name the setting and the data.
+   - **Feasible with a named condition** — feasible only if a specific,
+     stated thing is true (e.g. "only if the paperwork-filing requirement
+     was actually enforced inconsistently enough to generate variation").
+   - **Not feasible as stated** — name the specific blocker (no real
+     setting found; data graded D; no constructible control group) rather
+     than a vague "seems hard."
+6. Save to `explorations/feasibility_[idea-slug].md`. **A feasible verdict
+   does not auto-graduate to the interview** — that's a separate decision,
+   same as `ideate`'s output.
+
+This mode never writes to `passport.yaml` or `00_admin/domain-profile.md` —
+it is deliberately disposable until the idea is actually adopted.
+
 ---
 
 ## Bundled Resources
@@ -234,3 +291,10 @@ Generate:
 - **Two-layer aware:** Read the wiki corpus (`<main_wiki>/10_sources`, `/20_summaries`) before searching the web; always run the WIKI-PENDING sync so nothing is lost to future projects; refresh `wiki-links.md`.
 - **Domain-profile aware:** Always read `00_admin/domain-profile.md` first for field calibration.
 - **Worker-critic pairing:** Librarian + librarian-critic, Explorer + explorer-critic. Never skip the critic.
+
+## Node contract
+
+This skill executes graph nodes `librarian` (`lit` / `lit systematic`) and `explorer` (`data`) in
+`${CLAUDE_PLUGIN_ROOT}/graph/pipeline.json`. On completion, record the critic score so the graph
+and dashboard see it: `python3 "${CLAUDE_PLUGIN_ROOT}/scripts/graph.py" record librarian --score <N>`
+(or `explorer`). `interview` and `ideate` modes don't correspond to a graph node — nothing to record.

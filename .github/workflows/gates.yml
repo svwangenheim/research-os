@@ -1,0 +1,28 @@
+name: gates
+
+# The same two deterministic checkers the pre-commit hook runs. The hook can be
+# bypassed with SKIP_INTEGRITY_GATE=1; CI cannot, so this is where a bypassed
+# commit surfaces. Stdlib-only, so there is nothing to install.
+
+on:
+  pull_request:
+  push:
+    branches-ignore:
+      - main
+
+jobs:
+  integrity:
+    name: plugin integrity and surface sync
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: check_plugin_integrity.py
+        run: python plugins/research-os/scripts/check_plugin_integrity.py --verbose
+
+      - name: check_surface_sync.py
+        run: python plugins/research-os/scripts/check_surface_sync.py --verbose

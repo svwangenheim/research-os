@@ -9,6 +9,8 @@ allowed-tools: Read,Grep,Glob,Write,Edit,Bash
 
 Captures what happened in the current session and persists it across the two-layer knowledge model (see `${CLAUDE_PLUGIN_ROOT}/rules/wiki-integration.md` and `rules/logging.md`):
 
+**Input:** `$ARGUMENTS` — optional flags scoping what gets written. Omitted, the skill runs the full handoff and confirms before each write.
+
 1. **`passport.yaml`** — the state ledger. Append a `sessions:` entry (resume point) and update `pipeline.current_stage`. This replaces clo-author's `SESSION_REPORT.md` + `pipeline-state.json`.
 2. **`00_admin/process/journal.md`** — the narrative research journal (append, newest-first) when agent work happened.
 3. **`00_admin/process/sessions/`** — a longer per-session handoff note when a one-line `sessions:` entry is not enough.
@@ -34,7 +36,12 @@ git diff --cached --stat
 ```
 
 Then scan:
-- `passport.yaml` — `meta.name`, `meta.slug`, `meta.main_wiki`, `pipeline.current_stage`, latest `sessions:` entry
+- `passport.yaml` — `meta.name`, `meta.slug`, `meta.main_wiki`, `pipeline.current_stage`, latest `sessions:` entry.
+  **No `passport.yaml`?** Not an error — the Microsimulation and Macro-Fiscal
+  repos run BMAD, not the research-os pipeline, and have never had one. Set
+  `has_passport = false` and carry it through the rest of this flow: Step 4a
+  is skipped entirely (there is no ledger to append to), and every other step
+  (journal, personal brain, memory, dashboard) still runs, unaffected.
 - `00_admin/process/plans/` for files modified today
 - `00_admin/process/sessions/` for files modified today
 - The conversation context for key decisions, corrections, or learnings that qualify for auto-memory
@@ -49,10 +56,10 @@ Run both checks in parallel:
 cat ~/.claude/vaults.json 2>/dev/null || cat ~/.claude/VAULT_PATH 2>/dev/null || echo "VAULTS: not configured"
 ```
 
-- If `~/.claude/vaults.json` exists, read it to resolve the `_brain/` path (recorded in the registry) and the main wiki path (`passport.yaml` `meta.main_wiki` → path).
+- If `~/.claude/vaults.json` exists, read it to resolve the `_brain/` path (recorded in the registry) and the main wiki path (`passport.yaml` `meta.main_wiki` → path, or skip that specific lookup when `has_passport = false`).
 - **Fallback:** if `~/.claude/vaults.json` does not exist, fall back to the legacy single pointer `~/.claude/VAULT_PATH`. If neither exists, the personal-brain write is inactive — proceed without it (passport + journal still capture the session).
-- Derive the project slug from `passport.yaml` `meta.slug` (or `basename $(pwd)` lowercased, spaces → hyphens).
-- Target project note: `<_brain>/projects/<slug>.md`.
+- Derive the project slug from `passport.yaml` `meta.slug` **when `has_passport` is true**; otherwise from `basename $(pwd)` lowercased, spaces → hyphens — this is the path every BMAD project already takes, so no passport means no behavior change here at all.
+- Target project note: `<_brain>/projects/<slug>.md`. This is where a no-passport project's checkpoint actually lands — see the existing `microsimulation-model.md` / `macro-fiscal-growth-model.md` notes for the shape (their own "Note on workflow" line names BMAD explicitly and says the note exists purely for second-brain visibility).
 
 **2b. Obsidian MCP (secondary, optional)**
 
@@ -78,8 +85,8 @@ Present a compact summary:
 - [bullets from git log + conversation context]
 
 ### passport.yaml updates
-- **sessions:** [entry to append — date / summary / next]
-- **pipeline.current_stage:** [old → new, if it changed]
+- [if `has_passport`: **sessions:** entry to append — date / summary / next; **pipeline.current_stage:** old → new, if it changed]
+- [if not `has_passport`: "Skipped — no passport.yaml (not a research-os pipeline project)". Not an error; every other section below still runs.]
 
 ### Journal / handoff updates
 - **00_admin/process/journal.md:** [entry to append — if any agent work happened]
@@ -92,10 +99,31 @@ Present a compact summary:
 ### Memory updates
 - [new learnings to save — or "None"]
 
+### Discarded as noise
+- [failed hypothesis / abandoned approach / debugging dead-end] — [why it didn't work]
+- [or "None — nothing explored and rejected this session"]
+
 ### Obsidian MCP updates
 - [if configured: project note journal entry, dashboard row, daily journal]
 - [if not configured: "Skipped — no .claude/state/obsidian-config.md"]
 ```
+
+**On "Discarded as noise".** List what was explored and rejected — dead-end
+hypotheses, approaches abandoned, numbers that turned out wrong — and say why.
+This is the section people skip, and it is the one that pays.
+
+A checkpoint's job is to survive compaction. Compaction is lossy in a specific
+way: it keeps what was said and drops the reasoning, so a discarded hypothesis
+that was discussed at length survives as text while the fact that it was
+*rejected* does not. The next session then finds a plausible-looking idea in
+its context with nothing marking it as dead, and re-runs it — or worse, cites
+it. Naming the rejects explicitly is what stops a failed idea from being
+quoted back as a finding.
+
+Keep it to what was genuinely considered and ruled out. If the same dead-end
+shows up in three consecutive checkpoints, the confusion is structural: fix the
+document or the workflow that keeps regenerating it rather than discarding it
+again.
 
 **Ask the user:** "Look right? I'll save all of this." Wait for confirmation or edits.
 
@@ -106,6 +134,10 @@ Skip confirmation if invoked with `--auto` or the user said "just do it".
 Execute all saves. Each section is independent — if one fails, the others still run.
 
 #### 4a. passport.yaml — sessions + pipeline stage
+
+**Skip this entire step if `has_passport` is false** — there is no ledger to
+append to, and that is not a partial checkpoint, it's the complete one for a
+non-research-os project. Steps 4b-4g are unaffected and still run.
 
 Append a `sessions:` entry (newest last), per `rules/logging.md`:
 
@@ -180,6 +212,11 @@ Follow the project's `obsidian-config.md` for vault path and project mapping, th
 
 #### 4g. Refresh Project Dashboard
 
+**Skip if `has_passport` is false** — `generate_dashboard.py` renders the
+research-os *paper* pipeline (literature, identification, results, review
+history) from `passport.yaml`; a BMAD project has none of that state and
+nothing to render. Its own dashboard, if it has one, is a separate concern.
+
 Regenerate the living dashboard to capture the latest session state:
 ```bash
 python3 "${CLAUDE_PLUGIN_ROOT}/scripts/generate_dashboard.py" --project-root .
@@ -191,7 +228,7 @@ Report what was saved:
 
 ```
 Checkpoint saved:
-- passport.yaml: sessions entry added [ + stage → <new> ]
+- passport.yaml: [sessions entry added [ + stage → <new> ] | skipped — no passport.yaml, not a research-os project]
 - journal.md: [entry added | skipped — no agent work]
 - 00_admin/process/sessions/: [note added | skipped]
 - Personal brain: [entry added to <_brain>/projects/<slug>.md | not configured]
@@ -243,6 +280,7 @@ Do NOT run this on every checkpoint — only when the user explicitly opts in.
 
 - **Never invent progress.** Only log what actually happened — from git, conversation, or user confirmation.
 - **Be fast.** The whole checkpoint should take under 60 seconds including user confirmation.
+- **No passport.yaml is a normal state, not a partial checkpoint.** BMAD/DZ projects (Microsimulation, Macro-Fiscal) never had one and never will. Steps 4a and 4g are the only ones that read/write it; skip exactly those two, run everything else in full, and report it as a skip, not an error.
 - **Don't duplicate.** Check existing memory files before creating new ones. Check if today's `_brain/projects/<slug>.md` entry already covers this session.
 - **Passport is the ledger.** Session boundaries → `sessions:`; phase/scores → `pipeline.stages`. Never scatter state into per-step files.
 - **Two-layer aware.** Human-facing notes → `_brain/`; objective knowledge → wikis via `/wiki-ingest`; the thematic wikis are Claude-maintained and NOT hand-edited by checkpoint.

@@ -21,7 +21,7 @@
 - More methodological detail allowed
 - Can show robustness in main deck
 - Discussion section expected
-- Audience may interrupt with questions -- build in natural pause points
+- Audience may interrupt with questions — build in natural pause points
 - Main result by the halfway mark
 
 ### Short (Conference)
@@ -29,11 +29,11 @@
 - Skip literature review
 - Minimal robustness (backup slides)
 - End with "big picture" not "future work"
-- No time for audience to absorb complexity -- simplify aggressively
+- No time for audience to absorb complexity — simplify aggressively
 
 ### Lightning
 - One idea, one figure, one takeaway
 - No equations
 - No tables (figures only)
 - The goal is to make the audience want to read the paper
-- Practice to the second -- 5 minutes goes fast
+- Practice to the second — 5 minutes goes fast

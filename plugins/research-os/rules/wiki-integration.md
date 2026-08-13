@@ -33,12 +33,23 @@ _brain/
   weekly/                 # weekly reviews
   thoughts/               # freeform notes and ideas
   projects/               # per-project notes (moved from the old wiki 70_projects/)
+  procedures/             # the researcher's own executable specs (the automation layer)
   synthesis/              # personal synthesis + cross-theme insight (spans multiple wikis)
   learning/               # durable learnings (what used to accumulate in MEMORY.md)
   wikis-index.md          # index of the registered thematic wikis
 ```
 
 Key distinction from the theme wikis: `90_synthesis/` inside a wiki is **theme-internal** (synthesis within one theme); `_brain/synthesis/` is **personal and cross-theme** (insight that spans wikis, tied to the researcher's own thinking).
+
+**The three `_brain/` knowledge kinds, kept distinct** — they are easy to conflate and the layer stops working when they blur:
+
+| Folder | Holds | Answers |
+|---|---|---|
+| `projects/` | what is being worked on, and where it stands | *what* and *when* |
+| `procedures/` | how the researcher does a recurring thing, step by step | *how* |
+| `synthesis/` + the wikis | what is known | *what is true* |
+
+`procedures/` is the automation layer (`docs/13-the-automation-layer.md`). A procedure is *this* researcher's own recurring task, judgment calls included — and, unlike a wiki note, it is **executable**: `/automate run <name>` walks it directly, no promotion gate, no waiting period. It never ships (it is personal, not generalizable research machinery), but it may *compose* a shipped skill or a project-local workflow (e.g. a BMAD `mmm-*` step) as one of its own steps, recorded in the note's `calls:` field — composition, not promotion, is how a procedure leverages generalizable machinery without becoming it. Objective knowledge discovered while running a procedure still goes *down* into a wiki — the procedure records the process, never the findings.
 
 ### Layer 0 — The project's working slice
 
@@ -57,7 +68,28 @@ These are always-on operating principles, not skills to remember — they apply 
 
 **Propagation.** Never create or update a page in isolation. Every write asks "where else does this belong?" and refreshes the affected canonical concept/method/dataset pages, the touched `90_synthesis/` page, backlinks in both directions, `log.md`, and the project's `wiki-links.md` bridge. `/wiki-ingest`, `/wiki-push`, and `/wiki-maintain` already encode these steps — this section makes the *trigger* standing rather than on-demand.
 
-**Guardrail — offer, don't auto-write.** The nudge offers; the write stays a command. Never silently write into `_brain/` (the human-owned layer) and never auto-canonicalize a wiki outside the curation flow. Premature or unattended writes pollute a rigorous vault; a proactive offer does not.
+**Guardrail — auto-write inside the blast radius, propose outside it, always logged and always reversible.**
+
+This replaces the earlier "offer, don't auto-write" rule, which made every write depend on someone remembering to type `/wiki-push`. That cost knowledge on exactly the sessions where the most was learned and the least time remained. Claude now writes durable knowledge into the wiki on its own when it judges the material fitting, relevant, and important enough — but only inside a bounded radius, only through a gate, and only in a form that can be reviewed as a diff and undone with one command.
+
+The reason for the bounds is that this vault's value comes from its discipline: immutable sources, one canonical page per concept, contradictions preserved rather than resolved. An auto-writer that is slightly too eager degrades that quietly, and the damage only becomes visible months later when a concept page has drifted into mush. So the design does not rest on the judgement call being right; it rests on the radius being small and the undo being cheap.
+
+**What auto-write may touch:**
+
+| Allowed | Forbidden |
+|---|---|
+| **Append** to `30_concepts/`, `40_methods/`, `50_datasets/`, `60_people_institutions/` — new sections, new key-paper rows, new cross-links | Any write to `10_sources/`. Sources are immutable, without exception |
+| **Create** a page in those folders when the canonicity critic confirms none covers it | **Deleting or rewriting an existing claim.** A contradicting finding is *appended as a contradiction*, never substituted — that audit trail is what the integrity gate depends on |
+| **Create** a `20_summaries/` note during `/wiki-ingest` (already the case) | `_brain/` — the human-owned layer stays human-written. Auto-write proposes there, never writes. The `@generated` regions of `_brain/projects/<slug>.md` remain the one exception, as today |
+| `log.md`, `_map.md`, and the project's `wiki-links.md` | `90_synthesis/` — synthesis is interpretation, and stays proposal-only |
+
+**The gate.** Every candidate goes to the five-critic council (`agents/wiki-promotion-council.md`) before it lands. 5 of 5 auto-writes; 4 of 5 auto-writes with the dissent recorded in the note's `## Changelog`; 3 of 5 proposes to the user; 2 or fewer is discarded with the reason logged. Nothing bypasses the council.
+
+**The audit trail.** Every auto-write appends a `## Changelog` line tagged `auto` carrying the vote tally and the triggering session, plus a `[YYYY-MM-DD] auto-write | <theme> | <title>` row in `log.md`. The vault is its own git repo: commit each auto-write batch separately with a `wiki(auto):` prefix, so a week of them reads as one diff and reverts as one command. `/wiki-maintain --review-auto [--since]` surfaces every `auto`-tagged change for review.
+
+**The kill switch.** `RESEARCH_OS_WIKI_AUTOWRITE=0`, or `autowrite: false` in `~/.claude/vaults.json`, reverts to propose-only globally; `--no-autowrite` does it for one invocation. Default is on.
+
+**Human edits still go to `_brain/`.** Nothing above changes the two-layer split — it changes who may write to the Claude-maintained layer without being asked, not which layer is whose.
 
 ---
 

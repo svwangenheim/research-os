@@ -12,6 +12,8 @@ supported way to add one — never hand-create `<theme>/00_inbox` etc. or
 hand-edit `~/.claude/vaults.json`; that skips the shared-template wiring and
 the index/README conventions this skill keeps consistent.
 
+**Input:** `$ARGUMENTS` — a theme name to scaffold a new wiki, or a path to an existing vault to adopt. Omitted, the skill asks which of the two you want.
+
 ## Step 0: Require the registry
 
 Read `~/.claude/vaults.json`. If it does not exist, stop and tell the user to

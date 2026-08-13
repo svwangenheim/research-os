@@ -9,6 +9,8 @@ allowed-tools: Read, Write, Edit, Glob, Grep, Bash, ToolSearch
 
 End-of-week review and next-week planning, rolled into the second brain.
 
+**Input:** `$ARGUMENTS` — none. The skill is fully conversational.
+
 ## Step 1 — Gather the week's record
 
 Read every `_brain/daily/*.md` for the past 7 days. Read the most recent
