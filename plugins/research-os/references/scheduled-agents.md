@@ -46,9 +46,13 @@ at full fidelity, and nothing has to leave this machine.
   `--dangerously-skip-permissions` — the allowlist is the actual safety
   boundary: for instance, the nightly-consolidation script's allowlist has
   no `git push`, so it's structurally incapable of pushing even if it tried).
-  Output is logged to `vault/_brain/.scheduled-logs/<routine>/<timestamp>.log`
+  Output is logged to `vault/_brain/scheduled-logs/<date>/<routine>_<time>.log`
   (gitignored in the vault's own repo) so every unattended run leaves a
-  reviewable trail.
+  reviewable trail. Dated-folder-first rather than routine-first, and without
+  the leading dot `.scheduled-logs` used to carry — that dot made the whole
+  directory invisible in Obsidian's file explorer, and grouping by day means
+  one day's morning brief, nightly consolidation, and pending sweep sit next
+  to each other instead of scattered across separate routine folders.
 - `plugins/research-os/scripts/scheduled/_common.ps1` — dot-sourced by each
   wrapper. It supplies `$VaultRoot`, `$PluginRoot`, a probed Python
   interpreter, `Get-LogFile`, and `Get-ProjectAddDirArgs`, which derives the
@@ -175,7 +179,7 @@ call `/peer-review --replicate` — that skill mutates project state.
 > is ingested automatically.
 
 Its one write is the seen-list at
-`_brain/.scheduled-logs/weekly-literature-delta/seen.md`, and the allowlist is
+`_brain/scheduled-logs/weekly-literature-delta/seen.md`, and the allowlist is
 scoped to that single path rather than granting `Write` outright. Every hit it
 evaluated goes on the list, kept and dropped alike, so the same paper is not
 re-surfaced next week. Nothing enters `bibliography.bib` or a wiki without
@@ -248,7 +252,7 @@ detection routines are not in that category and must not drift into it. If a
 detection routine starts producing output most runs, the filter is too loose —
 tighten the filter, do not learn to ignore the output.
 
-Both write a full log to `vault/_brain/.scheduled-logs/<routine>/` regardless.
+Both write a full log to `vault/_brain/scheduled-logs/<date>/` regardless.
 Silence in the notification is not silence in the record: the detail is there
 when you go looking for it, which is the only time it is worth reading.
 
@@ -269,7 +273,7 @@ when you go looking for it, which is the only time it is worth reading.
 - Reports and drafts are the output; the human decides what to act on.
 - Detection routines are silent on success — see the notification-discipline
   section above.
-- Every run is logged to `vault/_brain/.scheduled-logs/<routine>/` for
+- Every run is logged to `vault/_brain/scheduled-logs/<date>/` for
   after-the-fact review.
 
 ## Why these stay local: the cloud-Routine guardrail

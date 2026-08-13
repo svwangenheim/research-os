@@ -4,7 +4,9 @@ directly-relevant work. Its only write is the seen-list state file it diffs
 against. Registered as a Windows Scheduled Task
 ("ResearchOS-WeeklyLiteratureDelta", weekly, Monday). See
 ../../references/scheduled-agents.md for the full design rationale. Logs each
-run under vault/_brain/.scheduled-logs/.
+run under vault/_brain/scheduled-logs/<date>/. The seen-list is state, not a
+per-run transcript, so it lives at a fixed routine-keyed path instead of
+moving to a new dated folder every week.
 
 Project directories are granted from vault/_brain/projects/*.md frontmatter via
 _common.ps1 — never hardcoded here.
@@ -14,7 +16,8 @@ _common.ps1 — never hardcoded here.
 
 $LogFile = Get-LogFile -Routine "weekly-literature-delta"
 $AddDirArgs = Get-ProjectAddDirArgs
-$SeenFile = Join-Path $VaultRoot "_brain\.scheduled-logs\weekly-literature-delta\seen.md"
+$SeenFile = Join-Path $VaultRoot "_brain\scheduled-logs\weekly-literature-delta\seen.md"
+New-Item -ItemType Directory -Force -Path (Split-Path $SeenFile) | Out-Null
 
 $Prompt = @"
 Weekly literature sweep with a delta against what I have already been shown.
@@ -74,9 +77,12 @@ unreachable, say so once and move on.
 "@
 
 Set-Location $VaultRoot
-& claude -p $Prompt `
+$transcript = & claude -p $Prompt `
   --model sonnet `
   --permission-mode acceptEdits `
-  --allowedTools "Read Grep Glob WebSearch WebFetch Write(./_brain/.scheduled-logs/weekly-literature-delta/seen.md)" `
+  --allowedTools "Read Grep Glob WebSearch WebFetch Write(./_brain/scheduled-logs/weekly-literature-delta/seen.md)" `
   @AddDirArgs `
-  *>&1 | Tee-Object -FilePath $LogFile
+  *>&1 | Out-String
+
+Write-Output $transcript
+Save-RoutineTranscript -Path $LogFile -Content $transcript

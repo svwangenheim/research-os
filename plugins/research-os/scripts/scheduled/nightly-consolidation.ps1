@@ -2,7 +2,7 @@
 Nightly consolidation — bounded mutation, local commits only, never pushes.
 Registered as a Windows Scheduled Task ("ResearchOS-NightlyConsolidation",
 daily). See ../../references/scheduled-agents.md for the full design
-rationale. Logs each run under vault/_brain/.scheduled-logs/.
+rationale. Logs each run under vault/_brain/scheduled-logs/<date>/.
 
 Project directories are granted from vault/_brain/projects/*.md frontmatter via
 _common.ps1 — never hardcoded here. The allowlist below is the real safety

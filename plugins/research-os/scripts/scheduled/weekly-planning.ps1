@@ -2,7 +2,7 @@
 Weekly review + planning — draft only, never creates calendar events.
 Registered as a Windows Scheduled Task ("ResearchOS-WeeklyPlanning", weekly,
 Friday). See ../../references/scheduled-agents.md for the full design
-rationale. Logs each run under vault/_brain/.scheduled-logs/.
+rationale. Logs each run under vault/_brain/scheduled-logs/<date>/.
 
 Project directories are granted from vault/_brain/projects/*.md frontmatter via
 _common.ps1 — never hardcoded here.

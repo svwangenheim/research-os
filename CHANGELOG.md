@@ -8,6 +8,32 @@ Version numbers track `plugins/research-os/.claude-plugin/plugin.json`.
 
 ## [Unreleased]
 
+### Fixed (2026-08-14)
+
+- **Scheduled-log mojibake.** Every `scripts/scheduled/*.ps1` invoked a native
+  process (`claude -p`, or `pending_actions.py`) without setting
+  `[Console]::OutputEncoding`, so PowerShell 5.1 decoded UTF-8 stdout using the
+  OEM codepage (850) — every em dash and umlaut got misread byte-by-byte and
+  re-encoded on top of that misread. Fixed once in `_common.ps1` (dot-sourced
+  by every routine); all 14 existing logs repaired in place by reversing the
+  exact transformation, verified against a backup diff before touching the
+  originals. `nightly-repro-check.ps1` and `weekly-literature-delta.ps1` were
+  also still writing via `Tee-Object -FilePath` (UTF-16, NUL-interleaved,
+  invisible to grep) rather than `Save-RoutineTranscript`; switched to match
+  every other routine.
+- **`.scheduled-logs` renamed to `scheduled-logs`, and reorganized dated-folder-first.**
+  The leading dot made the entire directory invisible in Obsidian's file
+  explorer — the one place these logs are actually meant to be read. Restructured
+  from `scheduled-logs/<routine>/<timestamp>.log` to `scheduled-logs/<date>/<routine>_<time>.log`
+  at the same time, so one day's morning brief, nightly consolidation, and
+  pending sweep sit together instead of scattered across separate routine
+  folders. `Get-LogFile` in `_common.ps1` is the single point of change; all
+  14 existing logs migrated, `vault/.gitignore` and every reference updated.
+- `pending-sweep.ps1` was still calling `scripts/procedure_promotion_check.py`,
+  deleted when the promotion gate was retired (see the automation-layer entry
+  below) — every run has been silently erroring on that step. Removed the
+  dead call.
+
 ### Added
 
 - **The pipeline graph.** `graph/pipeline.json` (16 nodes, 33 derived edges) plus

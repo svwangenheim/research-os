@@ -15,6 +15,25 @@ vault/_brain/projects/*.md frontmatter -- instead of being hardcoded per script.
 $VaultRoot = "C:\Users\dzsve\research-os\vault"
 $PluginRoot = "C:\Users\dzsve\research-os\plugins\research-os"
 
+# `claude -p` writes UTF-8 to stdout. Windows PowerShell 5.1 decodes a native
+# command's output using [Console]::OutputEncoding, which on this machine
+# defaults to the OEM codepage (850), not UTF-8 -- so every non-ASCII byte
+# (em dashes, umlauts) got misread one byte at a time and re-encoded as UTF-8
+# on top of that misreading (confirmed 2026-08-14: an em dash's three UTF-8
+# bytes, decoded as cp850, re-encoded as UTF-8, produce exactly the "Ã"-style
+# garbage seen in every scheduled log before this fix). Setting both
+# encodings before any `& claude ...` call is what actually prevents it --
+# `-Encoding utf8` on the write side alone cannot, since the string is already
+# corrupted by the time it gets there.
+try {
+    [Console]::OutputEncoding = [System.Text.Encoding]::UTF8
+    [Console]::InputEncoding = [System.Text.Encoding]::UTF8
+} catch {
+    # Not fatal -- a routine should still run, garbled output and all,
+    # rather than not run at all.
+}
+$OutputEncoding = [System.Text.Encoding]::UTF8
+
 # Portable interpreter resolution.
 #
 # Get-Command alone is not enough here: this machine has a `python3` on PATH
@@ -40,13 +59,22 @@ foreach ($candidate in @("python.exe", "python", "py", "python3")) {
 function Get-LogFile {
     <#
     .SYNOPSIS
-    Create (if needed) the routine's log directory and return a timestamped path.
+    Create (if needed) today's log directory and return a routine-named path
+    inside it.
+
+    .DESCRIPTION
+    Dated-folder-first, not routine-first: `scheduled-logs/2026-08-14/` holds
+    every routine that touched that day, so browsing one day answers "what
+    ran" without hunting across N routine subfolders. Also drops the leading
+    dot the old `.scheduled-logs` had -- Obsidian's file explorer treats a
+    dot-prefixed folder as hidden, which made every log invisible from inside
+    the vault, the one place these are actually meant to be read.
     #>
     param([Parameter(Mandatory = $true)][string]$Routine)
 
-    $logDir = Join-Path $VaultRoot "_brain\.scheduled-logs\$Routine"
+    $logDir = Join-Path $VaultRoot ("_brain\scheduled-logs\" + (Get-Date -Format "yyyy-MM-dd"))
     New-Item -ItemType Directory -Force -Path $logDir | Out-Null
-    return Join-Path $logDir ((Get-Date -Format "yyyy-MM-dd_HHmm") + ".log")
+    return Join-Path $logDir ("$Routine`_" + (Get-Date -Format "HHmm") + ".log")
 }
 
 function Save-RoutineTranscript {

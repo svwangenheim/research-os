@@ -244,10 +244,18 @@ in `plugins/research-os/` that has not yet reached a commit.
    stress-tested on a long procedure** where a later step genuinely depends
    on an earlier step's output in a way the pre-computed plan can't capture.
    Watch for this on `phd-overnight-estimation-monitor`'s first real run.
-4. **`admin-supervisor-brief` and `phd-coursework-cycle` cannot be corrected
-   for real yet** — PhD supervision and coursework don't exist until October
-   2026. Both are drafted from what the user stated directly rather than
-   observed, and are explicitly named as the most likely to be wrong.
+4. **`admin-supervisor-brief` was wrong, exactly as predicted here** —
+   corrected 2026-08-14: it is the **DZ** supervisor (weekly Thursday 15:00),
+   not a PhD supervisor waiting on October 2026. Also added
+   `admin-jour-fixe-brief`, a deliberately lighter sibling for the
+   Thursday-morning DZ jour fixe. Both now carry `StartBoundary` on their
+   underlying Scheduled Tasks pinned to 2026-09-03 — the first Thursday DZ
+   work resumes after the August pause — so neither can fire early the way
+   the original mis-scoped version did (see the CHANGELOG's Unreleased
+   entry). `phd-coursework-cycle` is unaffected and remains open: PhD
+   coursework genuinely doesn't exist until October 2026, drafted from what
+   the user stated directly rather than observed, and still the most likely
+   of the remaining procedures to need a real correction once it does.
 5. **The role-hour budgets in `profile.md` are still the original seeded
    guess.** This rebuild added the deadline sweep against them but did not
    revisit the numbers themselves.

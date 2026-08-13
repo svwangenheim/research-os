@@ -3,7 +3,7 @@ Nightly reproducibility check — read-only, notifies only on FAIL, silent on
 PASS and EXPLAINED. Registered as a Windows Scheduled Task
 ("ResearchOS-NightlyReproCheck", daily). See
 ../../references/scheduled-agents.md for the full design rationale. Logs each
-run under vault/_brain/.scheduled-logs/.
+run under vault/_brain/scheduled-logs/<date>/.
 
 Project directories are granted from vault/_brain/projects/*.md frontmatter via
 _common.ps1 — never hardcoded here.
@@ -64,9 +64,12 @@ supervised run decides.
 '@
 
 Set-Location $VaultRoot
-& claude -p $Prompt `
+$transcript = & claude -p $Prompt `
   --model sonnet `
   --permission-mode acceptEdits `
   --allowedTools "Read Grep Glob Bash(git status:*) Bash(git log:*) Bash(git diff:*)" `
   @AddDirArgs `
-  *>&1 | Tee-Object -FilePath $LogFile
+  *>&1 | Out-String
+
+Write-Output $transcript
+Save-RoutineTranscript -Path $LogFile -Content $transcript

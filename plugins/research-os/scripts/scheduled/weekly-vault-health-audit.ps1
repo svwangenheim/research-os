@@ -2,7 +2,7 @@
 Weekly vault-health audit — read-only, never remediates. Registered as a
 Windows Scheduled Task ("ResearchOS-WeeklyVaultHealthAudit", weekly, Friday,
 before weekly planning). See ../../references/scheduled-agents.md for the
-full design rationale. Logs each run under vault/_brain/.scheduled-logs/.
+full design rationale. Logs each run under vault/_brain/scheduled-logs/<date>/.
 
 Project directories are granted so the audit can also verify that every
 `working_directory:` in _brain/projects/*.md actually resolves — a broken path

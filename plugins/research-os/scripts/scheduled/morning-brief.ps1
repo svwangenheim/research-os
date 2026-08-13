@@ -1,7 +1,7 @@
 <#
 Morning brief — read-only. Registered as a Windows Scheduled Task
 ("ResearchOS-MorningBrief", daily). See ../../references/scheduled-agents.md
-for the full design rationale. Logs each run under vault/_brain/.scheduled-logs/.
+for the full design rationale. Logs each run under vault/_brain/scheduled-logs/<date>/.
 
 Project state is gathered by project_state_scan.py BEFORE Claude is invoked, and
 handed to it as text. This is deliberate: the project repos live on OneDrive with

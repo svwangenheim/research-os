@@ -39,10 +39,5 @@ $transcript += (& $Py $reconcile --root $VaultRoot 2>&1 | Out-String)
 $dashboard = Join-Path $PluginRoot "scripts\generate_week_dashboard.py"
 $transcript += (& $Py $dashboard --root $VaultRoot 2>&1 | Out-String)
 
-# 3. Procedure promotion status — the mechanism that stops proven procedures
-#    from being forgotten.
-$promotion = Join-Path $PluginRoot "scripts\procedure_promotion_check.py"
-$transcript += (& $Py $promotion --root $VaultRoot 2>&1 | Out-String)
-
 Write-Output $transcript
 Save-RoutineTranscript -Path $LogFile -Content $transcript
