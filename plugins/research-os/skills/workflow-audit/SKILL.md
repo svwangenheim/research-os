@@ -10,6 +10,8 @@ allowed-tools: Read, Grep, Glob, Bash, ToolSearch
 Step 1 of the workflow layer: find out what you actually do, then rank it by how
 much of it can be handed over.
 
+**Input:** `$ARGUMENTS` — optional flags to re-run the evidence pass or restrict the audit to one role. Omitted, it audits every role.
+
 **Output:** `_brain/workflow-audit.md` — a scored inventory. The top entries
 become the first cohort of procedures via `/automate new`.
 

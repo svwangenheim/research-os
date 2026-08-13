@@ -11,6 +11,8 @@ Write durable knowledge from the current project back into the two-layer
 knowledge model. This is a **global** skill: it works standalone and inside
 any research-os project.
 
+**Input:** `$ARGUMENTS` — optionally the specific notes or topic to push, plus `--wiki <theme>` and `--no-autowrite`. Omitted, the skill pushes everything durable from the current session.
+
 ## Goal
 
 Turn project work into reusable long-term knowledge, routed to the layer

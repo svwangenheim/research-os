@@ -1,6 +1,6 @@
 ---
 name: wiki-maintain
-description: Audit and remediate registered thematic wikis to A-tier standards - summaries, canonical concepts, methods, datasets, synthesis, links. Also re-converts garbled PDF twins.
+description: Audit and remediate registered thematic wikis to A-tier standards — summaries, canonical concepts, methods, datasets, synthesis, links — and re-convert garbled PDF twins. Use on "check the wiki", "clean up the wiki", or after a run of ingests.
 argument-hint: "[--wiki <theme>] [--review-auto [--since <date>]] [--synthesize] [optional scope: all | summaries | concepts | methods | datasets | synthesis | reconvert | path]"
 allowed-tools: Read, Write, Edit, Bash, Glob, Grep, Task
 ---
@@ -12,6 +12,8 @@ whole-wiki counterpart to `wiki-ingest`: `wiki-ingest` processes one source;
 `wiki-maintain` checks and improves an entire maintained wiki (or every
 registered wiki) until the established standards are met. It never touches
 `_brain/` — that layer is human-owned.
+
+**Input:** `$ARGUMENTS` — an optional scope and mode flags. Omitted, the skill audits every registered wiki across all dimensions.
 
 ## Step 0: Resolve scope
 

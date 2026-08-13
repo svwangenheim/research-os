@@ -14,6 +14,8 @@ a piece of this"** — it produces a document for *someone else* who is starting
 cold, has not been in any of these sessions, and needs to be productive without
 asking you twenty questions.
 
+**Input:** `$ARGUMENTS` — optional flags scoping the git delta, naming the recipient, and suppressing the restricted-data section. Omitted, the brief covers everything since the last one.
+
 That distinction drives every choice below. A checkpoint can rely on shared
 context; a brief cannot. Anything the reader would have to already know is
 either written out or named as an open question.

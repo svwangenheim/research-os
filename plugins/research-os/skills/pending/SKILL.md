@@ -11,6 +11,8 @@ The consented half of the automation ceiling. A sweep finds everything waiting;
 this presents it **grouped by project**, asks once per project per action class,
 and records the answer so it is never asked again.
 
+**Input:** `$ARGUMENTS` — optional flags narrowing the sweep to one project or one action class. Omitted, it sweeps every project and asks once per project per action.
+
 **Reads:** `_brain/.pending-actions.yaml` (the queue) · `_brain/automation-consent.yaml` (the ledger)
 
 ---

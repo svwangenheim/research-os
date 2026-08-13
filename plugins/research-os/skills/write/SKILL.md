@@ -1,6 +1,6 @@
 ---
 name: write
-description: Draft academic paper sections (IMRaD, literature review, theory, case study, conference) using paragraph-level argument moves. Cleanup pass strips AI patterns. Writing phase.
+description: Draft academic paper sections (IMRaD, literature review, theory, case study, conference) using paragraph-level argument moves, then strip AI patterns in a cleanup pass. Use on "draft the intro", "write the results section", "humanize this".
 argument-hint: "[section or mode: intro | strategy | results | conclusion | abstract | full | humanize | style-guide] [file path (optional)]"
 allowed-tools: Read,Grep,Glob,Write,Edit,Task
 ---

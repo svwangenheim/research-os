@@ -10,6 +10,8 @@ allowed-tools: Read, Write, Edit, Bash, Glob, Grep, ToolSearch
 Keeps the week honest between Fridays. Three things, in order: pull the
 calendar, reconcile the plan, regenerate the dashboard.
 
+**Input:** `$ARGUMENTS` — optional flags to skip the calendar pull or target a different week. Omitted, it refreshes the current week from live state.
+
 **Outputs:** `_brain/.calendar-cache.json` · the `week-state` block inside
 `_brain/weekly/<monday>.md` · `_brain/week.html`
 

@@ -12,6 +12,8 @@ from the relevant Claude-maintained thematic wiki — before starting
 substantial work on a topic. This is a **global** skill: it works standalone
 and inside any research-os project.
 
+**Input:** `$ARGUMENTS` — the research topic or question to retrieve against, optionally preceded by `--wiki <theme>`. Omitted, the skill infers the topic from the session.
+
 ## Goal
 
 Do not start from zero if the user already has relevant knowledge saved.

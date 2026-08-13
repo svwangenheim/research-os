@@ -10,6 +10,8 @@ disable-model-invocation: true
 
 Find *why* an analysis errors, returns the wrong number, or will not reconcile.
 
+**Input:** `$ARGUMENTS` — a file, a script, or a short description of the symptom, optionally followed by `--no-fix` to localize the root cause without editing.
+
 **The discipline: never edit before you can reproduce, and never fix before you can explain.** A guessed fix that makes the symptom disappear without a named root cause is how a wrong number gets laundered into a published table. The bug is still there; it has only stopped announcing itself.
 
 Most bugs in research code do not crash. They run cleanly and return something plausible. That is what this skill is shaped around.

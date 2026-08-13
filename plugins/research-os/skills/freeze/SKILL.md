@@ -1,14 +1,16 @@
 ---
 name: freeze
-description: Block edits outside specified directories for this session. Protects files from accidental changes during focused work. Activate with /freeze [dirs], deactivate with /freeze off.
+description: Block edits outside specified directories for this session, protecting files during focused work. Use on "freeze", "lock the paper", "only let me edit X"; deactivate with /freeze off.
 argument-hint: "[dir1 dir2 ... (activate) | off (deactivate)]"
 user-invocable: true
 allowed-tools: Read, Write, Edit
 ---
 
-# Freeze -- Session-Scoped Edit Guard
+# Freeze — Session-Scoped Edit Guard
 
 Blocks Write and Edit operations on files outside the specified directories. Use when reviewing code (freeze everything except notes), when writing (freeze `03_analysis/scripts/`), or when editing data pipelines (freeze `04_paper/`).
+
+**Input:** `$ARGUMENTS` — the directories that stay editable, or `off` to lift the guard.
 
 ## Usage
 
@@ -55,7 +57,7 @@ When the user invokes `/freeze off`:
 
 ## Gotchas
 
-- Freeze is session-scoped -- it resets when the conversation ends
+- Freeze is session-scoped — it resets when the conversation ends
 - The guard file persists on disk but the hook checks a session flag
 - `.claude/` is always editable (can't freeze yourself out of config changes)
 - Paths are relative to the project root

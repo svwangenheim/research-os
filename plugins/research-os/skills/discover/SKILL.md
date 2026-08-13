@@ -1,6 +1,6 @@
 ---
 name: discover
-description: Discovery phase of the research-os pipeline - research interview, literature search (narrative or PRISMA), data discovery, ideation, and single-idea feasibility triage. Writes the research spec into passport.yaml.
+description: Discovery phase of the research-os pipeline — research interview, literature search (narrative or PRISMA), data discovery, ideation, and single-idea feasibility triage. Writes the research spec into passport.yaml. Use when starting a paper, or on "find literature", "find data", "is this idea feasible".
 argument-hint: "[mode: interview | lit | lit systematic | data | ideate | feasibility] [topic or query]"
 allowed-tools: Read,Grep,Glob,Write,Edit,Bash,WebSearch,WebFetch,Task
 ---

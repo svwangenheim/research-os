@@ -9,6 +9,8 @@ allowed-tools: Read,Grep,Glob,Write,Edit,Bash
 
 Captures what happened in the current session and persists it across the two-layer knowledge model (see `${CLAUDE_PLUGIN_ROOT}/rules/wiki-integration.md` and `rules/logging.md`):
 
+**Input:** `$ARGUMENTS` — optional flags scoping what gets written. Omitted, the skill runs the full handoff and confirms before each write.
+
 1. **`passport.yaml`** — the state ledger. Append a `sessions:` entry (resume point) and update `pipeline.current_stage`. This replaces clo-author's `SESSION_REPORT.md` + `pipeline-state.json`.
 2. **`00_admin/process/journal.md`** — the narrative research journal (append, newest-first) when agent work happened.
 3. **`00_admin/process/sessions/`** — a longer per-session handoff note when a one-line `sessions:` entry is not enough.

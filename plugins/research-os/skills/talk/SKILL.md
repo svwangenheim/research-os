@@ -1,6 +1,6 @@
 ---
 name: talk
-description: Create and audit presentations (Beamer or Quarto RevealJS). Combines talk creation, visual audit, and compilation. Outputs land in 05_outreach/talks/.
+description: Create and audit presentations (Beamer or Quarto RevealJS), combining talk creation, visual audit, and compilation. Outputs land in 05_outreach/talks/. Use on "make slides", "build my job-market talk", "audit this deck".
 argument-hint: "[mode: create | audit | compile] [format: job-market | seminar | short | lightning] [--beamer] [file path]"
 allowed-tools: Read,Grep,Glob,Write,Edit,Task,Bash
 ---

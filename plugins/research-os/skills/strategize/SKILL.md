@@ -1,6 +1,6 @@
 ---
 name: strategize
-description: Design identification strategy, pre-analysis plan, or formal theory section. Dispatches Strategist or Theorist plus the paired critic. Strategy phase; writes to 03_analysis/strategy/.
+description: Design an identification strategy, pre-analysis plan, or formal theory section. Dispatches Strategist or Theorist plus the paired critic; writes to 03_analysis/strategy/. Use on "how do I identify this", "write the PAP", "pre-register", or "draft the theory".
 argument-hint: "[mode: strategy | pap | pap interactive | theory] [research question or spec path]"
 allowed-tools: Read,Grep,Glob,Write,Edit,Task
 ---

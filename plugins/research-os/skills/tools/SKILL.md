@@ -1,6 +1,6 @@
 ---
 name: tools
-description: Utility commands — graph, commit, compile, validate-bib, lint, journal, context, dashboard, deploy, learn, upgrade, permission-check. Lightweight project-maintenance subcommands with no multi-agent orchestration.
+description: Utility subcommands — graph, commit, compile, validate-bib, lint, journal, context, dashboard, deploy, learn, upgrade, permission-check. Lightweight project maintenance with no multi-agent orchestration. Use for any of those verbs by name.
 argument-hint: "[subcommand: graph | commit | compile | validate-bib | lint | journal | context | dashboard | deploy | learn | upgrade | permission-check] [args] [--open]"
 allowed-tools: Read,Grep,Glob,Write,Edit,Bash,Task
 ---

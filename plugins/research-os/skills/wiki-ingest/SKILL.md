@@ -1,6 +1,6 @@
 ---
 name: wiki-ingest
-description: Ingest a source into a thematic research wiki - PDF, markdown, Office doc, or citation string. Runs source placement, summary, concept/method/dataset updates, and log update.
+description: Ingest a source into a thematic research wiki — PDF, markdown, Office doc, or citation string — running source placement, summary, concept/method/dataset updates, and the log entry. Use on "add this paper", "ingest this", or when a new source should enter the knowledge base.
 argument-hint: "[--wiki <theme>] [path/to/file.pdf | path/to/file.md | 'Author Year Title']"
 allowed-tools: Read, Write, Edit, Bash, Glob, Grep, Task
 ---
@@ -12,6 +12,8 @@ point for adding any source — PDF, Office doc, markdown, or citation text —
 to the persistent, Claude-maintained knowledge base. **This skill writes only
 into a thematic wiki, never into `_brain/`** — personal or project-specific
 content is out of scope here; that belongs to `/wiki-push` or `/checkpoint`.
+
+**Input:** `$ARGUMENTS` — a path to the source, or a citation string, optionally preceded by `--wiki <theme>`. Omitted, the skill asks for the source and resolves the wiki from the registry.
 
 ## Step 0: Resolve the wiki
 
@@ -223,7 +225,7 @@ Mandatory quality standard for this workflow:
    - Use the template at `$VAULT_ROOT/_templates/source_summary_template.md`
    - Filename: `[author-year]-[short-title].md`
    - Populate: title, authors, year, doi, journal, abstract (1-3 plain-text
-     sentences -- the source's own abstract if published, else a faithful
+     sentences — the source's own abstract if published, else a faithful
      synopsis; this is what project dashboards show in the Literature panel,
      read live from this frontmatter), proximity, related_concepts
      (wikilinks to `30_concepts/`), related_methods, related_datasets,
