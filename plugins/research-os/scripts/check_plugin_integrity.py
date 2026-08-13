@@ -8,7 +8,7 @@ implements it. An agent prompt asked to check twelve things will drift on the
 eleventh. A script does not drift, so those checks live here rather than in a
 review prompt.
 
-Five checks over `plugins/research-os/`:
+Six checks over `plugins/research-os/`:
 
   1. Frontmatter <-> body tool parity. Every tool a SKILL.md body says it
      invokes must appear in that skill's `allowed-tools`.
@@ -20,6 +20,11 @@ Five checks over `plugins/research-os/`:
      following its protocol, that agent or skill must mention the protocol.
   5. Agent frontmatter completeness. `name`, `description` and `model` are
      required; `effort` is advisory until model routing lands.
+  6. House style, per `references/authoring-conventions.md`. Em dash over `--`,
+     Title-Case H1 without a leading slash, an `**Input:**` line wherever a skill
+     takes arguments, a `Use when ...` clause in every description, `SKILL.md`
+     under 300 lines, and `tools:` rather than `allowed-tools:` on agents. All
+     advisory except the agent tool key, which silently grants every tool.
 
 Severities: P0 structural breakage, P1 real drift, P2 advisory.
 
@@ -493,6 +498,128 @@ def check_agent_frontmatter(agent_files: Iterable[Path], root: Path) -> list[Fin
     return findings
 
 
+# --- Check 6: house style ---------------------------------------------------
+
+MAX_SKILL_LINES = 300
+PROSE_DASH_RE = re.compile(r"(?<=\S) -- (?=\S)")
+TRIGGER_RE = re.compile(r"\bUse (?:when|on|for|to|before|after|in|whenever)\b", re.I)
+
+
+def first_heading(body: str) -> str | None:
+    for line in body.splitlines():
+        if line.startswith("# "):
+            return line[2:].strip()
+    return None
+
+
+def check_house_style(
+    skill_files: Iterable[Path], agent_files: Iterable[Path], root: Path
+) -> list[Finding]:
+    """Advisory conformance with references/authoring-conventions.md.
+
+    Style findings are P2 on purpose: none of them break a skill at runtime, and a
+    blocking style gate would only teach people to bypass the whole hook.
+    """
+    findings: list[Finding] = []
+
+    for path in skill_files:
+        rel = path.relative_to(root).as_posix()
+        try:
+            text = read_text(path)
+        except OSError as exc:
+            findings.append(Finding(P2, "house-style", rel, f"unreadable: {exc}"))
+            continue
+        front, body = split_frontmatter(text)
+
+        # Vendored skills carry `origin:` and are kept byte-close to upstream so
+        # /check-update-upstream-repos can still diff them. Restyling them would
+        # trade a real capability for a cosmetic one.
+        if front.get("origin"):
+            continue
+
+        n_lines = len(text.splitlines())
+        if n_lines > MAX_SKILL_LINES:
+            findings.append(
+                Finding(
+                    P2,
+                    "house-style",
+                    rel,
+                    f"{n_lines} lines (over {MAX_SKILL_LINES}) - move content into "
+                    f"templates/, references/ or config/ and list it in Bundled Resources",
+                )
+            )
+
+        heading = first_heading(body)
+        if heading is None:
+            findings.append(Finding(P2, "house-style", rel, "no H1 heading"))
+        elif heading.startswith("/") or heading.startswith("`/"):
+            findings.append(
+                Finding(P2, "house-style", rel, f"H1 `{heading}` should be Title Case without the slash")
+            )
+
+        if front.get("argument-hint") and "**Input:**" not in body:
+            findings.append(
+                Finding(P2, "house-style", rel, "takes arguments but has no `**Input:**` line")
+            )
+
+        description = front.get("description", "")
+        if description and not TRIGGER_RE.search(description):
+            findings.append(
+                Finding(
+                    P2,
+                    "house-style",
+                    rel,
+                    "description has no `Use when/on/for ...` clause - the router matches on it",
+                )
+            )
+
+        for count, line_no in dash_hits(body):
+            findings.append(
+                Finding(P2, "house-style", rel, f"line {line_no}: {count} prose `--`, use an em dash")
+            )
+
+    for path in agent_files:
+        rel = path.relative_to(root).as_posix()
+        try:
+            text = read_text(path)
+        except OSError as exc:
+            findings.append(Finding(P2, "house-style", rel, f"unreadable: {exc}"))
+            continue
+        front, body = split_frontmatter(text)
+
+        if "allowed-tools" in front:
+            findings.append(
+                Finding(
+                    P1,
+                    "house-style",
+                    rel,
+                    "agents declare `tools:`, not `allowed-tools:` - the key is ignored "
+                    "and the agent silently gets every tool",
+                )
+            )
+        elif not front.get("tools"):
+            findings.append(
+                Finding(P1, "house-style", rel, "missing `tools:` - the agent gets every tool")
+            )
+
+        for count, line_no in dash_hits(body):
+            findings.append(
+                Finding(P2, "house-style", rel, f"line {line_no}: {count} prose `--`, use an em dash")
+            )
+
+    return findings
+
+
+def dash_hits(body: str) -> list[tuple[int, int]]:
+    """Return (occurrences, line number) for prose `--` outside code."""
+    hits: list[tuple[int, int]] = []
+    for line_no, line in enumerate(strip_code(body).splitlines(), start=1):
+        found = len(PROSE_DASH_RE.findall(line))
+        if found:
+            hits.append((found, line_no))
+    return hits
+
+
 # --- Driver -----------------------------------------------------------------
 
 
@@ -521,11 +648,19 @@ def run(plugin_root: Path, verbose: bool) -> list[Finding]:
     findings += check_anchors(linked, plugin_root)
     findings += check_rule_parity(rule_files, agents_by_slug, skills_by_slug, plugin_root)
     findings += check_agent_frontmatter(agent_files, plugin_root)
+    findings += check_house_style(skill_files, agent_files, plugin_root)
     return findings
 
 
 def report(findings: list[Finding], verbose: bool) -> None:
-    checks = ("tool-parity", "flag-parity", "anchors", "rule-parity", "agent-frontmatter")
+    checks = (
+        "tool-parity",
+        "flag-parity",
+        "anchors",
+        "rule-parity",
+        "agent-frontmatter",
+        "house-style",
+    )
     for check in checks:
         subset = [f for f in findings if f.check == check]
         if not subset:
