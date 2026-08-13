@@ -21,7 +21,7 @@
 - A: Excellent fit, accessible, well-documented
 - B: Good fit, minor gaps or access hurdles
 - C: Usable with significant cleaning or limitations
-- D: Marginal -- consider alternatives
+- D: Marginal — consider alternatives
 - F: Not feasible for this project
 
 ## 5-Point Critique

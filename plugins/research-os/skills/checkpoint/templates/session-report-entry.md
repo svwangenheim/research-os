@@ -1,6 +1,6 @@
 # Session Handoff Format
 
-Session boundaries live in `passport.yaml` `sessions:` (the resume point). A longer narrative note in `00_admin/process/sessions/` is optional -- write one only when a single `sessions:` line cannot hold the session. Both are append-only; never overwrite prior entries.
+Session boundaries live in `passport.yaml` `sessions:` (the resume point). A longer narrative note in `00_admin/process/sessions/` is optional — write one only when a single `sessions:` line cannot hold the session. Both are append-only; never overwrite prior entries.
 
 ## 1. passport.yaml `sessions:` entry (always)
 

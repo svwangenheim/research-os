@@ -6,14 +6,14 @@ Publication-quality figures for economics papers. All figures must be directly i
 
 ## Core Rules
 
-- **Never add titles or subtitles inside ggplot** -- use `labs(title = NULL, subtitle = NULL)`
+- **Never add titles or subtitles inside ggplot** — use `labs(title = NULL, subtitle = NULL)`
 - **Figure information goes in two places:**
-  1. **File name** -- descriptive, e.g., `fig1_hispanic_enrollment_ascm.pdf`
-  2. **LaTeX `\caption{}`** -- the authoritative title, numbered and editable without re-running R
-- **Panel labels are the exception** -- "Panel A: Employment" inside multi-panel figures (via `patchwork`, `cowplot`, etc.) is fine since they identify sub-panels, not the whole figure
-- **Axis labels must be publication-quality** -- "Employment Rate" not "emp_rate". Clean labels stay in the figure; titles and context go in the caption
-- **Use serif fonts** -- figures should match the paper's body text
-- **Output PDF for figures** -- vector graphics for LaTeX. Use `ggsave("fig.pdf")`. PNG only for raster content (maps, photos)
+  1. **File name** — descriptive, e.g., `fig1_hispanic_enrollment_ascm.pdf`
+  2. **LaTeX `\caption{}`** — the authoritative title, numbered and editable without re-running R
+- **Panel labels are the exception** — "Panel A: Employment" inside multi-panel figures (via `patchwork`, `cowplot`, etc.) is fine since they identify sub-panels, not the whole figure
+- **Axis labels must be publication-quality** — "Employment Rate" not "emp_rate". Clean labels stay in the figure; titles and context go in the caption
+- **Use serif fonts** — figures should match the paper's body text
+- **Output PDF for figures** — vector graphics for LaTeX. Use `ggsave("fig.pdf")`. PNG only for raster content (maps, photos)
 
 ---
 
@@ -63,9 +63,9 @@ plt.rcParams.update({
 
 ## Color
 
-- **Colorblind-friendly palettes** -- use `scale_color_brewer(palette = "Set2")`, `viridis`, or similar
+- **Colorblind-friendly palettes** — use `scale_color_brewer(palette = "Set2")`, `viridis`, or similar
 - **Never rely on red/green contrast alone**
-- **Color-independent design** -- figures must be readable in grayscale:
+- **Color-independent design** — figures must be readable in grayscale:
   - Combine color with shape (`shape` aesthetic)
   - Combine color with linetype (`linetype` aesthetic)
   - Series remain distinguishable without color

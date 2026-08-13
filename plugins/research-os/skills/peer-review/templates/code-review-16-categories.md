@@ -8,7 +8,7 @@ Extracted from `coder-critic.md`. Used by the coder-critic agent for code review
 
 **Before running categories:**
 
-- Read `${CLAUDE_PLUGIN_ROOT}/rules/content-invariants.md` -- enforce INV-13 through INV-19. Cite invariant numbers (e.g., "violates INV-16") in report alongside deductions.
+- Read `${CLAUDE_PLUGIN_ROOT}/rules/content-invariants.md` — enforce INV-13 through INV-19. Cite invariant numbers (e.g., "violates INV-16") in report alongside deductions.
 - Identify the paper type (reduced-form, structural, theory+empirics, descriptive) from the strategy memo or the code itself. This determines which checks apply.
 
 ---
@@ -69,14 +69,14 @@ Extracted from `coder-critic.md`. Used by the coder-critic agent for code review
 - Clear execution order documented?
 
 ### 7. Console Output Hygiene
-- No `cat()`, `print()`, `sprintf()` for status -- use `message()`
+- No `cat()`, `print()`, `sprintf()` for status — use `message()`
 - No ASCII banners or decorative output
 - No `rm(list = ls())` at top
 
 ### 8. Reproducibility
 - Single `set.seed()` at top, seed defined in `01_setup.R`
 - `library()` not `require()`
-- Relative paths only via `here()` -- no `setwd()`, no absolute paths
+- Relative paths only via `here()` — no `setwd()`, no absolute paths
 - `dir.create(..., recursive = TRUE)` before writing
 - For parallel bootstrap: `future.seed = TRUE` or `RNGkind("L'Ecuyer-CMRG")`
 
@@ -101,7 +101,7 @@ Extracted from `coder-critic.md`. Used by the coder-critic agent for code review
 - Consistent color palette across all figures
 - Custom ggplot2 theme (not default gray)
 - Serif font for paper figures (`family = "serif"`)
-- No titles inside ggplot -- titles go in LaTeX `\caption{}`
+- No titles inside ggplot — titles go in LaTeX `\caption{}`
 - Readable axis labels (publication quality, not variable names)
 - PDF output via `ggsave()` with explicit dimensions
 
@@ -176,7 +176,7 @@ Extracted from `coder-critic.md`. Used by the coder-critic agent for code review
 
 ## Standalone Mode
 
-When invoked via `/peer-review [file.R]` or `/peer-review --code`, run categories **5-16 only** (code quality + numerical discipline). No strategy memo comparison -- just code quality and best practices.
+When invoked via `/peer-review [file.R]` or `/peer-review --code`, run categories **5-16 only** (code quality + numerical discipline). No strategy memo comparison — just code quality and best practices.
 
 ---
 

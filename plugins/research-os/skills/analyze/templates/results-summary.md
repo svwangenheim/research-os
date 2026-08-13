@@ -59,7 +59,7 @@
 ## Data Notes
 
 - **Sample size:** [N observations, N units, T periods]
-- **Period:** [start year -- end year]
+- **Period:** [start year — end year]
 - **Key exclusions:** [list sample restrictions and how many observations each drops]
 - **Missing data:** [how handled — dropped / imputed / indicator]
 - **Merge rates:** [if applicable — N matched / N total]

@@ -72,7 +72,7 @@
 - [ ] Sensitivity to outliers
 
 ## Referee Objections to Anticipate
-- "This is just descriptive" -- explain why the facts matter (revise beliefs, enable future research)
-- "Your measure is noisy / biased" -- validation evidence
-- "Why not [alternative measure]?" -- comparison
-- "So what?" -- implications for theory or policy
+- "This is just descriptive" — explain why the facts matter (revise beliefs, enable future research)
+- "Your measure is noisy / biased" — validation evidence
+- "Why not [alternative measure]?" — comparison
+- "So what?" — implications for theory or policy

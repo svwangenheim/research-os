@@ -12,17 +12,17 @@ Standard output format for domain-referee and methods-referee reports.
 
 ## Major Issues
 
-1. **[Issue title]** -- [Why it matters] -- [Suggested fix] -- **What would change my mind:** [specific evidence, test, or analysis that would resolve this concern]
+1. **[Issue title]** — [Why it matters] — [Suggested fix] — **What would change my mind:** [specific evidence, test, or analysis that would resolve this concern]
 
-2. **[Issue title]** -- [Why it matters] -- [Suggested fix] -- **What would change my mind:** [specific evidence, test, or analysis that would resolve this concern]
+2. **[Issue title]** — [Why it matters] — [Suggested fix] — **What would change my mind:** [specific evidence, test, or analysis that would resolve this concern]
 
 ---
 
 ## Minor Issues
 
-1. **[Issue]** -- [Suggested fix]
+1. **[Issue]** — [Suggested fix]
 
-2. **[Issue]** -- [Suggested fix]
+2. **[Issue]** — [Suggested fix]
 
 ---
 
@@ -48,7 +48,7 @@ Standard output format for domain-referee and methods-referee reports.
 
 ## R&R Mode Addendum (when reviewing a revision)
 
-For each concern from the prior round, score the rebuttal (1-5, see `disposition-pool.md` Anti-Sycophancy & Frame-Lock) and classify. **Resolved requires score >= 4 AND the rebuttal addresses the core critique** -- not tone, seniority, or confident phrasing:
+For each concern from the prior round, score the rebuttal (1-5, see `disposition-pool.md` Anti-Sycophancy & Frame-Lock) and classify. **Resolved requires score >= 4 AND the rebuttal addresses the core critique** — not tone, seniority, or confident phrasing:
 
 | Prior Concern | Rebuttal Score (1-5) | Status | Notes |
 |---------------|----------------------|--------|-------|
@@ -61,4 +61,4 @@ For each concern from the prior round, score the rebuttal (1-5, see `disposition
 
 ### Dialogue-Health Self-Check
 
-[Referee's brief self-audit: am I conceding on evidence or on tone? Am I moving goalposts? Did the author narrow the claim to dodge the concern? -- see `disposition-pool.md`.]
+[Referee's brief self-audit: am I conceding on evidence or on tone? Am I moving goalposts? Did the author narrow the claim to dodge the concern? — see `disposition-pool.md`.]

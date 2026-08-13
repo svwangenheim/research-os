@@ -1,8 +1,8 @@
-# AI-Use Disclosure Statement -- Venue-Family Templates
+# AI-Use Disclosure Statement — Venue-Family Templates
 
 Used by `/submit ai-disclosure`. Pick the family matching the target venue; fall back to Generic if unlisted, and flag that the user should verify against the venue's actual current policy (these policies change often).
 
-**Ground every statement in fact.** Fill `[stage: yes/no]` from `passport.yaml` `pipeline.stages` and `00_admin/process/journal.md` -- never claim a stage that didn't run, never omit one that did.
+**Ground every statement in fact.** Fill `[stage: yes/no]` from `passport.yaml` `pipeline.stages` and `00_admin/process/journal.md` — never claim a stage that didn't run, never omit one that did.
 
 ---
 
@@ -32,7 +32,7 @@ Placement: footnote or brief note in the abstract page.
 
 ## Generic Fallback (venue policy not found)
 
-> This work was prepared with AI assistance for [stage list, reconstructed from `passport.yaml`]. The author(s) reviewed all AI-assisted content, verified all quantitative claims against underlying data and analysis, and take full responsibility for the final manuscript. **[Verify the target venue's current AI-disclosure policy before submission -- this statement uses generic language, not a venue-specific requirement.]**
+> This work was prepared with AI assistance for [stage list, reconstructed from `passport.yaml`]. The author(s) reviewed all AI-assisted content, verified all quantitative claims against underlying data and analysis, and take full responsibility for the final manuscript. **[Verify the target venue's current AI-disclosure policy before submission — this statement uses generic language, not a venue-specific requirement.]**
 
 ---
 
@@ -44,7 +44,7 @@ Placement: footnote or brief note in the abstract page.
 | strategy (`/strategize`) | Identification-strategy / theory drafting |
 | analysis (`/analyze`) | Code generation and statistical analysis |
 | writing (`/write`) | Manuscript drafting and language editing |
-| review (`/peer-review`) | Internal review/critique (not the journal's own peer review -- do not conflate) |
+| review (`/peer-review`) | Internal review/critique (not the journal's own peer review — do not conflate) |
 | revision (`/revise`) | Response-letter drafting |
 
-Never disclose "peer review" in a way that could be read as claiming the *journal's* peer review process itself used AI -- `/peer-review` here is research-os's internal quality-control step, not a substitute for or component of the venue's editorial process. Make that distinction explicit if there's any risk of confusion.
+Never disclose "peer review" in a way that could be read as claiming the *journal's* peer review process itself used AI — `/peer-review` here is research-os's internal quality-control step, not a substitute for or component of the venue's editorial process. Make that distinction explicit if there's any risk of confusion.

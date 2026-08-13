@@ -14,7 +14,7 @@
 - "Who is affected? By what?"
 - "What is the counterfactual?"
 
-**Red flag:** "I want to see if X is related to Y" -- needs sharpening into a causal or descriptive question.
+**Red flag:** "I want to see if X is related to Y" — needs sharpening into a causal or descriptive question.
 
 ---
 

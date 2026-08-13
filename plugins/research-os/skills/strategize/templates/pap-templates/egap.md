@@ -172,7 +172,7 @@ Show MDE for alternative assumptions:
 |-----------|------|
 | EGAP registration | [date] |
 | Baseline | [date] |
-| Intervention | [start -- end] |
+| Intervention | [start — end] |
 | Endline | [date] |
 | Analysis and write-up | [date] |
 

@@ -29,7 +29,7 @@ If treatment timing varies across units, a heterogeneity-robust estimator is req
 | Sun-Abraham (2021) | Interaction-weighted | `fixest::sunab()` |
 | Borusyak-Jaravel-Spiess (2024) | Imputation | `didimputation` |
 
-**Never use naive TWFE event study with staggered treatment** -- it produces contaminated estimates (pre-treatment coefficients can be non-zero even if parallel trends holds).
+**Never use naive TWFE event study with staggered treatment** — it produces contaminated estimates (pre-treatment coefficients can be non-zero even if parallel trends holds).
 
 ## Endpoint Binning
 - [ ] Bin distant leads: combine $e \leq -L$ into a single indicator

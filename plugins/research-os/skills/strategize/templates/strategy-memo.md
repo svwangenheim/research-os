@@ -45,7 +45,7 @@ $$
 
 **Pseudo-code:**
 ```r
-# [Implementation sketch -- not production code, but precise enough for the coder]
+# [Implementation sketch — not production code, but precise enough for the coder]
 model <- att_gt(
   yname = "outcome",
   tname = "year",

@@ -1,6 +1,6 @@
 # Pre-Strategy Report Template
 
-**Purpose:** The strategist produces this report before proposing any strategy. It proves the discovery inputs (research spec, literature review, data assessment, domain profile) were loaded. If an input is missing, flag it -- do not silently assume.
+**Purpose:** The strategist produces this report before proposing any strategy. It proves the discovery inputs (research spec, literature review, data assessment, domain profile) were loaded. If an input is missing, flag it — do not silently assume.
 
 ---
 

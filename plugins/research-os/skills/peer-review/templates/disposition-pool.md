@@ -23,15 +23,15 @@ Each referee gets ONE disposition that shapes their intellectual prior:
 
 ## Referee Pet Peeves
 
-Each referee gets TWO pet peeves -- one critical, one constructive -- drawn from the pools below.
+Each referee gets TWO pet peeves — one critical, one constructive — drawn from the pools below.
 
 ### Critical Pet Peeves (one per referee)
 
 - "Wants at least 5 robustness specifications"
 - "Checks every table for correct clustering"
 - "Demands a formal theoretical model even for reduced-form papers"
-- "Suspicious of results that are too clean -- wants to see failures"
-- "Fixated on sample selection -- wants every filter justified"
+- "Suspicious of results that are too clean — wants to see failures"
+- "Fixated on sample selection — wants every filter justified"
 - "Counts hedging words and deducts for each one"
 - "Insists on discussing what the null result would mean"
 - "Demands comparison with at least one alternative estimator"
@@ -40,18 +40,18 @@ Each referee gets TWO pet peeves -- one critical, one constructive -- drawn from
 - "Wants to see raw data patterns before any regression"
 - "Insists on discussing external validity for 2+ paragraphs"
 - "Demands event study plot even when not doing DiD"
-- "Questions every variable definition -- wants exact survey wording"
+- "Questions every variable definition — wants exact survey wording"
 - "Wants the author to address every paper in the related literature"
 - "Insists on seeing first-stage F-statistics reported for every specification"
 - "Demands Oster bounds or equivalent sensitivity analysis"
 - "Wants leave-one-out analysis to check no single unit drives results"
-- "Obsessed with power calculations -- underpowered studies get hammered"
+- "Obsessed with power calculations — underpowered studies get hammered"
 - "Demands authors explain why they didn't use a structural model"
 - "Wants placebo tests on every possible fake treatment timing"
 - "Insists on separate tables for men and women regardless of topic"
-- "Checks whether standard errors are larger than the coefficient -- flags any t-stat between 1.96 and 2.5 as suspicious"
+- "Checks whether standard errors are larger than the coefficient — flags any t-stat between 1.96 and 2.5 as suspicious"
 - "Wants Bonferroni correction the moment they see more than one outcome"
-- "Demands authors justify every control variable -- no kitchen sink"
+- "Demands authors justify every control variable — no kitchen sink"
 - "Wants to see balance tables even for non-experimental designs"
 - "Asks why the author didn't use machine learning for variable selection"
 
@@ -61,7 +61,7 @@ Each referee gets TWO pet peeves -- one critical, one constructive -- drawn from
 - "Appreciates clever use of data or natural experiments"
 - "Values clear, direct writing and rewards it in scoring"
 - "Excited by novel datasets or measurement approaches"
-- "Focuses on the big picture -- forgives minor issues if the contribution is strong"
+- "Focuses on the big picture — forgives minor issues if the contribution is strong"
 - "Gives credit for thorough robustness even if not all checks pass"
 - "Appreciates creative visualization and clear figures"
 - "Values replication and extension of important prior work"
@@ -75,7 +75,7 @@ Each referee gets TWO pet peeves -- one critical, one constructive -- drawn from
 - "Appreciates when authors test their own assumptions and report failures"
 - "Gives credit for transparent sample construction documentation"
 - "Values papers that bring new data to old questions"
-- "Appreciates concise papers -- rewards brevity over padding"
+- "Appreciates concise papers — rewards brevity over padding"
 - "Gives credit for code availability and replication packages"
 - "Values creative falsification tests beyond standard pre-trends"
 - "Appreciates when authors connect findings back to theory"
@@ -90,7 +90,7 @@ Reject WITHOUT sending to referees if ANY apply:
 - **Wrong fit:** The paper doesn't belong at this journal (topic, scope, audience)
 - **No clear contribution:** After reading the intro, you can't state what's new in one sentence
 - **Fatal design flaw visible from the intro:** The identification strategy is obviously flawed
-- **Below the bar:** The paper is competent but incremental -- not enough for this journal
+- **Below the bar:** The paper is competent but incremental — not enough for this journal
 - **Already done:** The contribution has already been published (cite the paper)
 
 ---
@@ -115,7 +115,7 @@ For every major comment from both referees, classify:
 | One FATAL concern, but you judge it addressable with significant work | **Major Revisions** |
 | Multiple FATAL concerns | **Reject** |
 | Both referees explicitly recommend accept | **Accept** (rare in first round) |
-| Referees fundamentally disagree on contribution | **Your call** -- explain your reasoning |
+| Referees fundamentally disagree on contribution | **Your call** — explain your reasoning |
 
 ---
 
@@ -125,14 +125,14 @@ This is where the editor earns their role:
 - State clearly what each referee thinks
 - Take a side and explain why
 - Your reasoning matters more than either referee's score
-- A hostile referee's concerns may be valid or may be TASTE -- you decide
+- A hostile referee's concerns may be valid or may be TASTE — you decide
 
 ---
 
 ## R&R Round Escalation
 
 - **Round 2:** Accept, Minor Revisions, or Major Revisions (if new issues surfaced). Reject if original concerns unaddressed.
-- **Round 3:** Accept, Minor Revisions, or Reject only. No more Major Revisions -- the authors have had enough chances. If it's not ready after 3 rounds, reject and suggest resubmission elsewhere.
+- **Round 3:** Accept, Minor Revisions, or Reject only. No more Major Revisions — the authors have had enough chances. If it's not ready after 3 rounds, reject and suggest resubmission elsewhere.
 - **Round 4+:** Does not exist. Max 3 rounds. Real journals lose patience too.
 
 ---
