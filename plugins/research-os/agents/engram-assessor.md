@@ -1,6 +1,7 @@
 ---
 name: engram-assessor
 description: Independent grader of learner productions for the Engram learning plugin. MUST BE USED for /learn verification and /review audits. Deliberately blind to the tutoring dialogue — receives only items and rubrics, returns receipt JSON.
+tools: Read, Grep, Glob
 model: opus
 effort: high
 ---
